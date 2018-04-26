@@ -12,7 +12,7 @@
 #define SERVERPORT "1313"
 
 int main(int argc, char *argv[]){
-	int sokfd;
+	int sockfd;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
