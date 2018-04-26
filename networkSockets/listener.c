@@ -66,6 +66,11 @@ int main(void){
 	s, sizeof s));
 	printf("listener: packet is %d bytes long\n", numbytes);
 	buf[numbytes] = '\0';
+	char x;
+	for(int i; i < MAXBUFLEN && buf[i] != '\0'; i++){
+		x = buf[i];
+		printf(x, "\n");
+	}
 	printf("listener: packet contains \"%s\"\n", buf);
 	close(sockfd);
 	return 0;
