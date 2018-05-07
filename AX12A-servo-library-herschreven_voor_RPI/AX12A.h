@@ -150,9 +150,10 @@ private:
 	int read_error(void);
 
 	int fd;
+	const char* varSerial;
 
 public:
-	void begin(long baud, unsigned char directionPin, std::string srl);
+	void begin(long baud, unsigned char directionPin, const char* srl);
 	void end(void);
 	
 	int reset(unsigned char ID);
@@ -199,6 +200,8 @@ public:
 	void sendAXPacketNoError(unsigned char *packet, unsigned int length);
 
 	int readRegister(unsigned char ID, unsigned char reg, unsigned char reg_len);
+	
+	~AX12A(){ delete varSerial; };
 };
 
 #endif

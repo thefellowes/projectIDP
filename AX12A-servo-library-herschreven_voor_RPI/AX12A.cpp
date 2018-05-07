@@ -52,14 +52,14 @@ int AX12A::read_error(void)
 				return (Error_Byte);
 		}
 	}
-	return (-1);											 // No Ax Response
+	return (-1);											// No Ax Response
 }
 
 // Public Methods /////////////////////////////////////////////////////////////
 
-void AX12A::begin(long baud, unsigned char directionPin, std::string srl)	//for RPi3 srl is: "/dev/ttys0")
+void AX12A::begin(long baud, unsigned char directionPin, const char* srl)	//for RPi3 srl is: "/dev/ttys0")
 {
-	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/
+	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	varSerial = srl;
