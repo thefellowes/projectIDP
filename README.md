@@ -1,3 +1,22 @@
 # Project IDP
-An university project
-Blergh
+<div class="blogPost">
+  <h3 style="text-align:center;">An university project</h3>
+  <p style="float:left; width:40%;">Blergh<p>
+  <img style="float:right; width:40$;" src="#">
+  <div style="clear:both;"></div>
+</div>
+<hr>
+<div class="blogPost">
+  <h3 style="text-align:center;">An university project</h3>
+  <p style="float:left; width:40%;">Blergh<p>
+  <img style="float:right; width:40$;" src="#">
+  <div style="clear:both;"></div>
+</div>
+<hr>
+<div class="blogPost">
+  <h3 style="text-align:center;">An university project</h3>
+  <p style="float:left; width:40%;">Blergh<p>
+  <img style="float:right; width:40$;" src="#">
+  <div style="clear:both;"></div>
+</div>
+<hr>
