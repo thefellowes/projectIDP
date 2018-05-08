@@ -1,28 +1,123 @@
-#include "ssd1306.h"
-#include "nano_gfx.h"
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
 #include "Ogenbmp.h"
 
-#ifdef SSD1306_SPI_SUPPORTED
-    #include <SPI.h>
+
+#define OLED_RESET 4
+#define AMOUNT_OF_SLIDES 12
+#define NUMFLAKES 10
+#define XPOS 0
+#define YPOS 1
+#define DELTAY 2
+
+
+Adafruit_SSD1306 display_1(OLED_RESET);
+Adafruit_SSD1306 display_2(OLED_RESET);
+int i = 0;
+
+#if (SSD1306_LCDHEIGHT != 64)
+#error("Height incorrect, please fix Adafruit_SSD1306.h!, change #define SSD1306_128_32 to #define SSD1306_128_64");
 #endif
 
-static void show_bmp()
-{
-    ssd1306_drawBitmap(0, 0, 128, 64, Oog);
-    ssd1306_invertMode();
-}
 
 void setup()
 {
-    /* Select the font to use with menu and all font functions */
-    ssd1306_setFixedFont(ssd1306xled_font6x8);
+  i = 0;
+  Serial.begin(9600);
+  //led
+  pinMode(6, OUTPUT);
+  digitalWrite(6, HIGH);
+  
+  display_1.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C 
+  display_2.begin(SSD1306_SWITCHCAPVCC, 0x3D);
 
-    ssd1306_128x64_i2c_init();
+  // show splashscreen
+  display_1.display();
+  display_2.display();
+  delay(200);
 
-    ssd1306_fillScreen( 0x00 );
+  // clear display buffers
+  display_1.clearDisplay();
+  display_2.clearDisplay();
+
+  Serial.print("setup complete");
+
+  display_1.drawBitmap(0, 0,  Oog_0, 128, 64, 1);
+  display_2.drawBitmap(0, 0,  Oog_0, 128, 64, 1);
+  display_1.display();
+  display_2.display();
 }
+
 
 void loop()
 {
-  show_bmp();
+  Serial.print(i);
+  int op = i;
+  switch(op) {
+    case 0:
+        display_1.drawBitmap(0, 0, Oog_0, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_0, 128, 64, 1);
+        break;
+    case 1:
+        display_1.drawBitmap(0, 0, Oog_1, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_1, 128, 64, 1);
+        break;
+    case 2:
+        display_1.drawBitmap(0, 0, Oog_2, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_2, 128, 64, 1);
+        break;
+    case 3:
+        display_1.drawBitmap(0, 0, Oog_3, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_3, 128, 64, 1);
+        break;
+    case 4:
+        display_1.drawBitmap(0, 0, Oog_4, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_4, 128, 64, 1);
+        break;
+    case 5:
+        display_1.drawBitmap(0, 0, Oog_5, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_5, 128, 64, 1);
+        break;
+    case 6:
+        display_1.drawBitmap(0, 0, Oog_6, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_6, 128, 64, 1);
+        break;
+    case 7:
+        display_1.drawBitmap(0, 0, Oog_7, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_7, 128, 64, 1);
+        break;
+    case 8:
+        display_1.drawBitmap(0, 0, Oog_8, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_8, 128, 64, 1);
+        break;
+    case 9:
+        display_1.drawBitmap(0, 0, Oog_9, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_9, 128, 64, 1);
+        break;
+    case 10:
+        display_1.drawBitmap(0, 0, Oog_10, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_10, 128, 64, 1);
+        break;
+    case 11:
+        display_1.drawBitmap(0, 0, Oog_11, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_11, 128, 64, 1);
+        break;                                
+    default:
+        display_1.drawBitmap(0, 0, Oog_0, 128, 64, 1);
+        display_2.drawBitmap(0, 0, Oog_8, 128, 64, 1);
+  }
+  display_1.display();
+  display_2.display();
+  display_1.clearDisplay();
+  display_2.clearDisplay();
+
+  ++i;
+  if (i >= AMOUNT_OF_SLIDES) {
+    delay(2000);
+    i = 0;
+  }
+//  delay(10);
 }
