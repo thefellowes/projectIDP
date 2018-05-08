@@ -1,3 +1,15 @@
 # Project IDP
-An university project
-Blergh
+<div class="blogPost">
+  An university project
+  Blergh
+</div>
+<hr>
+<div class="blogPost">
+  An university project
+  Blergh
+</div>
+<hr>
+<div class="blogPost">
+  An university project
+  Blergh
+</div>
