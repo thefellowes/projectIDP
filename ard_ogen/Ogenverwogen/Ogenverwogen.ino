@@ -159,7 +159,7 @@ void loop()
 
   ++i;
   if (i >= AMOUNT_OF_SLIDES) {
-    delay(2000);
+    delay(3000);
     i = 0;
   }
 //  delay(10);
