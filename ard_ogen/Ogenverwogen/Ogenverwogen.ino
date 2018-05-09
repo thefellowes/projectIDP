@@ -27,9 +27,9 @@ void setup()
 {
   i = 0;
   Serial.begin(9600);
-  //led
-  pinMode(6, OUTPUT);
-  digitalWrite(6, HIGH);
+//  //led
+//  pinMode(6, OUTPUT);
+//  digitalWrite(6, HIGH);
   
   display_1.begin(SSD1306_SWITCHCAPVCC, 0x3D);  // initialize with the I2C addr 0x3C 
   display_2.begin(SSD1306_SWITCHCAPVCC, 0x3C);
