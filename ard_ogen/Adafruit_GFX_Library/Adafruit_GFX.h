@@ -74,6 +74,7 @@ class Adafruit_GFX : public Print {
       int16_t w, int16_t h, uint16_t color, uint16_t bg),
     drawXBitmap(int16_t x, int16_t y, const uint8_t bitmap[],
       int16_t w, int16_t h, uint16_t color),
+    drawMirroredBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color),
     drawGrayscaleBitmap(int16_t x, int16_t y, const uint8_t bitmap[],
       int16_t w, int16_t h),
     drawGrayscaleBitmap(int16_t x, int16_t y, uint8_t *bitmap,

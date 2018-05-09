@@ -479,6 +479,23 @@ void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
 }
 
 // Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
+// using the specified foreground color (unset bits are transparent).
+// mirrored version of the above
+void Adafruit_GFX::drawMirroredBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color) {
+    int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
+    uint8_t byte = 0;
+    x = w-1;
+    startWrite();
+    for(int16_t j=0; j<h; j++, y++) {
+        for(int16_t i=0; i<w; i++) {
+            if(i & 7) byte <<= 1;
+            else      byte   = pgm_read_byte(&bitmap[j * byteWidth + i / 8]);
+            if(byte & 0x80) writePixel(x-i, y, color);
+        }
+    }
+    endWrite();
+}
+// Draw a PROGMEM-resident 1-bit image at the specified (x,y) position,
 // using the specified foreground (for set bits) and background (unset
 // bits) colors.
 void Adafruit_GFX::drawBitmap(int16_t x, int16_t y,
