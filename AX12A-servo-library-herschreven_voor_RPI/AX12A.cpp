@@ -1031,4 +1031,4 @@ int AX12A::readRegister(unsigned char ID, unsigned char reg, unsigned char reg_l
 	return (returned_Byte);     // Returns the read position
 }
 
-AX12A ax12a;
+//AX12A ax12a;

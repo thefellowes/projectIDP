@@ -200,8 +200,6 @@ public:
 	void sendAXPacketNoError(unsigned char *packet, unsigned int length);
 
 	int readRegister(unsigned char ID, unsigned char reg, unsigned char reg_len);
-	
-	~AX12A(){ delete varSerial; };
 };
 
 #endif
