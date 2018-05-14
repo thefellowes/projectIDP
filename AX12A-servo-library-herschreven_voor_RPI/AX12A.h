@@ -1,7 +1,7 @@
 //Original code can be found here: https://github.com/ThingType/AX-12A-servo-library/tree/master/src
 
-#ifndef AX12A_h
-#define AX12A_h
+#ifndef AX12A_H
+#define AX12A_H
 
 	// EEPROM AREA  ///////////////////////////////////////////////////////////
 #define AX_MODEL_NUMBER_L           0
@@ -114,13 +114,7 @@
 #define RX_MODE                     0
 #define LOCK                        1
 
-#include <inttypes.h>
-#include <string>
-#include <wiringPi.h>
-#include <wiringSerial.h>
-#include <thread>
-#include <chrono>
-#include <unistd.h>
+#include "serial.h"
 
 class AX12A {
 private:
@@ -149,8 +143,7 @@ private:
 
 	int read_error(void);
 
-	int fd;
-	const char* varSerial;
+	Serial serial;
 
 public:
 	void begin(long baud, unsigned char directionPin, const char* srl);

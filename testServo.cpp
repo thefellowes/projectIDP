@@ -1,11 +1,14 @@
-//Compile with: g++ -o testServo testServo.cpp AX12A.cpp -lwiringPi
+//Compile with: g++ -o testServo testServo.cpp AX12A.cpp serial.cpp -lwiringPi
 
-#include "AX12A.h"
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
+#include <thread>
+#include <chrono>
 
-#define DirectionPin 	(8u)
+#include "AX12A.h"
+
+#define DirectionPin 	(18u)
 #define BaudRate		(1000000ul)
 #define ID				(61u)
 #define ID1				(12u)
@@ -19,7 +22,7 @@ int main()
 	int reg, reg1, reg2, ret = 0;
 	AX12A ax12a;
 	
-	srand (time(NULL));
+	//srand (time(NULL));
 	
 	std::cout << "BaudRate: " << BaudRate << std::endl;
 	std::cout << "DirectionPin: " << DirectionPin << std::endl;
@@ -28,46 +31,41 @@ int main()
 	//std::cout << "return values of move:" << std::endl;
 
 	ax12a.begin(BaudRate, DirectionPin, Serial);
-	ax12a.setEndless(ID, OFF);
- 	ret = ax12a.move(ID,512);
-	std::cout << ID << ": " << ret << std::endl;
+
+	//int pos1 = 1023;
+	//int	pos2 = 0;
+
+	//ax12a.moveSpeed(ID1, pos1, 100);
+	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	//int pos = ax12a.readPosition(ID1);
+	//while (pos != pos1) {
+	//	pos = ax12a.readPosition(ID1);
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	//}
+
+	//ax12a.moveSpeed(ID1, pos2, 1023);
+
+	ret = ax12a.readVoltage(ID);
+	std::cout << "vol: "<< ret << std::endl;
+
+	EndlessMode:
+	ax12a.setEndless(ID, true);
 	delay(200);
-	/* ret = ax12a.move(ID2,512);
-	std::cout << ID2 << ": " << ret << std::endl;
+	ax12a.turn(ID, LEFT, 500);
+	delay(5000);
+	ax12a.turn(ID, LEFT, 0);
+
+	ax12a.setEndless(ID1, true);
 	delay(200);
-	ret = ax12a.move(ID1,512);
-	std::cout << ID1 << ": " << ret << std::endl;
-	delay(200); */
-	
-	//ping
-	/* ret = ax12a.ping(ID);
-	std::cout << "Ping: " << ret << std::endl;
-	delay(200); */
+	ax12a.turn(ID1, LEFT, 500);
+	delay(5000);
+	ax12a.turn(ID1, LEFT, 0);
 
-	/* for(int i = 0; i < 2; i++)
-	{
-		std::cout << "return values of move:" << std::endl;
-		
-		ret = ax12a.move(ID, rand() % 1023);//random(0,1023)
-		std::cout << ID << ": " << ret << std::endl;
-		delay(300);
-		ret = ax12a.move(ID1, rand() % 512);//random(0,512)
-		std::cout << ID1 << ": " << ret << std::endl;
-		delay(300);
-		ret = ax12a.move(ID2, 512 + rand() % (1020-512));//random(512,1020)
-		std::cout << ID2 << ": " << ret << std::endl;
-		delay(300);
-		
-		std::cout << "readPositions:" << std::endl;
-
-		reg = ax12a.readPosition(ID);
-		reg1 = ax12a.readPosition(ID1);
-		reg2 = ax12a.readPosition(ID2);
-
-		std::cout << reg << std::endl;
-		std::cout << reg1 << std::endl;
-		std::cout << reg2 << std::endl;
-	} */
+	ax12a.setEndless(ID2, true);
+	delay(200);
+	ax12a.turn(ID2, LEFT, 500);
+	delay(5000);
+	ax12a.turn(ID2, LEFT, 0);
 	
 	ax12a.end();
 	

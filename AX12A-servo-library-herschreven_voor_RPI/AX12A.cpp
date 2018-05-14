@@ -1,32 +1,13 @@
 //Original code can be found here: https://github.com/ThingType/AX-12A-servo-library/tree/master/src
 
+#include <inttypes.h>
+#include <string>
+#include <thread>
+#include <chrono>
+#include <unistd.h>
+#include <wiringPi.h>
+
 #include "AX12A.h"
-
-int serialPeek(const int fd)
-{
-	uint8_t c;
-
-	FILE * f = fdopen(fd, "r+");
-	c = getc(f);
-	ungetc(c, f);
-
-	return ((int)c) & 0xFF;
-}
-
-// Macros /////////////////////////////////////////////////////////////////////
-
-#define sendData(packet, length)  	(write(fd, packet, length))					// Write Over Serial
-#define flush()						(serialFlush(fd))							// Wait until buffer empty
-#define availableData() 			(serialDataAvail(fd))						// Check Serial Data Available
-#define readData()      			(serialGetchar(fd))							// Read Serial Data
-#define peekData()      			(serialPeek(fd))							// Peek Serial Data
-#define beginCom(args)  			(serialOpen(varSerial, args))				// Begin Serial Comunication
-#define endCom()        			(serialClose(fd))							// End Serial Comunication
-
-#define setDPin(DirPin,Mode)   		(pinMode(DirPin,Mode))						// Select the Switch to TX/RX Mode Pin
-#define switchCom(DirPin,Mode) 		(digitalWrite(DirPin,Mode))					// Switch to TX/RX Mode
-
-#define delayus(args) 				(std::this_thread::sleep_for(std::chrono::microseconds(args)))	// Delay Microseconds
 
 // Private Methods ////////////////////////////////////////////////////////////
 
@@ -34,21 +15,21 @@ int AX12A::read_error(void)
 {
 	
 	Time_Counter = 0;
-	while((availableData() < 5) & (Time_Counter < TIME_OUT)) // Wait for Data
+	while((serial.availableData() < 5) & (Time_Counter < TIME_OUT)) // Wait for Data
 	{
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
 	}
-	
-	while (availableData() > 0)
+
+	while (serial.availableData() > 0)
 	{
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                                    // Start Bytes
-			readData();                                    // Ax-12 ID
-			readData();                                    // Length
-			Error_Byte = readData();                       // Error
+			serial.readData();                                    // Start Bytes
+			serial.readData();                                    // Ax-12 ID
+			serial.readData();                                    // Length
+			Error_Byte = serial.readData();                       // Error
 				return (Error_Byte);
 		}
 	}
@@ -57,20 +38,19 @@ int AX12A::read_error(void)
 
 // Public Methods /////////////////////////////////////////////////////////////
 
-void AX12A::begin(long baud, unsigned char directionPin, const char* srl)	//for RPi3 srl is: "/dev/ttys0")
+void AX12A::begin(long baud, unsigned char directionPin, const char* srl)
 {
 	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
-	varSerial = srl;
 	Direction_Pin = directionPin;
-	setDPin(Direction_Pin, OUTPUT);
-	fd = beginCom(baud);
+	pinMode(Direction_Pin, OUTPUT);
+	serial.begin(srl, baud);
 }
 
 void AX12A::end()
 {
-	endCom();
+	serial.end();
 }
 
 int AX12A::reset(unsigned char ID)
@@ -418,23 +398,23 @@ int AX12A::readTemperature(unsigned char ID)
 	
     Temperature_Byte = -1;
     Time_Counter = 0;
-    while((availableData() < 6) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 6) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
-			Temperature_Byte = readData();         // Temperature
+			Temperature_Byte = serial.readData();         // Temperature
 		}
     }
 	return (Temperature_Byte);               // Returns the read temperature
@@ -460,25 +440,25 @@ int AX12A::readPosition(unsigned char ID)
 	
     Position_Long_Byte = -1;
 	Time_Counter = 0;
-    while((availableData() < 7) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 7) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
     
-			Position_Low_Byte = readData();            // Position Bytes
-			Position_High_Byte = readData();
+			Position_Low_Byte = serial.readData();            // Position Bytes
+			Position_High_Byte = serial.readData();
 			Position_Long_Byte = Position_High_Byte << 8; 
 			Position_Long_Byte = Position_Long_Byte + Position_Low_Byte;
 		}
@@ -506,23 +486,23 @@ int AX12A::readVoltage(unsigned char ID)
 	
     Voltage_Byte = -1;
 	Time_Counter = 0;
-    while((availableData() < 6) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 6) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
-			Voltage_Byte = readData();             // Voltage
+			Voltage_Byte = serial.readData();             // Voltage
 		}
     }
 	return (Voltage_Byte);               // Returns the read Voltage
@@ -782,23 +762,23 @@ int AX12A::moving(unsigned char ID)
 
     Moving_Byte = -1;
     Time_Counter = 0;
-    while((availableData() < 6) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 6) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                           	// Start Bytes
-			readData();                           	// Ax-12 ID
-			readData();                           	// Length
-			if( (Error_Byte = readData()) != 0 )   	// Error
+			serial.readData();                           	// Start Bytes
+			serial.readData();                           	// Ax-12 ID
+			serial.readData();                           	// Length
+			if( (Error_Byte = serial.readData()) != 0 )   	// Error
 				return (Error_Byte*(-1));
-			Moving_Byte = readData();         		// Moving
+			Moving_Byte = serial.readData();         		// Moving
 		}
     }
 	return (Moving_Byte);              				// Returns the read Moving
@@ -843,23 +823,23 @@ int AX12A::RWStatus(unsigned char ID)
 
     RWS_Byte = -1;
     Time_Counter = 0;
-    while((availableData() < 6) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 6) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            	// Start Bytes
-			readData();                            	// Ax-12 ID
-			readData();                            	// Length
-			if( (Error_Byte = readData()) != 0 )   	// Error
+			serial.readData();                            	// Start Bytes
+			serial.readData();                            	// Ax-12 ID
+			serial.readData();                            	// Length
+			if( (Error_Byte = serial.readData()) != 0 )   	// Error
 				return (Error_Byte*(-1));
-			RWS_Byte = readData();         			// RWStatus
+			RWS_Byte = serial.readData();         			// RWStatus
 		}
     }
 	return (RWS_Byte);               				// Returns the read RWStatus
@@ -885,25 +865,25 @@ int AX12A::readSpeed(unsigned char ID)
 
     Speed_Long_Byte = -1;
 	Time_Counter = 0;
-    while((availableData() < 7) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 7) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
 			
-			Speed_Low_Byte = readData();            // Position Bytes
-			Speed_High_Byte = readData();
+			Speed_Low_Byte = serial.readData();            // Position Bytes
+			Speed_High_Byte = serial.readData();
 			Speed_Long_Byte = Speed_High_Byte << 8; 
 			Speed_Long_Byte = Speed_Long_Byte + Speed_Low_Byte;
 		}
@@ -931,25 +911,25 @@ int AX12A::readLoad(unsigned char ID)
 
     Load_Long_Byte = -1;
 	Time_Counter = 0;
-    while((availableData() < 7) & (Time_Counter < TIME_OUT))
+    while((serial.availableData() < 7) & (Time_Counter < TIME_OUT))
     {
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 	
-    while (availableData() > 0)
+    while (serial.availableData() > 0)
     {
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
 			
-			Load_Low_Byte = readData();            // Position Bytes
-			Load_High_Byte = readData();
+			Load_Low_Byte = serial.readData();            // Position Bytes
+			Load_High_Byte = serial.readData();
 			Load_Long_Byte = Load_High_Byte << 8; 
 			Load_Long_Byte = Load_Long_Byte + Load_Low_Byte;
 		}
@@ -959,24 +939,26 @@ int AX12A::readLoad(unsigned char ID)
 
 int AX12A::sendAXPacket(unsigned char * packet, unsigned int length)
 {
-	switchCom(Direction_Pin, TX_MODE); 	// Switch to Transmission  Mode
+	digitalWrite(Direction_Pin, TX_MODE);		// Switch to Transmission  Mode
 
-	sendData(packet, length);			// Send data through sending buffer
-	flush(); 							// Wait until buffer is empty
+	serial.flush();								// Empty buffer
+	serial.sendData(packet, length);			// Send data through sending buffer
+	std::this_thread::sleep_for(std::chrono::microseconds(20));
 
-	switchCom(Direction_Pin, RX_MODE); 	// Switch back to Reception Mode
+	digitalWrite(Direction_Pin, RX_MODE); 		// Switch back to Reception Mode
 
-	return (read_error());              // Return the read error
+	return (read_error());						// Return the read error
 }
 
 void AX12A::sendAXPacketNoError(unsigned char * packet, unsigned int length)
 {
-	switchCom(Direction_Pin, TX_MODE); 	// Switch to Transmission  Mode
+	digitalWrite(Direction_Pin, TX_MODE);		// Switch to Transmission  Mode
 
-	sendData(packet, length);			// Send data through sending buffer
-	flush(); 							// Wait until buffer is empty
+	serial.flush(); 							// Empty buffer
+	serial.sendData(packet, length);			// Send data through sending buffer
+	std::this_thread::sleep_for(std::chrono::microseconds(20));
 
-	switchCom(Direction_Pin, RX_MODE); 	// Switch back to Reception Mode
+	digitalWrite(Direction_Pin, RX_MODE); 		// Switch back to Reception Mode
 }
 
 int AX12A::readRegister(unsigned char ID, unsigned char reg, unsigned char reg_len)
@@ -999,36 +981,34 @@ int AX12A::readRegister(unsigned char ID, unsigned char reg, unsigned char reg_l
 
 	returned_Byte = -1;
 	Time_Counter = 0;
-	while((availableData() < 7) & (Time_Counter < TIME_OUT))
+	while((serial.availableData() < 7) & (Time_Counter < TIME_OUT))
 	{
 		Time_Counter++;
-		delayus(1000);
+		std::this_thread::sleep_for(std::chrono::microseconds(1000));
 	}
 
-	while (availableData() > 0)
+	while (serial.availableData() > 0)
 	{
-		Incoming_Byte = readData();
-		if ( (Incoming_Byte == 255) & (peekData() == 255) )
+		Incoming_Byte = serial.readData();
+		if ( (Incoming_Byte == 255) & (serial.peekData() == 255) )
 		{
-			readData();                            // Start Bytes
-			readData();                            // Ax-12 ID
-			readData();                            // Length
-			if( (Error_Byte = readData()) != 0 )   // Error
+			serial.readData();                            // Start Bytes
+			serial.readData();                            // Ax-12 ID
+			serial.readData();                            // Length
+			if( (Error_Byte = serial.readData()) != 0 )   // Error
 				return (Error_Byte*(-1));
 
 			switch (reg_len)
 			{
 				case 1:
-					returned_Byte = readData();
+					returned_Byte = serial.readData();
 					break;
 				case 2:
-					returned_Byte = readData();
-					returned_Byte += readData() << 8;
+					returned_Byte = serial.readData();
+					returned_Byte += serial.readData() << 8;
 				break;
 			}
 		}
 	}
 	return (returned_Byte);     // Returns the read position
 }
-
-//AX12A ax12a;
