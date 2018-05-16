@@ -121,8 +121,6 @@ int main(void){
 		s, sizeof s));
 		printf("listener: packet is %d bytes long\n", numbytes);
 		buf[numbytes] = '\0';
-		char x;
-		int lorem;
 
 		char** tokenSwitch;
 		tokenSwitch = str_split(buf, '\n');
