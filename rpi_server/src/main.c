@@ -122,19 +122,34 @@ int main(void){
 		int lorem;
 
 		char** tokenSwitch;
-		tokenSwitch = str_split(buf, ';');
+		tokenSwitch = str_split(buf, '\n');
 
 		if(tokenSwitch){
 			int i;
 			for(i = 0; *(tokenSwitch + i); i++){
-				printf("%s\n", *(tokenSwitch + i));
-				free(*(tokenSwitch + i));
+				switch (*(tokenSwitch + i)[0]) {
+					case 'X':
+					case 'x':
+						printf("x is:  %s\n", *(tokenSwitch + i));
+						break;
+					case 'Y':
+					case 'y':
+						printf("y is:  %s\n", *(tokenSwitch + i));
+						break;
+					case 'A':
+					case 'a':
+						printf("a is:  %s\n", *(tokenSwitch + i));
+						break;
+					case 'B':
+					case 'b':
+						printf("b is:  %s\n", *(tokenSwitch + i));
+						break;
+					default:
+						printf("unclassified token: %s\n", *(tokenSwitch + i));
+				}
 			}
-			printf("\n");
 			free(tokenSwitch);
 		}
-
-		// printf("listener: packet contains \"%s\"\n", buf);
 	}
 	
 	close(sockfd);
