@@ -1,84 +1,139 @@
-/*                   __
-  ___ ___      __   /\_\    ___
-/' __` __`\  /'__`\ \/\ \ /' _ `\
-/\ \/\ \/\ \/\ \L\.\_\ \ \/\ \/\ \
-\ \_\ \_\ \_\ \__/.\_\\ \_\ \_\ \_\
- \/_/\/_/\/_/\/__/\/_/ \/_/\/_/\/_/
-*/
-
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netdb.h>
 #include <arpa/inet.h>
+#include <netdb.h>
+#include <assert.h>
 
-#include "dbg.h"
-#include "init.h"
-
-#define PORT 1313
-#define BACKLOG 10 // how many pending connections queue will hold
-#define MAXDATASIZE 100 // max number of bytes we can get at once
-
-
-/*
- * get sockaddr, either IPv4 or IPv6:
- */
-void *get_in_addr(struct sockaddr *sa)
-{
+#define MYPORT "1313" // the port users will be connecting to
+#define MAXBUFLEN 100
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa){
 	if (sa->sa_family == AF_INET) {
 		return &(((struct sockaddr_in*)sa)->sin_addr);
 	}
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-
-/*
- * get the port from the cli-arguments or from the pre-defined standard port
- */
-int get_port(int argc, char const *argv[])
+char** str_split(char* a_str, const char a_delim)
 {
-	if (argc < 2)
-		return PORT;
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = a_str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = a_delim;
+    delim[1] = 0;
 
-	return atoi(argv[1]);
+    /* Count how many elements will be extracted. */
+    while (*tmp)
+    {
+        if (a_delim == *tmp)
+        {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+
+    /* Add space for trailing token. */
+    count += last_comma < (a_str + strlen(a_str) - 1);
+
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. */
+    count++;
+
+    result = malloc(sizeof(char*) * count);
+
+    if (result)
+    {
+        size_t idx  = 0;
+        char* token = strtok(a_str, delim);
+
+        while (token)
+        {
+            assert(idx < count);
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        assert(idx == count - 1);
+        *(result + idx) = 0;
+    }
+
+    return result;
 }
 
-
-int main(int argc, char const *argv[])
-{
-	u_short port = get_port(argc, argv);
-	int server_sock = -1;
-	int client_sock = -1;
+int main(void){
+	int sockfd;
+	struct addrinfo hints, *servinfo, *p;
+	int rv;
+	int numbytes;
 	struct sockaddr_storage their_addr;
-	socklen_t sin_size;
+	char buf[MAXBUFLEN];
+	socklen_t addr_len;
 	char s[INET6_ADDRSTRLEN];
-
-	server_sock = init(port);
-	printf("server: listening on port %d...\n", port);
-
-	while(1) {
-		sin_size = sizeof their_addr;
-		client_sock = accept(server_sock, (struct sockaddr *)&their_addr, &sin_size);
-
-		if (client_sock == -1) {
-			perror("accept");
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_flags = AI_PASSIVE; // use my IP
+	if ((rv = getaddrinfo(NULL, MYPORT, &hints, &servinfo)) != 0) {
+		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+		return 1;
+	}
+	
+	// loop through all the results and bind to the first we can
+	for(p = servinfo; p != NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype,
+		p->ai_protocol)) == -1) {	
+			perror("listener: socket");
 			continue;
 		}
-
-		// print info about incoming request
-		inet_ntop(their_addr.ss_family,	get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
-		printf("server: got connection from %s\n", s);
-
-		// handle_request(client_sock);
-		// pool.enqueue(std::bind(handle_request, client_sock));
+		if (bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+			close(sockfd);
+			perror("listener: bind");
+			continue;
+		}
+		break;
 	}
-
-	close(server_sock);
-	return 1;
+	if (p == NULL) {
+		fprintf(stderr, "listener: failed to bind socket\n");
+		return 2;
+	}
+	freeaddrinfo(servinfo);
+	printf("listener: waiting to recvfrom...\n");
+	addr_len = sizeof their_addr;
+	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, (struct sockaddr *)&their_addr, &addr_len)) == -1) {
+		perror("recvfrom");
+		exit(1);
+	}
+	printf("listener: got packet from %s\n",
+	inet_ntop(their_addr.ss_family,
+	get_in_addr((struct sockaddr *)&their_addr),
+	s, sizeof s));
+	printf("listener: packet is %d bytes long\n", numbytes);
+	buf[numbytes] = '\0';
+	char x;
+	int lorem;
+	
+	char** tokenSwitch;
+	tokenSwitch = str_split(buf, ';');
+	
+	if(tokenSwitch){
+		int i;
+		for(i = 0; *(tokenSwitch + i); i++){
+			printf("%s\n", *(tokenSwitch + i));
+			free(*(tokenSwitch + i));
+		}
+		printf("\n");
+		free(tokenSwitch);
+	}
+	
+	printf("listener: packet contains \"%s\"\n", buf);
+	close(sockfd);
+	return 0;
 }
