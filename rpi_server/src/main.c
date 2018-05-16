@@ -10,6 +10,9 @@
 #include <netdb.h>
 #include <assert.h>
 
+#include "dbg.h"
+#include "parser.h"
+
 #define MYPORT "1313" // the port users will be connecting to
 #define MAXBUFLEN 100
 // get sockaddr, IPv4 or IPv6:
@@ -122,19 +125,11 @@ int main(void){
 		int lorem;
 
 		char** tokenSwitch;
-		tokenSwitch = str_split(buf, ';');
+		tokenSwitch = str_split(buf, '\n');
 
-		if(tokenSwitch){
-			int i;
-			for(i = 0; *(tokenSwitch + i); i++){
-				printf("%s\n", *(tokenSwitch + i));
-				free(*(tokenSwitch + i));
-			}
-			printf("\n");
-			free(tokenSwitch);
-		}
+		parse_input(tokenSwitch);
 
-		// printf("listener: packet contains \"%s\"\n", buf);
+		free(tokenSwitch);
 	}
 	
 	close(sockfd);
