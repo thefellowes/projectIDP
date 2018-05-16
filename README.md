@@ -1,17 +1,15 @@
 # Project IDP
 <div class="blogPost">
   <h3 style="text-align:center;">Maandag, 7 mei</h3>
-  ![alt text](https://cdn.discordapp.com/attachments/185375386283016192/446232100262117376/34576-BIER20IN20DE20ZON.png ":)")
   <p style="float:left; width:40%;">Na een weekje vakantie gaat groep 8 meteen weer hard aan de slag! Omdat er voor de vakantie goed is overlegd, en een goeie backlog is gemaakt, kunnen wij ons project aftrappen. De productie van onze Bert-bot, is namelijk van start gegaan. Er wordt op dit moment geprogrammeerd, ontworpen, en connecties worden gelegd<p>
-  <img style="float:right; width:40$;" src="#">
+  <img style="float:right; width:40$;" src="https://cdn.discordapp.com/attachments/185375386283016192/446232100262117376/34576-BIER20IN20DE20ZON.png">
   <div style="clear:both;"></div>
 </div>
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Maandag, 14 mei</h3>
-  ![alt text](https://cdn.discordapp.com/attachments/185375386283016192/446231198096949248/20180516_104254.jpg ":D")
   <p style="float:left; width:40%;">Nu het lange weekend voorbij is gaat groep 8 weer aan de bak! Het wekelijkse gesprek met onze mentor, David, heeft weer plaatsgevonden en is met succes afgerond, we hebben uit dit gesprek de inspirtatie gehaald om sprints te maken. De sprint voor deze week is opgehangen op het bord en wordt netjes bijgehouden.<p>
-  <img style="float:right; width:40$;" src="#">
+  <img style="float:right; width:40$;" src="https://cdn.discordapp.com/attachments/185375386283016192/446231198096949248/20180516_104254.jpg">
   <div style="clear:both;"></div>
 </div>
 <hr>
