@@ -1,22 +1,39 @@
 #include <stdio.h>
+#include <stdlib.h>
 
+#define JOY_MIDDLE 512
 
 int parse_input(char** input_data) {
     if(input_data){
-    	int i;
-    	for(i = 0; *(input_data + i); i++){
+		float x;
+		float y;
+		float a;
+		float b;
+    	for(int i = 0; *(input_data + i); i++){
     		switch (*(input_data + i)[0]) {
     			case 'x':
-    				printf("x is:  %s\n", *(input_data + i));
+					x = atof(*(input_data + i)+1);
+					x = (x - JOY_MIDDLE) / JOY_MIDDLE;
+					if(x < 0.05 && x > -0.05){x=0;}
+    				printf("x is:  %f\n", x);
     				break;
     			case 'y':
-    				printf("y is:  %s\n", *(input_data + i));
+    				y = atof(*(input_data + i)+1);
+					y = (y - JOY_MIDDLE) / JOY_MIDDLE;
+					if(y < 0.05 && y > -0.05){y=0;}
+    				printf("y is:  %f\n", y);
     				break;
     			case 'a':
-    				printf("a is:  %s\n", *(input_data + i));
+    				a = atof(*(input_data + i)+1);
+					a = (a - JOY_MIDDLE) / JOY_MIDDLE;
+					if(a < 0.05 && a > -0.05){a=0;}
+    				printf("a is:  %f\n", a);
     				break;
     			case 'b':
-    				printf("b is:  %s\n", *(input_data + i));
+    				b = atof(*(input_data + i)+1);
+					b = (b - JOY_MIDDLE) / JOY_MIDDLE;
+					if(b < 0.05 && b > -0.05){b=0;}
+					printf("b is:  %f\n", b);
     				break;
     			default:
     				printf("unclassified token: %s\n", *(input_data + i));
