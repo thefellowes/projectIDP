@@ -42,8 +42,11 @@ void setup()
 
   display_1.drawBitmap(0, 0,  Oog_0, 128, 64, 1);
   display_2.drawBitmap(0, 0,  Oog_0, 128, 64, 1);
+  display_1.invertDisplay(true);
+  display_2.invertDisplay(true);
   display_1.display();
   display_2.display();
+  
 }
 
 
