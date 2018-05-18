@@ -12,6 +12,12 @@
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
+  <h3 style="text-align:center;">Dinsdag 22 mei</h3>
+  <p style="float:left; width:40%;">Met Pinksteren achter de rug slaat groep 8 zijn slag, morgen is een "deadline" en ons doel is om onze arm met gripper af te maken zodat we het kunnen presenteren! afgelopen vrijdag is David bij onze daily standup langsgekomen om ons advies te geven.<p>
+  <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446954807408721922/Naamloos.png">
+  <div style="clear:both;"></div>
+<hr>
+<div class="blogPost">
   <h3 style="text-align:center;">An university project</h3>
   <p style="float:left; width:40%;">Bert's avonturen<p>
   <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446238460739715073/Naamloos.png">
