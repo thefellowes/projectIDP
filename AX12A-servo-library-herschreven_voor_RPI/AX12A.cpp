@@ -943,7 +943,7 @@ int AX12A::sendAXPacket(unsigned char * packet, unsigned int length)
 
 	serial.flush();								// Empty buffer
 	serial.sendData(packet, length);			// Send data through sending buffer
-	std::this_thread::sleep_for(std::chrono::microseconds(20));
+	std::this_thread::sleep_for(std::chrono::microseconds(100));
 
 	digitalWrite(Direction_Pin, RX_MODE); 		// Switch back to Reception Mode
 
@@ -956,7 +956,7 @@ void AX12A::sendAXPacketNoError(unsigned char * packet, unsigned int length)
 
 	serial.flush(); 							// Empty buffer
 	serial.sendData(packet, length);			// Send data through sending buffer
-	std::this_thread::sleep_for(std::chrono::microseconds(20));
+	std::this_thread::sleep_for(std::chrono::microseconds(100));
 
 	digitalWrite(Direction_Pin, RX_MODE); 		// Switch back to Reception Mode
 }

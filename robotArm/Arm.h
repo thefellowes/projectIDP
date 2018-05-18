@@ -7,7 +7,7 @@
 
 class Arm {
 private:
-	AX12A* ax12a;
+	AX12A ax12a;
 	std::vector<int> servoIDs;
 	float posX;
 	float posY;
@@ -17,13 +17,15 @@ private:
 	static const float rotDifference;
 	bool posPossible(int x, int y);
 public:
-	Arm(AX12a &servoControl, std::vector<int> servoIDs);
+	Arm(AX12A &servoControl, std::vector<int> servoIDs);
 	int move(float speedX, float speedY);
 	int turn(float speed);
-	void moveTo(std::vector<std::vector<int>> path);
+	void moveTo(float x, float y, float ha, int rotation);
+	//void movePath(std::vector<std::vector<float>> path);
+	void grab(bool close);
 	float getPosX();
 	float getPosY();
 	float getHeadAngle();
-}
+};
 
 #endif //ARM_H

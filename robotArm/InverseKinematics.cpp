@@ -1,10 +1,9 @@
-#include "stdafx.h"
 #include "InverseKinematics.h"
 
 //Grab these from config file in a more finalized project
-int length1 = 5;
-int length2 = 5;
-std::vector<int> defaultValues = { 0,0,150 };
+int length1 = 12;
+int length2 = 12;
+std::vector<int> defaultValues = { 200,512,512 };
 std::vector<int> constraints_min = { 0,0,0 };
 std::vector<int> constraints_max = { 1023,1023,1023 };
 
@@ -92,8 +91,8 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 	while (i < pathLength)
 	{
 		i += 0.1;
-		float perc = i / pathLength;
 		if (i > pathLength) i = pathLength;
+		float perc = i / pathLength;
 
 		// Beginning and end vector of virtual line
 		float xa = getPt(x1, bx, perc);
