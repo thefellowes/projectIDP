@@ -1,6 +1,6 @@
 CC=g++
 CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
-LIBS=
+LIBS= -lwiringPi
 PREFIX?=/usr/local
 
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
