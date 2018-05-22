@@ -1,11 +1,11 @@
 #include "InverseKinematics.h"
 
 //Grab these from config file in a more finalized project
-int length1 = 12;
-int length2 = 12;
+int length1 = 13;
+int length2 = 13;
 std::vector<int> defaultValues = { 200,512,512 };
-std::vector<int> constraints_min = { 0,0,0 };
-std::vector<int> constraints_max = { 1023,1023,1023 };
+std::vector<int> constraints_min = { 210,0,0 };
+std::vector<int> constraints_max = { 900,1023,1023 };
 
 
 // Position to Angles No Out Of Range
@@ -38,6 +38,10 @@ std::vector<int> posToAngles(float x, float y, float headAngle) {
 	float angle1 = theta * 180 / M_PI;
 	float angle2 = psi * 180 / M_PI;
 	float angle3 = headAngle - (angle1 + angle2);
+
+	if (angle1 < 0) angle1 += 360;
+	if (angle3 < -180) angle3 += 360;
+	if (angle3 > 180) angle3 -= 360;
 
 	int servoValue1 = angleToServoValue(angle1, defaultValues[0]);
 	int servoValue2 = angleToServoValue(angle2, defaultValues[1]);
@@ -88,11 +92,9 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 	bool positionPossible = true;
 	std::vector<std::vector<int>> path;
 	float i = 0;
-	while (i < pathLength)
+	while (i <= 20)
 	{
-		i += 0.1;
-		if (i > pathLength) i = pathLength;
-		float perc = i / pathLength;
+		float perc = i / 20;
 
 		// Beginning and end vector of virtual line
 		float xa = getPt(x1, bx, perc);
@@ -111,6 +113,8 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 		if (!positionPossible) positionErrorCount++;
 
 		path.push_back(servoValues);
+
+		i++;
 	}
 	if (positionErrorCount > 0) {
 		std::cout << "WARNING: " << positionErrorCount << "/" << pathLength * 10 << " positions can't be reached" << std::endl;
