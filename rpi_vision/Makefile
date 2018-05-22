@@ -1,6 +1,6 @@
-CC=gcc
+CC=g++
 CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
-LIBS=
+LIBS= $(shell pkg-config --libs --cflags opencv)
 PREFIX?=/usr/local
 
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
