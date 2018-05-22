@@ -10,11 +10,11 @@
 const int servoMinRotation = 0;
 const int servoMaxRotation = 1023;
 
-int l1 = 12;
-int l2 = 12;
+int l1 = 13;
+int l2 = 13;
 std::vector<int> defaultVal = { 200,512,512 };
-std::vector<int> constr_min = { 0,0,0 };
-std::vector<int> constr_max = { 1023,1023,1023 };
+std::vector<int> constr_min = { 210,0,0 };
+std::vector<int> constr_max = { 900,1023,1023 };
 
 const float Arm::posDifference = 0.5;	//size to change position
 const float Arm::rotDifference = 10;	//size to change rotation
@@ -108,18 +108,25 @@ void Arm::moveTo(float x, float y, float ha, int rotation)
 		rotation = servoMaxRotation;
 
 	ax12a.move(servoIDs[0], rotation);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
-	for (std::vector<int> positions : path) {
-		for (int i = 0; i < positions.size(); i++) {
-			ax12a.moveSpeed(servoIDs[i + 1], positions[i], 100);
+	int pathLength = path.size();
+	float speed;
+	std::vector<int> currentPos = path[0];
+
+	for (int p = 1; p < pathLength; p++){
+		for (int i = 0; i < path[p].size(); i++) {
+			int diff = (path[p][i] - currentPos[i]);
+			if (diff < 0) diff *= -1;
+
+			float tempVal = (diff / 1227.6) * 600;
+			speed = (tempVal * 1023) / 113.553;
+			if (speed > 1023) speed = 1023;
+
+			ax12a.moveSpeed(servoIDs[i + 1], path[p][i], (int)speed);
 		}
+		currentPos = path[p];
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
-
-	//wait to for servo's to reach position
-	//TODO:test if delaytime long enough if not change delay time depending on greatest step size
-	//std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 	posX = x;
 	posY = y;
