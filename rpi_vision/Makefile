@@ -1,7 +1,8 @@
 CC=g++
-CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
+CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
 LIBS= $(shell pkg-config --libs --cflags opencv)
 PREFIX?=/usr/local
+LDFLAGS= -g
 
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
 OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
@@ -15,12 +16,12 @@ TARGET=./build/rpi_vision
 # The Target Build
 all: build $(TARGET) tests
 
-dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
+dev: CXXFLAGS=-g -O0 -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
 dev: all
 
 $(TARGET): CXXFLAGS += -fPIC
 $(TARGET): $(OBJECTS) $(DEPS)
-	$(CC) $^ $(CFLAGS) $(LIBS) -o $@
+	$(CC) $^ $(CXXFLAGS) $(LIBS) -o $@
 
 build:
 	@mkdir -p build

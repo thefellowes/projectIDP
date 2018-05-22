@@ -1,14 +1,14 @@
-CC=gcc
-CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
+CC=g++
+CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
 LIBS=
 PREFIX?=/usr/local
 
-SOURCES=$(wildcard src/**/*.c src/*.c)
-OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
+SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
+OBJECTS=$(patsubst %.cpp,%.o,$(SOURCES))
 DEPS=$(wildcard src/**/*.h src/*.h)
 
 TEST_SRC=$(wildcard tests/*_tests.cpp)
-TESTS=$(patsubst %.c,%,$(TEST_SRC))
+TESTS=$(patsubst %.cpp,%,$(TEST_SRC))
 
 TARGET=./build/rpi_server
 
@@ -20,7 +20,7 @@ dev: all
 
 $(TARGET): CXXFLAGS += -fPIC
 $(TARGET): $(OBJECTS) $(DEPS)
-	$(CC) $^ $(CFLAGS) $(LIBS) -o $@
+	$(CC) $^ $(CXXFLAGS) $(LIBS) -o $@
 
 build:
 	@mkdir -p build
