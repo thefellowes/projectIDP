@@ -63,7 +63,7 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	posY = l1 + l2;
 	posRotation = 512;
 	headAngle = 180.0;
-	currentPosServos = { 0, 0, 0 };
+	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
 	ax12a.move(servoIDs[0], posRotation);
@@ -81,6 +81,15 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+std::vector<int> Arm::getArmServoPositions() {
+	//DO THIS THROUGH A LOOP FOR VARIABLE ARMLENGTH
+	int baseServo = ax12a.readPosition(servoIDs[1]);
+	int jointServo = ax12a.readPosition(servoIDs[2]);
+	int headServo = ax12a.readPosition(servoIDs[3]);
+
+	return { baseServo, jointServo, headServo };
 }
 
 // speedX and speedY variable between -1.0 and 1.0
@@ -103,7 +112,7 @@ int Arm::move(float speedX, float speedY)
 		//extra check if position is possible
 		if (newPosPossible) {
 			for (int i = 0; i < newPos.size(); i++) {
-				int diff = (newPos[i] - currentPos[i]);
+				int diff = (newPos[i] - currentPosServos[i]);
 				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], calcRotationSpeed(diff, delayBetweenUpdates));
 				//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}

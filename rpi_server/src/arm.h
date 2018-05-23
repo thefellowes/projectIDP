@@ -21,6 +21,7 @@ private:
 	int calcRotationSpeed(float diff, int ms);
 public:
 	Arm(AX12A &servoControl, std::vector<int> servoIDs);
+	std::vector<int> getArmServoPositions();
 	int move(float speedX, float speedY);
 	void turnArm(float speed);
 	void turnGriper(float speed);
