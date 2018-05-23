@@ -19,6 +19,9 @@ std::vector<int> constr_max = { 900,1023,1023 };
 const float Arm::posDifference = 0.5;	//size to change position
 const float Arm::rotDifference = 10;	//size to change rotation
 
+float updatesPerSecond = 6;
+float delayBetweenUpdates = 1000 / updatesPerSecond;
+
 bool Arm::posPossible(int x, int y)
 {
 	int armlength = l1 + l2;
@@ -60,6 +63,7 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	posY = l1 + l2;
 	posRotation = 512;
 	headAngle = 180.0;
+	currentPosServos = { 0, 0, 0 };
 
 	//set servo's in default position
 	ax12a.move(servoIDs[0], posRotation);
@@ -99,10 +103,11 @@ int Arm::move(float speedX, float speedY)
 		//extra check if position is possible
 		if (newPosPossible) {
 			for (int i = 0; i < newPos.size(); i++) {
-				ax12a.move(servoIDs[i + 1], newPos[i]);
+				int diff = (newPos[i] - currentPos[i]);
+				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], calcRotationSpeed(diff, delayBetweenUpdates));
 				//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
-
+			currentPosServos = newPos;
 			return 0;
 		}
 	}
@@ -136,17 +141,14 @@ void Arm::moveTo(float x, float y, float ha, int rotation=posRotation)
 	ax12a.move(servoIDs[0], rotation);
 
 	int pathLength = path.size();
-	int speed;
-	std::vector<int> currentPos = path[0];
 
 	for (int p = 1; p < pathLength; p++){
 		for (int i = 0; i < path[p].size(); i++) {
-			int diff = (path[p][i] - currentPos[i]);
-			speed = calcRotationSpeed(diff, 100);
+			int diff = (path[p][i] - currentPosServos[i]);
 
-			ax12a.moveSpeed(servoIDs[i + 1], path[p][i], speed);
+			ax12a.moveSpeed(servoIDs[i + 1], path[p][i], calcRotationSpeed(diff, 100));
 		}
-		currentPos = path[p];
+		currentPosServos = path[p];
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 

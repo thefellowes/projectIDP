@@ -13,6 +13,7 @@ private:
 	float posY;
 	float headAngle;
 	int posRotation;
+	std::vector<int> currentPosServos;
 	static const float posDifference;
 	static const float rotDifference;
 	bool posPossible(int x, int y);
