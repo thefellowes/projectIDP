@@ -16,12 +16,14 @@ private:
 	static const float posDifference;
 	static const float rotDifference;
 	bool posPossible(int x, int y);
+	void turn(int servo, float speed);
+	int calcRotationSpeed(float diff, int ms);
 public:
 	Arm(AX12A &servoControl, std::vector<int> servoIDs);
 	int move(float speedX, float speedY);
-	int turn(float speed);
-	void moveTo(float x, float y, float ha, int rotation);
-	//void movePath(std::vector<std::vector<float>> path);
+	void turnArm(float speed);
+	void turnGriper(float speed);
+	void moveTo(float x, float y, float ha, int rotation=posRotation);
 	void grab(bool close);
 	float getPosX();
 	float getPosY();

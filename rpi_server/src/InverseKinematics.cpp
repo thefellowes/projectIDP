@@ -3,7 +3,7 @@
 //Grab these from config file in a more finalized project
 int length1 = 13;
 int length2 = 13;
-std::vector<int> defaultValues = { 200,512,512 };
+std::vector<int> defaultValues = { 210,512,512 };
 std::vector<int> constraints_min = { 210,0,0 };
 std::vector<int> constraints_max = { 900,1023,1023 };
 
@@ -69,13 +69,13 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 	// Otherwise use a bezier curve. 
 	float a = atan2(dy, dx) * 180 / M_PI;
 	float ao = angleOffset;
-	if (inBounds(a, 0.0f + ao, 90.0f - ao) || inBounds(a, -90.0f - ao, -180.0f + ao)) {
+	if (inBounds(a, 0.0f + ao, 90.0f - ao) || inBounds(a, -180.0f + ao, -90.0f - ao)) {
 		// On a / angled line, take the top-left point as 3rd point. 
 		bx = x1 < x2 ? x1 : x2;
 		by = y1 > y2 ? y1 : y2;
 		pathLength = getBezierPathLength(x1, y1, x2, y2, bx, by);
 	}
-	else if (inBounds(a, 90.0f + ao, 180.0f - ao) || inBounds(a, 0.0f - ao, -90.0f + ao)) {
+	else if (inBounds(a, 90.0f + ao, 180.0f - ao) || inBounds(a, -90.0f + ao, 0.0f - ao)) {
 		// On a \ angled line, take the top-right point as 3rd point.
 		bx = x1 > x2 ? x1 : x2;
 		by = y1 > y2 ? y1 : y2;
