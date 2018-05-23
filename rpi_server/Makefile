@@ -15,7 +15,7 @@ TARGET=./build/rpi_server
 # The Target Build
 all: build $(TARGET) tests
 
-dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
+dev: CXXFLAGS=-g -Wall -Isrc -Wextra $(OPTFLAGS)
 dev: all
 
 $(TARGET): CXXFLAGS += -fPIC
