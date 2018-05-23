@@ -1,17 +1,12 @@
 // ConsoleApplication2.cpp : Defines the entry point for the console application.
 //
 
-// #include <stdlib>
-
-#include <memory>
-#include <cstdio>
+#include "stdafx.h"
 #include <string>
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <fstream>
-#include <cstring>
 
 using namespace cv;
 
@@ -118,7 +113,6 @@ public:
 
 		sliderNames = appendWhereNoneString(sliderNames, names);
 		initValues = appendWhereNoneInt(initValues, defaultInitValues);
-
 		sliders = Sliders(windowName, names.size(), "", 0, 255, true, sliderNames, {}, {}, initValues);
 	}
 
@@ -154,79 +148,86 @@ public:
 
 int main()
 {
+	try {
+		std::string IMAGE_PATHS[3] = { "C://Users//muize//Documents//school//project//lolxd.png", "C://Users//muize//Documents//school//project//above2.jpg", "C://Users//muize//Documents//school//project//lolxd3.jpg" };
+		double width = 7.6;
+		double KNOWN_DISTANCE = 7.6;
+		double KNOWN_WIDTH = 7.6;
+		std::vector<int> orangeInitValues = { 0, 186, 0, 188, 255, 192 };
+		std::vector<int> yellowInitValues = { 24, 31, 156, 50, 133, 214 };
+		std::vector<int> greenInitValues =	{ 56, 124, 29, 95, 255, 187 };
+		std::vector<int> blueInitValues =	{ 88, 190, 43, 123, 255, 255 };
+		std::vector<int> redInitValues =	{ 0, 186, 0, 188, 255, 192 };
+		std::vector<int> blueMarkerValues = { 102, 73, 44, 141, 255, 255 };
+		std::vector<std::string> names =	{ "low r", "low g", "low b", "upp R", "upp G", "upp B" };
+		Mat pic = imread(IMAGE_PATHS[0]);
+		Mat abovePic = imread(IMAGE_PATHS[1]);
 
-	std::string IMAGE_PATHS[3] = { "i1.jpeg", "i2.jpeg", "i3.jpeg" };
-	double width = 7.6;
-	double KNOWN_DISTANCE = 7.6;
-	double KNOWN_WIDTH = 7.6;
-	std::vector<int> orangeInitValues = { 0, 186, 0, 188, 255, 192 };
-	std::vector<int> yellowInitValues = { 24, 31, 156, 50, 133, 214 };
-	std::vector<int> greenInitValues =	{ 56, 124, 29, 95, 255, 187 };
-	std::vector<int> blueInitValues =	{ 88, 190, 43, 123, 255, 255 };
-	std::vector<int> redInitValues =	{ 0, 186, 0, 188, 255, 192 };
-	std::vector<int> blueMarkerValues = { 102, 73, 44, 141, 255, 255 };
-	std::vector<std::string> names =	{ "low r", "low g", "low b", "upp R", "upp G", "upp B" };
-	
-	Mat pic = imread(IMAGE_PATHS[0]);
-	Mat abovePic = imread(IMAGE_PATHS[1]);
-	std::vector<int> lower = { 110, 50, 50 };
-	std::vector<int> upper = { 130, 255, 255 };
-	Scalar color(0, 255, 0);
-	double focalLength = findFocalLength(pic, lower, upper, width);
-	double focalLength2 = findFocalLength(abovePic, lower, upper, width);
-	double cm = 0;
-	
-	ColorIsolator greenIsolator = ColorIsolator(blueMarkerValues, "green Controls", names);
-	VideoCapture cap(0);
-	
-	if (!cap.isOpened())
-		return -1;
-	
-	while (true)
-	{
-		Mat frame;
-		cap >> frame;
-		
-		std::vector<int> lower = greenIsolator.getLower();
-		std::vector<int> upper =  greenIsolator.getUpper();
-		RotatedRect marker = find_marker(frame, lower, upper);
-		Point2f vertices[4];
-		marker.points(vertices);
-		if (marker.size.area() != 0)
+		std::vector<int> lower = { 110, 50, 50 };
+		std::vector<int> upper = { 130, 255, 255 };
+		Scalar color(0, 255, 0);
+
+		double focalLength = findFocalLength(pic, lower, upper, width);
+		double focalLength2 = findFocalLength(abovePic, lower, upper, width);
+		double cm = 0;
+		ColorIsolator greenIsolator = ColorIsolator(blueMarkerValues, "green Controls", names);
+
+		VideoCapture cap(0);
+		if (!cap.isOpened())
+			return -1;
+
+		while (true)
 		{
-			//if (marker.size.width / marker.size.height > 2.5)
-			//{
-				width = 7.6;
-				cm = distance_to_camera(width, focalLength, marker.size.width);
-				Point2f rect_points[4]; marker.points(rect_points);
-				for (int i = 0; i < 4; i++) {
-					line(frame, rect_points[i], rect_points[(i + 1) % 4], color, 1, 8);
-				//}
-			}
-			/*else {
-				width = 2.4;
-				cm = distance_to_camera(width, focalLength2, marker.size.width);
-				Point2f rect_points[4]; marker.points(rect_points);
-				for (int i = 0; i < 4; i++) {
-					line(frame, rect_points[i], rect_points[(i + 1) % 4], color, 1, 8);
-				}
-			}
-			/*std::vector<std::vector<Point>> contoursTest = { contours1 };
-			Scalar color(0, 255, 0);
-			drawContours(image, contoursTest, -1, color, 2);*/
-		}
-		else {
-			cm = 0;
-		}
-		putText(frame, std::to_string(cm),
-		{frame.size().width - 200 , frame.size().height - 20}, FONT_HERSHEY_SIMPLEX, 2.0,
-			color, 3);
-		imshow("image", frame);
-		imshow("greenimage", greenIsolator.isolate(frame));
-		waitKey(1);
-	}
-}
+			Mat frame;
+			cap >> frame;
+			
+			RotatedRect marker = find_marker(frame, greenIsolator.getLower(), greenIsolator.getUpper());
+			Point2f vertices[4];
+			marker.points(vertices);
 
+			if (marker.size.area() != 0)
+			{
+				//if (marker.size.width / marker.size.height > 2.5)
+				//{
+					width = 7.6;
+					cm = distance_to_camera(width, focalLength, marker.size.width);
+					Point2f rect_points[4]; marker.points(rect_points);
+					for (int i = 0; i < 4; i++) {
+						line(frame, rect_points[i], rect_points[(i + 1) % 4], color, 1, 8);
+					//}
+				}
+				/*else {
+					width = 2.4;
+					cm = distance_to_camera(width, focalLength2, marker.size.width);
+					Point2f rect_points[4]; marker.points(rect_points);
+					for (int i = 0; i < 4; i++) {
+						line(frame, rect_points[i], rect_points[(i + 1) % 4], color, 1, 8);
+					}
+				}
+
+				/*std::vector<std::vector<Point>> contoursTest = { contours1 };
+				Scalar color(0, 255, 0);
+				drawContours(image, contoursTest, -1, color, 2);*/
+			}
+			else {
+				cm = 0;
+			}
+
+			putText(frame, std::to_string(cm),
+			{frame.size().width - 200 , frame.size().height - 20}, FONT_HERSHEY_SIMPLEX, 2.0,
+				color, 3);
+			imshow("image", frame);
+			imshow("greenimage", greenIsolator.isolate(frame));
+			waitKey(1);
+		}
+	}
+	catch (cv::Exception &e)
+	{
+		std::cout << e.msg << std::endl;
+	}
+
+	getchar();
+}
 
 double distance_to_camera(double knownWidth, double focalLength, double perWidth)
 {
@@ -326,8 +327,49 @@ RotatedRect find_marker(Mat &image, std::vector<int> &lowerArray, std::vector<in
 	int h = points.height;
 	int x = points.x;
 	int y = points.y;
+	int middleX = x + w / 2;
+	int middleY = y + h / 2;
 
-	circle(image, { x, y }, 10, (0, 0, 255), -1);
+
+	if (h * w > 0)
+	{
+		if (h > w)
+		{
+			printf("standing\n");
+			if ((h / w) >= 2)
+			{
+				if ((h / w) >= 3) {
+					printf("long side, thin side\n");
+				}
+				else {
+					printf("long side, thicc side\n");
+				}
+			}
+			else {
+				printf("short side\n");
+			}
+		}
+
+		else {
+			printf("laying\n");
+			if ((w / h) >= 2)
+			{
+				if ((w / h) >= 3) {
+					printf("long side, thin side\n");
+				}
+				else {
+					printf("long side, thicc side\n");
+				}
+			}
+			else {
+				printf("short side\n");
+			}
+		}
+	}
+
+	
+
+	circle(image, { middleX, middleY }, 10, (0, 0, 255), -1);
 	imshow("testthing", image);
 
 	return minAreaRect(contours1);	  
