@@ -103,6 +103,7 @@ int Arm::move(float speedX, float speedY)
 		float vectorSize = sqrt(posX * posX + posY * posY);
 		posX = (posX / vectorSize) * ((l1 + l2)*0.9999999);
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
+		std::cout << "=-=-=-=- Vectorsize changed -=-=-=-=" << std::endl;
 	}
 
 	//check if position is posible
@@ -119,6 +120,9 @@ int Arm::move(float speedX, float speedY)
 			currentPosServos = newPos;
 			return 0;
 		}
+	}
+	else {
+		std::cout << "MOVE NOT POSSIBLE" << std::endl;
 	}
 
 	//undo position change if position NOT possible

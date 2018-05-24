@@ -10,11 +10,25 @@
 #include <netdb.h>
 #include <assert.h>
 
+#include <thread>
+#include <chrono>
+
 #include "dbg.h"
 #include "parser.h"
+#include "arm.h"
+#include "AX12A.h"
 
-#define MYPORT "1313" // the port users will be connecting to
+#define MYPORT "1313"
 #define MAXBUFLEN 100
+
+#define DirectionPin (18u)
+#define BaudRate (1000000ul)
+#define IDturn (14u)
+#define ID (3u)
+#define ID1 (9u)
+#define ID2 (61u)
+#define Serial "/dev/ttyAMA0" 
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa){
 	if (sa->sa_family == AF_INET) {
@@ -71,7 +85,17 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-int main(void){
+int main(void){	
+	AX12A ax12a;
+	ax12a.begin(BaudRate, DirectionPin, Serial);
+
+	std::vector<int> servos = {IDturn, ID, ID1, ID2};
+	
+	Arm arm(ax12a, servos);	
+	arm.moveTo(-10, 0, 180, 512);
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	arm.moveTo(-17.5, 7.5, 270, 512);
+	
 	int sockfd;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
@@ -117,19 +141,22 @@ int main(void){
 		}
 		printf("listener: got packet from %s\n",
 		inet_ntop(their_addr.ss_family,
-		get_in_addr((struct sockaddr *)&their_addr),
-		s, sizeof s));
+		get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
 		printf("listener: packet is %d bytes long\n", numbytes);
 		buf[numbytes] = '\0';
 
 		char** tokenSwitch;
 		tokenSwitch = str_split(buf, '\n');
 
-		parse_input(tokenSwitch);
+		//X, Y, A, B
+		struct user_input parsed_input = parse_input(tokenSwitch);
+		printf("Move : %f |  %f", parsed_input.x, parsed_input.y);
+		arm.move(parsed_input.x, parsed_input.y);		
 
 		free(tokenSwitch);
 	}
 	
+	ax12a.end();
 	close(sockfd);
 	return 0;
 }
