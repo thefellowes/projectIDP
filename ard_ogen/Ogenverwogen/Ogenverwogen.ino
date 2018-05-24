@@ -159,9 +159,26 @@ void loop()
         display_2.display();
         display_2.clearDisplay();
   }
-
   ++i;
-  if (i >= AMOUNT_OF_SLIDES) {
+  if (pitch > 10){
+        display_1.drawBitmap(0, 0, Oog_12, 128, 64, 1);
+        display_1.display();
+        display_1.clearDisplay();
+        display_2.drawMirroredBitmap(0, 0, Oog_12, 128, 64, 1);
+        display_2.display();
+        display_2.clearDisplay();
+        delay(300);
+        
+        while(pitch > 5){
+          display_1.drawBitmap(0, 0, Oog_13, 128, 64, 1);
+          display_1.display();
+          display_1.clearDisplay();
+          display_2.drawMirroredBitmap(0, 0, Oog_13, 128, 64, 1);
+          display_2.display();
+          display_2.clearDisplay();
+        }
+  }
+  else if (i >= AMOUNT_OF_SLIDES) {
     delay(3000);
     i = 0;
   }
