@@ -48,8 +48,8 @@ int Arm::calcRotationSpeed(float diff, int ms) {
 	// Make sure the difference is positive
 	if (diff < 0) diff *= -1;
 
-	float tempVal = (diff / 1227.6) * (1 / (ms / 1000)) * 60;
-	float speed = (tempVal * 1023) / 113.553;
+	float tempVal = (diff / 1227.6f) * (1 / ((float)ms / 1000.0f)) * 60.0f;
+	float speed = (tempVal * 1023.0f) / 113.553f;
 	if (speed > 1023) speed = 1023;
 
 	return roundf(speed);
@@ -138,7 +138,12 @@ void Arm::turnGriper(float speed)
 	turn(servoIDs[4], speed);
 }
 
-void Arm::moveTo(float x, float y, float ha, int rotation=posRotation)
+void Arm::moveTo(float x, float y, float ha)
+{
+	moveTo(x, y, ha, posRotation);
+}
+
+void Arm::moveTo(float x, float y, float ha, int rotation)
 {
 	std::vector<std::vector<int>> path = getPath(posX, posY, x, y, headAngle, ha);
 

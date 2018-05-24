@@ -25,7 +25,8 @@ public:
 	int move(float speedX, float speedY);
 	void turnArm(float speed);
 	void turnGriper(float speed);
-	void moveTo(float x, float y, float ha, int rotation=posRotation);
+	void moveTo(float x, float y, float ha);
+	void moveTo(float x, float y, float ha, int rotation);
 	void grab(bool close);
 	float getPosX();
 	float getPosY();
