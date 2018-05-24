@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG
+CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG -pthread --std=c++11
 LIBS= -lwiringPi
 PREFIX?=/usr/local
 
@@ -15,7 +15,7 @@ TARGET=./build/rpi_server
 # The Target Build
 all: build $(TARGET) tests
 
-dev: CXXFLAGS=-g -Wall -Isrc -Wextra $(OPTFLAGS)
+dev: CXXFLAGS=-g -Wall -Wall -Wextra $(OPTFLAGS) -pthread --std=c++11
 dev: all
 
 $(TARGET): CXXFLAGS += -fPIC
