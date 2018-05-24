@@ -22,7 +22,7 @@ const float Arm::rotDifference = 10;	//size to change rotation
 float updatesPerSecond = 6;
 float delayBetweenUpdates = 1000 / updatesPerSecond;
 
-bool Arm::posPossible(int x, int y)
+bool Arm::posPossible(float x, float y)
 {
 	int armlength = l1 + l2;
 	return (x * x + y * y > armlength * armlength) ? false : true;
@@ -62,7 +62,7 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	posX = 0;
 	posY = l1 + l2;
 	posRotation = 512;
-	headAngle = 180.0;
+	headAngle = 180.0f;
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
@@ -99,11 +99,13 @@ int Arm::move(float speedX, float speedY)
 	posX += posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY += posDifference * speedY;
 
+	//bool testCheck = false;
+
 	if (!posPossible(posX, posY)) {
 		float vectorSize = sqrt(posX * posX + posY * posY);
 		posX = (posX / vectorSize) * ((l1 + l2)*0.9999999);
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
-		std::cout << "=-=-=-=- Vectorsize changed -=-=-=-=" << std::endl;
+		//testCheck = true;
 	}
 
 	//check if position is posible
@@ -114,21 +116,26 @@ int Arm::move(float speedX, float speedY)
 		if (newPosPossible) {
 			for (int i = 0; i < newPos.size(); i++) {
 				int diff = (newPos[i] - currentPosServos[i]);
-				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], calcRotationSpeed(diff, delayBetweenUpdates));
+				int speed = calcRotationSpeed(diff, delayBetweenUpdates);
+				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], speed);
+
+				//if (testCheck) {
+				//	std::cout << std::endl << " -- newPos[i] = " << newPos[i] << ", speed = " << speed << std::endl;
+				//}
 				//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			}
 			currentPosServos = newPos;
+
+			//testCheck = false;
 			return 0;
 		}
-	}
-	else {
-		std::cout << "MOVE NOT POSSIBLE" << std::endl;
 	}
 
 	//undo position change if position NOT possible
 	posX -= posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY -= posDifference * speedY;
 
+	//testCheck = false;
 	return -1;
 }
 

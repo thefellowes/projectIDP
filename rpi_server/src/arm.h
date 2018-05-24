@@ -16,7 +16,7 @@ private:
 	std::vector<int> currentPosServos;
 	static const float posDifference;
 	static const float rotDifference;
-	bool posPossible(int x, int y);
+	bool posPossible(float x, float y);
 	void turn(int servo, float speed);
 	int calcRotationSpeed(float diff, int ms);
 public:
