@@ -6,21 +6,7 @@
 //debug:
 #include <iostream>
 
-//MIN and MAX turn value of servo
-const int servoMinRotation = 0;
-const int servoMaxRotation = 1023;
 
-int l1 = 13;
-int l2 = 13;
-std::vector<int> defaultVal = { 210,512,512 };
-std::vector<int> constr_min = { 210,0,0 };
-std::vector<int> constr_max = { 900,1023,1023 };
-
-const float Arm::posDifference = 0.5;	//size to change position
-const float Arm::rotDifference = 10;	//size to change rotation
-
-float updatesPerSecond = 6;
-float delayBetweenUpdates = 1000 / updatesPerSecond;
 
 bool Arm::posPossible(float x, float y)
 {
@@ -59,6 +45,9 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 {
 	ax12a = servoControl;
 	this->servoIDs = servoIDs;
+	moveIsActive = false;
+	speedX = 0;
+	speedY = 0;
 	posX = 0;
 	posY = l1 + l2;
 	posRotation = 512;
@@ -83,6 +72,30 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
+void Arm::startMovement() 
+{
+	moveIsActive = true;
+	int delay = 10;
+
+	while (true) 
+	{
+		move(delay);
+		std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+
+		if (!moveIsActive) break;
+	}
+}
+
+void Arm::stopMovement() {
+	moveIsActive = false;
+}
+
+// speedX and speedY variable between -1.0 and 1.0
+void Arm::setSpeed(float xSpeed, float ySpeed) {
+	speedX = xSpeed;
+	speedY = ySpeed;
+}
+
 std::vector<int> Arm::getArmServoPositions() {
 	//DO THIS THROUGH A LOOP FOR VARIABLE ARMLENGTH
 	int baseServo = ax12a.readPosition(servoIDs[1]);
@@ -92,20 +105,17 @@ std::vector<int> Arm::getArmServoPositions() {
 	return { baseServo, jointServo, headServo };
 }
 
-// speedX and speedY variable between -1.0 and 1.0
-int Arm::move(float speedX, float speedY)
+// delay in milliseconds
+int Arm::move(int delay)
 {
 	//change position
 	posX += posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY += posDifference * speedY;
 
-	//bool testCheck = false;
-
 	if (!posPossible(posX, posY)) {
 		float vectorSize = sqrt(posX * posX + posY * posY);
 		posX = (posX / vectorSize) * ((l1 + l2)*0.9999999);
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
-		//testCheck = true;
 	}
 
 	//check if position is posible
@@ -116,17 +126,10 @@ int Arm::move(float speedX, float speedY)
 		if (newPosPossible) {
 			for (int i = 0; i < newPos.size(); i++) {
 				int diff = (newPos[i] - currentPosServos[i]);
-				int speed = calcRotationSpeed(diff, delayBetweenUpdates);
-				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], speed);
-
-				//if (testCheck) {
-				//	std::cout << std::endl << " -- newPos[i] = " << newPos[i] << ", speed = " << speed << std::endl;
-				//}
-				//std::this_thread::sleep_for(std::chrono::milliseconds(20));
+				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], calcRotationSpeed(diff, delay));
 			}
 			currentPosServos = newPos;
 
-			//testCheck = false;
 			return 0;
 		}
 	}
@@ -135,7 +138,6 @@ int Arm::move(float speedX, float speedY)
 	posX -= posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY -= posDifference * speedY;
 
-	//testCheck = false;
 	return -1;
 }
 

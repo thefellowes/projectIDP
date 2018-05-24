@@ -1,20 +1,14 @@
 #include "InverseKinematics.h"
 
-//Grab these from config file in a more finalized project
-int length1 = 13;
-int length2 = 13;
-std::vector<int> defaultValues = { 210,512,512 };
-std::vector<int> constraints_min = { 210,0,0 };
-std::vector<int> constraints_max = { 900,1023,1023 };
 
 
 // Position to Angles No Out Of Range
 // When out of range, this will return the angles of the position closest to the required position
 std::vector<int> posToAnglesNoOOR(float x, float y, float headAngle) {
-	if (x*x + y*y > (length1+length2)*(length1+length2)) {
+	if (x*x + y*y > (l1+l2)*(l1+l2)) {
 		float vectorSize = sqrt(x*x + y * y);
-		x = (x / vectorSize) * ((length1+length2)*0.9999999);
-		y = (y / vectorSize) * ((length1+length2)*0.9999999);
+		x = (x / vectorSize) * ((l1+l2)*0.9999999);
+		y = (y / vectorSize) * ((l1+l2)*0.9999999);
 	}
 	return posToAngles(x, y, headAngle);
 }
@@ -22,15 +16,15 @@ std::vector<int> posToAnglesNoOOR(float x, float y, float headAngle) {
 // Returns { -1, -1, -1 } when position is not reachable
 std::vector<int> posToAngles(float x, float y, float headAngle) {
 
-	if (x*x + y*y > (length1+length2)*(length1+length2)) {
+	if (x*x + y*y > (l1+l2)*(l1+l2)) {
 		return { -1, -1, -1 };
 	}
 
-	float c2 = (pow(x, 2) + pow(y, 2) - pow(length1, 2) - pow(length2, 2)) / (2 * length1 * length2);
+	float c2 = (pow(x, 2) + pow(y, 2) - pow(l1, 2) - pow(l2, 2)) / (2 * l1 * l2);
 	float s2 = sqrt(1 - pow(c2, 2));
 
-	float K1 = length1 + length2 * c2;
-	float K2 = length2 * s2;
+	float K1 = l1 + l2 * c2;
+	float K2 = l2 * s2;
 
 	float theta = atan2(y, x) - atan2(K2, K1);
 	float psi = atan2(s2, c2);
@@ -109,7 +103,7 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 		float ha = ha1 + (dha * perc);
 
 		std::vector<int> servoValues = posToAnglesNoOOR(x, y, ha);
-		positionPossible = constraint(servoValues, constraints_min, constraints_max);
+		positionPossible = constraint(servoValues, constr_min, constr_max);
 		if (!positionPossible) positionErrorCount++;
 
 		path.push_back(servoValues);
@@ -127,18 +121,18 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 }
 
 //The values vector will be
-bool constraint(std::vector<int> &values, std::vector<int> constraints_min, std::vector<int> constraints_max)
+bool constraint(std::vector<int> &values, std::vector<int> constr_min, std::vector<int> constr_max)
 {
 	bool result = true;
-	if (values.size() == constraints_min.size() && constraints_min.size() == constraints_max.size()) {
+	if (values.size() == constr_min.size() && constr_min.size() == constr_max.size()) {
 		int i = 0;
 		for (int v : values) {
-			if (v < constraints_min[i]) {
-				values[i] = constraints_min[i];
+			if (v < constr_min[i]) {
+				values[i] = constr_min[i];
 				result = false;
 			}
-			else if (v > constraints_max[i]) {
-				values[i] = constraints_min[i];
+			else if (v > constr_max[i]) {
+				values[i] = constr_min[i];
 				result = false;
 			}
 			i++;

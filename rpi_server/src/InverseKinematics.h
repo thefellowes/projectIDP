@@ -1,8 +1,10 @@
 #define _USE_MATH_DEFINES
 
+
 #include <vector>
 #include <math.h>
 #include <iostream>
+#include "armConstantes.h"
 
 
 //Grab these from config file in a more finalized project
