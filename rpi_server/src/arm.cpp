@@ -6,31 +6,28 @@
 //debug:
 #include <iostream>
 
-
-
 bool Arm::posPossible(float x, float y)
 {
 	int armlength = l1 + l2;
 	return (x * x + y * y > armlength * armlength) ? false : true;
 }
 
-void Arm::turn(int servo, float speed)
+void Arm::turn(int servo, int position)
 {
-	posRotation += speed * rotDifference;
-
 	//check if rotation position out of range
-	if (posRotation < servoMinRotation)
-		posRotation = servoMinRotation;
-	else if (posRotation > servoMaxRotation)
-		posRotation = servoMaxRotation;
+	if (position < servoMinRotation)
+		position = servoMinRotation;
+	else if (position > servoMaxRotation)
+		position = servoMaxRotation;
 
-	ax12a.move(servo, posRotation);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	//turn servo
+	ax12a.moveSpeed(servo, position, 200);
 }
 
 // diff = difference in position (old_position - new_position)
 // ms = the time it has to rotate from the old to new position (in milliseconds)
-int Arm::calcRotationSpeed(float diff, int ms) {
+int Arm::calcRotationSpeed(float diff, int ms)
+{
 	// Make sure the difference is positive
 	if (diff < 0) diff *= -1;
 
@@ -41,10 +38,10 @@ int Arm::calcRotationSpeed(float diff, int ms) {
 	return roundf(speed);
 }
 
-Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
+Arm::Arm(AX12A &servoControl, armServos servoIDs)
 {
 	ax12a = servoControl;
-	this->servoIDs = servoIDs;
+	servos = servoIDs;
 	moveIsActive = false;
 	speedX = 0;
 	speedY = 0;
@@ -55,7 +52,7 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
-	ax12a.move(servoIDs[0], posRotation);
+	ax12a.move(servos.armRotation, posRotation);
 	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
@@ -64,7 +61,7 @@ Arm::Arm(AX12A &servoControl, std::vector<int> servoIDs)
 	//extra check if position is possible
 	if (newPosPossible) {
 		for (int i = 0; i < newPos.size(); i++) {
-			ax12a.moveSpeed(servoIDs[i + 1], newPos[i], 300);
+			ax12a.moveSpeed(servos.joints[i], newPos[i], 300);
 			//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
 	}
@@ -86,31 +83,40 @@ void Arm::startMovement()
 	}
 }
 
-void Arm::stopMovement() {
+void Arm::stopMovement()
+{
 	moveIsActive = false;
 }
 
-// speedX and speedY variable between -1.0 and 1.0
-void Arm::setSpeed(float xSpeed, float ySpeed) {
+// speedX, speedY and speedRotation variable between -1.0 and 1.0
+void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
+{
 	speedX = xSpeed;
 	speedY = ySpeed;
+	speedRotation = rotationSpeed;
 }
 
-std::vector<int> Arm::getArmServoPositions() {
-	//DO THIS THROUGH A LOOP FOR VARIABLE ARMLENGTH
-	int baseServo = ax12a.readPosition(servoIDs[1]);
-	int jointServo = ax12a.readPosition(servoIDs[2]);
-	int headServo = ax12a.readPosition(servoIDs[3]);
+std::vector<int> Arm::getArmServoPositions()
+{
+	std::vector<int> result;
 
-	return { baseServo, jointServo, headServo };
+	for (int servoID : servos.joints) {
+		result.push_back(ax12a.readPosition(servoID));
+	}
+
+	return result;
 }
 
 // delay in milliseconds
 int Arm::move(int delay)
-{
+{	
 	//change position
-	posX += posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	posY += posDifference * speedY;
+	posX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
+	posY += maxSpeed * speedY;
+	posRotation += maxSpeedRotation * speedRotation;
+
+	//turn arm
+	turn(servos.armRotation, posRotation);
 
 	if (!posPossible(posX, posY)) {
 		float vectorSize = sqrt(posX * posX + posY * posY);
@@ -126,7 +132,7 @@ int Arm::move(int delay)
 		if (newPosPossible) {
 			for (int i = 0; i < newPos.size(); i++) {
 				int diff = (newPos[i] - currentPosServos[i]);
-				ax12a.moveSpeed(servoIDs[i + 1], newPos[i], calcRotationSpeed(diff, delay));
+				ax12a.moveSpeed(servos.joints[i], newPos[i], calcRotationSpeed(diff, delay));
 			}
 			currentPosServos = newPos;
 
@@ -135,20 +141,15 @@ int Arm::move(int delay)
 	}
 
 	//undo position change if position NOT possible
-	posX -= posDifference * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	posY -= posDifference * speedY;
+	posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
+	posY -= maxSpeed * speedY;
 
 	return -1;
 }
 
-void Arm::turnArm(float speed)
+void Arm::setGripperPosition(int position)
 {
-	turn(servoIDs[0], speed);
-}
-
-void Arm::turnGriper(float speed)
-{
-	turn(servoIDs[4], speed);
+	turn(servos.gripperRotation, position);
 }
 
 void Arm::moveTo(float x, float y, float ha)
@@ -165,7 +166,7 @@ void Arm::moveTo(float x, float y, float ha, int rotation)
 	else if (rotation > servoMaxRotation)
 		rotation = servoMaxRotation;
 
-	ax12a.move(servoIDs[0], rotation);
+	ax12a.move(servos.armRotation, rotation);
 
 	int pathLength = path.size();
 
@@ -173,7 +174,7 @@ void Arm::moveTo(float x, float y, float ha, int rotation)
 		for (int i = 0; i < path[p].size(); i++) {
 			int diff = (path[p][i] - currentPosServos[i]);
 
-			ax12a.moveSpeed(servoIDs[i + 1], path[p][i], calcRotationSpeed(diff, 100));
+			ax12a.moveSpeed(servos.joints[i], path[p][i], calcRotationSpeed(diff, 100));
 		}
 		currentPosServos = path[p];
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -188,11 +189,11 @@ void Arm::grab(bool close)
 {
 	if (close) {
 		//close
-		//ax12a.moveSpeed(servoIDs[5], ???, 100);
+		//ax12a.moveSpeed(servos.gripper, ???, 100);
 	}
 	else {
 		//open
-		//ax12a.moveSpeed(servoIDs[5], ???, 100);
+		//ax12a.moveSpeed(servos.gripper, ???, 100);
 	}
 }
 
@@ -209,4 +210,14 @@ float Arm::getPosY()
 float Arm::getHeadAngle()
 {
 	return headAngle;
+}
+
+int Arm::getPosRotation()
+{
+	return posRotation;
+}
+
+int Arm::getPosGripper()
+{
+	return ax12a.readPosition(servos.gripper);
 }

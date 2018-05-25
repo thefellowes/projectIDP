@@ -6,37 +6,45 @@
 #include "AX12A.h"
 #include "armConstantes.h"
 
+struct armServos {
+	int armRotation;
+	std::vector<int> joints;
+	int gripperRotation;
+	int gripper;
+};
 
 class Arm {
 private:
 	AX12A ax12a;
-	std::vector<int> servoIDs;
+	armServos servos;
 	bool moveIsActive;
 	float speedX;
 	float speedY;
+	float speedRotation;
 	float posX;
 	float posY;
 	float headAngle;
 	int posRotation;
 	std::vector<int> currentPosServos;
 	bool posPossible(float x, float y);
-	void turn(int servo, float speed);
+	void turn(int servo, int position);
 	int calcRotationSpeed(float diff, int ms);
 public:
-	Arm(AX12A &servoControl, std::vector<int> servoIDs);
+	Arm(AX12A &servoControl, servos servoIDs);
 	void startMovement();
 	void stopMovement();
-	void setSpeed(float xSpeed, float ySpeed);
+	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed);
 	std::vector<int> getArmServoPositions();
 	int move(int delay);
-	void turnArm(float speed);
-	void turnGriper(float speed);
+	void setGripperPosition(int position);
 	void moveTo(float x, float y, float ha);
 	void moveTo(float x, float y, float ha, int rotation);
 	void grab(bool close);
 	float getPosX();
 	float getPosY();
 	float getHeadAngle();
+	int getPosRotation();
+	int getPosGripper();
 };
 
 #endif //ARM_H
