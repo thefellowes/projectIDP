@@ -20,7 +20,13 @@
 <div class="blogPost">
   <h3 style="text-align:center;">Donderdag 24 mei</h3>
   <p style="float:left; width:40%;">Vandaag zijn er vrezelijke dingen gebeurt. Er zijn twee aanslagen op Bert zijn leven geweest. De eerste aanslag was een poging to sluipmoord door Dokter Pater, Deze aanslag heeft slechts twee draadjes van het leven beroofd maar Bert was nog in orde. Niet tien minuten later kwam Dokter Pater zijn duistere medeplichtige uit de hoek en vermoorde Bert in vlugge, onverwachtte wijze. Nadat Dokter Pater was bekeerd tot het goeie geloof en Bert Reanimeerde bleek dat Bert nog leefde. Helaas is Bert nu voor de rest van zijn leven gehandicapped en heeft niet langer USB-Poorten.<p>
-  <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449202106952581120/Naamloos.png">
+  <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449482950573293578/Naamloos.png">
+  <div style="clear:both;"></div>
+<hr>
+<div class="blogPost">
+  <h3 style="text-align:center;">Vrijdag 25 mei</h3>
+  <p style="float:left; width:40%;">Na een lange nacht rouwen om Bert zijn overleiden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloed nieuw lichaam voor Bert, samen met Bert zijn bewustheid(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+<p>
+  <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449482953781805056/sssss.png">
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
