@@ -18,3 +18,5 @@ const float maxSpeed = 0.5f;	//size to change position
 const float maxSpeedRotation = 10;	//size to change rotation
 
 const int moveDelay = 10;
+const float moveToStepSize = 0.1f;
+const int moveToDelay = (moveToStepSize / maxSpeed * maxSpeedRotation);
