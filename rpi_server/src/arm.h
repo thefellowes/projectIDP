@@ -18,6 +18,7 @@ private:
 	AX12A ax12a;
 	armServos servos;
 	bool moveIsActive;
+	bool moveInterrupted;
 	float speedX;
 	float speedY;
 	float speedRotation;

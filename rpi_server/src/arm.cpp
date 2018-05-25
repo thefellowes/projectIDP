@@ -72,12 +72,12 @@ Arm::Arm(AX12A &servoControl, armServos servoIDs)
 void Arm::startMovement() 
 {
 	moveIsActive = true;
-	int delay = 10;
 
 	while (true) 
 	{
-		move(delay);
-		std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+		if (!moveInterrupted)
+			move(moveDelay);
+		std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
 
 		if (!moveIsActive) break;
 	}
@@ -159,6 +159,8 @@ void Arm::moveTo(float x, float y, float ha)
 
 void Arm::moveTo(float x, float y, float ha, int rotation)
 {
+	moveInterrupted = true;
+
 	std::vector<std::vector<int>> path = getPath(posX, posY, x, y, headAngle, ha);
 
 	if (rotation < servoMinRotation)
@@ -183,6 +185,8 @@ void Arm::moveTo(float x, float y, float ha, int rotation)
 	posX = x;
 	posY = y;
 	headAngle = ha;
+
+	moveInterrupted = false;
 }
 
 void Arm::grab(bool close)
