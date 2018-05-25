@@ -86,9 +86,11 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 	bool positionPossible = true;
 	std::vector<std::vector<int>> path;
 	float i = 0;
-	while (i <= 20)
+	while (i < pathLength)
 	{
-		float perc = i / 20;
+		i += moveToStepSize;
+		if (i > pathLength) i = pathLength;
+		float perc = i / pathLength;
 
 		// Beginning and end vector of virtual line
 		float xa = getPt(x1, bx, perc);
@@ -111,7 +113,7 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 		i++;
 	}
 	if (positionErrorCount > 0) {
-		std::cout << "WARNING: " << positionErrorCount << "/" << pathLength * 10 << " positions can't be reached" << std::endl;
+		std::cout << "WARNING: " << positionErrorCount << "/" << path.size() << " positions can't be reached" << std::endl;
 	}
 	if (!positionPossible) {
 		std::cout << "WARNING: The end position can't be reached" << std::endl;

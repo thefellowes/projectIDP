@@ -175,10 +175,10 @@ void Arm::moveTo(float x, float y, float ha, int rotation)
 		for (int i = 0; i < path[p].size(); i++) {
 			int diff = (path[p][i] - currentPosServos[i]);
 
-			ax12a.moveSpeed(servos.joints[i], path[p][i], calcRotationSpeed(diff, 100));
+			ax12a.moveSpeed(servos.joints[i], path[p][i], calcRotationSpeed(diff, moveToDelay));
 		}
 		currentPosServos = path[p];
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(moveToDelay));
 	}
 
 	posX = x;
