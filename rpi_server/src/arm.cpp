@@ -1,6 +1,6 @@
 #include <thread>
 #include <chrono>
-#include "InverseKinematics.h"
+#include "InverseKinematics.h"	//also includes: "armConstantes.h"
 #include "arm.h"
 
 //debug:
@@ -38,7 +38,7 @@ int Arm::calcRotationSpeed(float diff, int ms)
 	return roundf(speed);
 }
 
-Arm::Arm(AX12A &servoControl, armServos servoIDs)
+Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 {
 	ax12a = servoControl;
 	servos = servoIDs;

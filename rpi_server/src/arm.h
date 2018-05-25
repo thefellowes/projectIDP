@@ -4,9 +4,8 @@
 #include <vector>
 #include <string>
 #include "AX12A.h"
-#include "armConstantes.h"
 
-struct armServos {
+struct ArmServos {
 	int armRotation;
 	std::vector<int> joints;
 	int gripperRotation;
@@ -16,7 +15,7 @@ struct armServos {
 class Arm {
 private:
 	AX12A ax12a;
-	armServos servos;
+	ArmServos servos;
 	bool moveIsActive;
 	bool moveInterrupted;
 	float speedX;
@@ -31,7 +30,7 @@ private:
 	void turn(int servo, int position);
 	int calcRotationSpeed(float diff, int ms);
 public:
-	Arm(AX12A &servoControl, servos servoIDs);
+	Arm(AX12A &servoControl, ArmServos servoIDs);
 	void startMovement();
 	void stopMovement();
 	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed);
