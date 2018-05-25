@@ -16,5 +16,7 @@ extern const uint8_t Oog_8 [] PROGMEM;
 extern const uint8_t Oog_9 [] PROGMEM;
 extern const uint8_t Oog_10 [] PROGMEM;
 extern const uint8_t Oog_11 [] PROGMEM;
+extern const uint8_t Oog_12 [] PROGMEM;
+extern const uint8_t Oog_13 [] PROGMEM;
 
 #endif

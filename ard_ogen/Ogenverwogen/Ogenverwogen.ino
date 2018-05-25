@@ -12,11 +12,12 @@
 #define XPOS 0
 #define YPOS 1
 #define DELTAY 2
-
+#define BUTTON_PIN 2
 
 Adafruit_SSD1306 display_1(OLED_RESET);
 Adafruit_SSD1306 display_2(OLED_RESET);
 int i = 0;
+int button_state = 0;
 
 #if (SSD1306_LCDHEIGHT != 64)
 #error("Height incorrect, please fix Adafruit_SSD1306.h!, change #define SSD1306_128_32 to #define SSD1306_128_64");
@@ -46,6 +47,9 @@ void setup()
   display_2.invertDisplay(true);
   display_1.display();
   display_2.display();
+
+  // initialize the pushbutton pin as an input:
+  pinMode(BUTTON_PIN, INPUT);
   
 }
 
@@ -53,6 +57,10 @@ void setup()
 void loop()
 {
   Serial.print(i);
+  
+  // read the state of the pushbutton value:
+  button_state = digitalRead(BUTTON_PIN);
+  
   int op = i;
   switch(op) {
     case 0:
@@ -160,23 +168,31 @@ void loop()
         display_2.clearDisplay();
   }
   ++i;
-  if (pitch > 10){
+  if (button_state == LOW){
         display_1.drawBitmap(0, 0, Oog_12, 128, 64, 1);
         display_1.display();
         display_1.clearDisplay();
         display_2.drawMirroredBitmap(0, 0, Oog_12, 128, 64, 1);
         display_2.display();
         display_2.clearDisplay();
-        delay(300);
+        delay(1000);
         
-        while(pitch > 5){
+        while(button_state == LOW){
+label_d:
           display_1.drawBitmap(0, 0, Oog_13, 128, 64, 1);
           display_1.display();
           display_1.clearDisplay();
           display_2.drawMirroredBitmap(0, 0, Oog_13, 128, 64, 1);
           display_2.display();
           display_2.clearDisplay();
+          button_state = digitalRead(BUTTON_PIN);
         }
+        delay(1000);button_state = digitalRead(BUTTON_PIN);
+        button_state = digitalRead(BUTTON_PIN);
+        if (button_state == LOW)
+          goto label_d;
+          
+        i = 0;
   }
   else if (i >= AMOUNT_OF_SLIDES) {
     delay(3000);
