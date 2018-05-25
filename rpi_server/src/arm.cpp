@@ -45,6 +45,7 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	moveIsActive = false;
 	speedX = 0;
 	speedY = 0;
+	speedRotation = 0;
 	posX = 0;
 	posY = l1 + l2;
 	posRotation = 512;
@@ -73,13 +74,11 @@ void Arm::startMovement()
 {
 	moveIsActive = true;
 
-	while (true) 
+	while (moveIsActive)
 	{
 		if (!moveInterrupted)
 			move(moveDelay);
 		std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
-
-		if (!moveIsActive) break;
 	}
 }
 
