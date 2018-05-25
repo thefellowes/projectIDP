@@ -25,7 +25,7 @@
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Vrijdag 25 mei</h3>
-  <p style="float:left; width:40%;">Na een lange nacht rouwen om Bert zijn overleiden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloed nieuw lichaam voor Bert, samen met Bert zijn bewustheid(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+<p>
+  <p style="float:left; width:40%;">Na een lange nacht rouwen om Bert zijn overlijden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloednieuw lichaam voor Bert, samen met Bert zijn bewustzijn(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+<p>
   <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449482953781805056/sssss.png">
   <div style="clear:both;"></div>
 <hr>
