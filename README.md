@@ -32,8 +32,8 @@
 <div class="blogPost">
   <h3 style="text-align:center;">Maandag 28 mei</h3>
   <p style="float:left; width:40%;">Het is weer maandag, iedereen is weer een beetje bijgekomen van het vreselijke tragedie dat vorige weer heeft plaatsgevonden en klaar om aan de bak te gaan. Op het moment kunnen we onze arm besturen met een controller, en hebben we ogen die emoties vertonen. Verder is er natuurlijk veel meer gebeurt, zoals de UML, Motoren voor onze rupsbanden, grijper prototype is geprint etc.<p>
-  <video width="400" height="400" controls><source src="https://www.youtube.com/watch?v=xiXGjWEggzQ" type="video/mp4"> Your browser does not support the video tag.</video>
-  <div style="clear:both;"></div>
+  <iframe width="400" height="400" src="https://www.youtube.com/watch?v=xiXGjWEggzQ">
+</iframe> <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">An university project</h3>
