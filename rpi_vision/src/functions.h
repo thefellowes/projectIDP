@@ -1,12 +1,11 @@
 
 #ifndef functions_h
 #define functions_h
-#include "stdafx.h"
-#include "opencv2\opencv.hpp"
+#include <opencv2/opencv.hpp>
 #include <vector>
 #include <string>
-#include "ColorIsolator.hpp"
-#include "Sliders.hpp"
+#include "ColorIsolator.h"
+#include "Sliders.h"
 using namespace cv;
 
 class functions {
