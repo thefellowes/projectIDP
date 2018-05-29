@@ -1,6 +1,6 @@
 CC=g++
-CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG -pthread --std=c++11 $(shell pkg-config --libs --cflags opencv)
-LIBS= -lwiringPi
+CXXFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG -pthread --std=c++11 $(shell pkg-config --cflags opencv)
+LIBS= -lwiringPi $(shell pkg-config --libs opencv)
 PREFIX?=/usr/local
 
 SOURCES=$(wildcard src/**/*.cpp src/*.cpp)
@@ -15,7 +15,8 @@ TARGET=./build/rpi_vision
 # The Target Build
 all: build $(TARGET) tests
 
-dev: CXXFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS) -pthread --std=c++11 $(shell pkg-config --libs --cflags opencv)
+dev: CXXFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS) -pthread --std=c++11 $(shell pkg-config --cflags opencv)
+
 dev: all
 
 $(TARGET): CXXFLAGS += -fPIC

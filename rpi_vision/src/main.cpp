@@ -15,8 +15,10 @@ int main()
 {
 	std::vector<int> blueMarkerValues = { 102, 73, 44, 141, 255, 255 };
 	VideoCapture cap(0);
-	if (!cap.isOpened())
-		return -1;
+	if (!cap.isOpened()) {
+		printf("couldn\'t open camera\n");
+		return 1;
+	}
 	Mat frame;
 	cap >> frame;
 	functions funct = functions(blueMarkerValues);
