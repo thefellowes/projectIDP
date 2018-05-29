@@ -1,5 +1,6 @@
 # Project IDP
 A university project.
+
 [Our blog](blog.md)
 
 ### Prerequisites
