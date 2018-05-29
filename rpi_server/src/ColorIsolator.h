@@ -1,9 +1,8 @@
 #ifndef ColorIsolator_HPP
 #define ColorIsolator_HPP
 
-#include "stdafx.h"
-#include "opencv2\opencv.hpp"
-#include "Sliders.hpp"
+#include <opencv2\opencv.hpp>
+#include "Sliders.h"
 #include <vector>
 #include <string>
 
