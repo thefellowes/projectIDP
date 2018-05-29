@@ -5,13 +5,10 @@ T positive(T x) {
 	return x < 0 ? x*-1 : x;
 }
 
-TankTracks::TankTracks(Motor leftMotor, Motor rightMotor)
+TankTracks::TankTracks(Motor leftMotor, Motor rightMotor) : leftMotor(leftMotor), rightMotor(rightMotor)
 {
-	this->leftMotor = leftMotor;
-	this->rightMotor = rightMotor;
 	speedLeftMotor, speedRightMotor = 0;
-	moveIsActive = false;
-}
+};
 
 //throttle and direction variable between -1.0 and 1.0
 void TankTracks::move(float throttle, float direction)

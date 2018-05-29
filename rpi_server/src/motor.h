@@ -8,8 +8,8 @@ class Motor {
 		int directionPinB;
 		void changeRotationDelay();
 	public:
-		const int minSpeed;
-		const int maxSpeed;
+		static const int minSpeed;
+		static const int maxSpeed;
 		Motor(int pwmPin, int directionPinA, int directionPinB);
 		void setClockwise();
 		void setCounterClockwise();

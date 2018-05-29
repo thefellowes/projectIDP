@@ -30,9 +30,12 @@ Motor::Motor(int pwmPin, int directionPinA, int directionPinB)
 	pinMode(directionPinB, OUTPUT);
 
 	pwmSetMode(PWM_MODE_MS);
+
+	//set directionpins low and speed 0
+	stop();
 }
 
-void Arm::setClockwise()
+void Motor::setClockwise()
 {
 	changeRotationDelay();
 
@@ -41,7 +44,7 @@ void Arm::setClockwise()
 	digitalWrite(directionPinB, LOW);
 }
 
-void Arm::setCounterClockwise()
+void Motor::setCounterClockwise()
 {
 	changeRotationDelay();
 
@@ -51,7 +54,7 @@ void Arm::setCounterClockwise()
 }
 
 //speed of the motor from 0 to 1024
-void Arm::setSpeed(int speed)
+void Motor::setSpeed(int speed)
 {
 	//check if speed out of range
 	if(speed < minSpeed) speed = minSpeed;
@@ -60,7 +63,7 @@ void Arm::setSpeed(int speed)
 	pwmWrite(pwmPin, speed);
 }
 
-void Arm::stop()
+void Motor::stop()
 {
 	digitalWrite(directionPinA, LOW);
 	digitalWrite(directionPinB, LOW);

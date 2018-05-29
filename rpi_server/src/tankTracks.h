@@ -9,7 +9,6 @@ class TankTracks {
 		Motor rightMotor;
 		int speedLeftMotor;
 		int speedRightMotor;
-		int moveIsActive;
 	public:
 		TankTracks(Motor leftMotor, Motor rightMotor);
 		void move(float throttle, float direction);
