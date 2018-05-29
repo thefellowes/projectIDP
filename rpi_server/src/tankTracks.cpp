@@ -16,13 +16,8 @@ TankTracks::TankTracks(Motor leftMotor, Motor rightMotor)
 //throttle and direction variable between -1.0 and 1.0
 void TankTracks::move(float throttle, float direction)
 {
-	//stop motors if no motion zero
-	if(throttle == 0 && direction == 0) stop();
-	
-	//TODO: check if one motor on and one off possible (probably not)
-	
 	//Calculate percentage of throttle versus direction
-	float total = positive(throttle) + positive(direction);
+	/**float total = positive(throttle) + positive(direction);
 	throttle = throttle / total;
 	direction = direction / total;
 
@@ -30,7 +25,41 @@ void TankTracks::move(float throttle, float direction)
 	float percSpeedRight = throttle - direction;
 
 	speedLeftMotor = leftMotor.maxSpeed * percSpeedLeft;
-	speedRightMotor = rightMotor.maxSpeed * percSpeedRight;
+	speedRightMotor = rightMotor.maxSpeed * percSpeedRight;**/
+	
+	float maxSpeed = positive(throttle) > positive(direction) ? throttle : direction;
+	maxSpeed *= leftMotor.maxSpeed;
+	
+	//stop motors if both inputs zero and make turn on place if only direction != 0
+	if(throttle == 0){
+		if(direction == 0) stop();
+		else{
+			speedLeftMotor = direction * maxSpeed;
+			speedRightMotor = -1 * direction * maxSpeed;
+		}
+	}
+
+	float total = positive(throttle) + positive(direction);
+	throttle = throttle / total;
+	direction = direction / total;
+
+	float speedY = throttle * maxSpeed;
+	float speedX = direction * maxSpeed;
+
+	//calcuate speed for each motor to move in correct direction
+	if(throttle > 0 && direction > 0){
+		speedLeftMotor = speedY + speedX;
+		speedRightMotor = speedY;
+	}else if(throttle < 0 && direction < 0){
+		speedLeftMotor = speedY;
+		speedRightMotor = speedY + speedX;
+	}else if(throttle < 0 && direction > 0){
+		speedLeftMotor = speedY - speedX;
+		speedRightMotor = speedY;
+	}else {
+		speedLeftMotor = speedY;
+		speedRightMotor = speedY - speedX;
+	}
 
 	//Check in which direction motor has to turn and set speed
 	if(speedLeftMotor < 0){
