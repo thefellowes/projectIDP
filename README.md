@@ -25,14 +25,16 @@
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Vrijdag 25 mei</h3>
-  <p style="float:left; width:40%; height:40%;">Na een lange nacht rouwen om Bert zijn overlijden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloednieuw lichaam voor Bert, samen met Bert zijn bewustzijn(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+.<p>
+  <p style="float:left; width:40%;">Na een lange nacht rouwen om Bert zijn overlijden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloednieuw lichaam voor Bert, samen met Bert zijn bewustzijn(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+.<p>
   <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449482953781805056/sssss.png">
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Maandag 28 mei</h3>
   <p style="float:left; width:40%;">Het is weer maandag, iedereen is weer een beetje bijgekomen van het vreselijke tragedie dat vorige weer heeft plaatsgevonden en klaar om aan de bak te gaan. Op het moment kunnen we onze arm besturen met een controller, en hebben we ogen die emoties vertonen. Verder is er natuurlijk veel meer gebeurt, zoals de UML, Motoren voor onze rupsbanden, grijper prototype is geprint etc.<p>
- <object  width="420" height="315" data="https://www.youtube.com/watch?v=wIQAVbh_THs"></object>
+ <object width="420" height="315"
+data="https://www.youtube.com/watch?v=wIQAVbh_THs">
+</object>
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
