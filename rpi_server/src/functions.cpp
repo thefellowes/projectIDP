@@ -1,9 +1,8 @@
-#include "stdafx.h"
-#include "opencv2\opencv.hpp"
+#include <opencv2\opencv.hpp>
 #include <vector>
 #include <string>
-#include "ColorIsolator.hpp"
-#include "Sliders.hpp"
+#include "ColorIsolator.h"
+#include "Sliders.h"
 #include "functions.h"
 
 using namespace cv;

@@ -10,6 +10,7 @@ to build this project you will need the following programs installed:
 * opencv (3)
 * opencv-dev
 * wiringPi
+* pkg-config
 
 
 ### Installing

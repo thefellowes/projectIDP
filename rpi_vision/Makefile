@@ -15,8 +15,7 @@ TARGET=./build/rpi_vision
 # The Target Build
 all: build $(TARGET) tests
 
-dev: CXXFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS) -pthread --std=c++11 $(shell pkg-config --cflags opencv)
-
+dev: CXXFLAGS=-g -Isrc -Wall -Wextra $(OPTFLAGS) -pthread --std=c++11 $(shell pkg-config --cflags opencv)
 dev: all
 
 $(TARGET): CXXFLAGS += -fPIC
