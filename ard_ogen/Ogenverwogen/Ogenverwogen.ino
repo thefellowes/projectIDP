@@ -187,7 +187,8 @@ label_d:
           display_2.clearDisplay();
           button_state = digitalRead(BUTTON_PIN);
         }
-        delay(1000);button_state = digitalRead(BUTTON_PIN);
+        delay(3000);
+        button_state = digitalRead(BUTTON_PIN);
         button_state = digitalRead(BUTTON_PIN);
         if (button_state == LOW)
           goto label_d;
