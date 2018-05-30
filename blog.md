@@ -1,8 +1,18 @@
 # Project IDP
+<style>
+.image {
+overflow: hidden;
+    max-width: 400px;
+    max-height: 400px;
+    float: right;
+    margin: 0px 0px 20px 0px;
+}
+</style>
+
 <div class="blogPost">
   <h3 style="text-align:center;">Maandag, 7 mei</h3>
   <p style="float:left; width:40%;">Na een weekje vakantie gaat groep 8 meteen weer hard aan de slag! Omdat er voor de vakantie goed is overlegd, en een goeie backlog is gemaakt, kunnen wij ons project aftrappen. De productie van onze Bert-bot, is namelijk van start gegaan. Er wordt op dit moment geprogrammeerd, ontworpen, en connecties worden gelegd<p>
-  <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446232100262117376/34576-BIER20IN20DE20ZON.png">
+  <img class="image" src="https://cdn.discordapp.com/attachments/185375386283016192/446232100262117376/34576-BIER20IN20DE20ZON.png">
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
@@ -25,7 +35,7 @@
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Vrijdag 25 mei</h3>
-  <p style="float:left; width:40%; height:40%;">Na een lange nacht rouwen om Bert zijn overlijden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloednieuw lichaam voor Bert, samen met Bert zijn bewustzijn(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+.<p>
+  <p class="image">Na een lange nacht rouwen om Bert zijn overlijden zijn kameraad Thomas en Pater naar Jacob Hut gestapt. Niet veel later zijn de kameraden wedergekeerd met een gloednieuw lichaam voor Bert, samen met Bert zijn bewustzijn(SD kaartje) is Bert herboren in een nieuw lichaam als PI 3 model B+.<p>
   <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/449482953781805056/sssss.png">
   <div style="clear:both;"></div>
 <hr>
@@ -47,3 +57,8 @@
   <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446238460739715073/Naamloos.png">
   <div style="clear:both;"></div>
 <hr>
+	overflow: hidden;
+    max-width: 400px;
+    max-height: 400px;
+    float: right;
+    margin: 0px 0px 20px 0px;
