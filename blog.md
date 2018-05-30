@@ -37,7 +37,8 @@
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Woensdag 30 mei</h3>
-  <object style="align:center; width:600px; height:450px;" data="https://www.youtube.com/embed/Tl4lwq4C6Vc"></object>
+  <p style="float:left; width:30%;">Onze slider is ook functioneel.<p>
+  <object style="float:right; width:600px; height:375px;" data="https://www.youtube.com/embed/Tl4lwq4C6Vc"></object>
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
