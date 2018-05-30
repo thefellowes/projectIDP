@@ -8,7 +8,9 @@ overflow: hidden;
     margin: 0px 0px 20px 0px;
 }
   .imageWrapper object{
-    max-width:400px;
+    width:400px;
+	max-width:400px;
+	height:300px;
 	max-height:400px;
 	float:right;
   }
