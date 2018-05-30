@@ -12,7 +12,7 @@ bool Arm::posPossible(float x, float y)
 	return (x * x + y * y > armlength * armlength) ? false : true;
 }
 
-void Arm::turn(int servo, int position)
+void Arm::turn(int servo, int &position)
 {
 	//check if rotation position out of range
 	if (position < servoMinRotation)
@@ -94,6 +94,10 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 	speedY = ySpeed;
 	speedRotation = rotationSpeed;
 }
+void Arm::setRotation(float rotation) {
+	ax12a.moveSpeed(servos.armRotation, rotation, 200);
+	
+}
 
 std::vector<int> Arm::getArmServoPositions()
 {
@@ -112,10 +116,10 @@ int Arm::move(int delay)
 	//change position
 	posX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY += maxSpeed * speedY;
-	posRotation += maxSpeedRotation * speedRotation;
+	//posRotation += maxSpeedRotation * speedRotation;
 
 	//turn arm
-	turn(servos.armRotation, posRotation);
+	//turn(servos.armRotation, posRotation);
 
 	if (!posPossible(posX, posY)) {
 		float vectorSize = sqrt(posX * posX + posY * posY);
@@ -156,11 +160,11 @@ void Arm::moveTo(float x, float y, float ha)
 	moveTo(x, y, ha, posRotation);
 }
 
-void Arm::moveTo(float x, float y, float ha, int rotation)
+void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 {
 	moveInterrupted = true;
 
-	std::vector<std::vector<int>> path = getPath(posX, posY, x, y, headAngle, ha);
+	std::vector<std::vector<int>> path = getPath(posX, posY, x, y, headAngle, ha, (getCurvedPath ? 5.0f : 45.0f));
 
 	if (rotation < servoMinRotation)
 		rotation = servoMinRotation;
@@ -224,3 +228,46 @@ int Arm::getPosGripper()
 {
 	return ax12a.readPosition(servos.gripper);
 }
+
+void Arm::letsGetGroovy() 
+{
+	
+}
+
+void Arm::setServoValues(ArmServos values, int delay) 
+{
+	ax12a.moveSpeed(servos.armRotation, values.armRotation, delay);
+	for (int i = 0; i < servos.joints.size(); i++) {
+		ax12a.moveSpeed(servos.joints[i], values.joints[i], delay);
+	}
+	ax12a.moveSpeed(servos.gripperRotation, values.gripperRotation, delay);
+	ax12a.moveSpeed(servos.gripper, values.gripper, delay);
+}
+ArmServos Arm::readServoValues() {
+	ArmServos values;
+
+	values.armRotation = ax12a.readPosition(servos.armRotation);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	for (int i = 0; i < servos.joints.size(); i++) {
+		values.joints[i] = ax12a.readPosition(servos.joints[i]);
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	values.gripperRotation = ax12a.readPosition(servos.gripperRotation);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	values.gripper = ax12a.readPosition(servos.gripper);
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+	std::cout << "armRotation = " << values.armRotation << std::endl;
+	for (int i = 0; i < servos.joints.size(); i++) {
+		values.joints[i] = ax12a.readPosition(servos.joints[i]);
+		std::cout << "joint-" << i << " = " << values.joints[i] << std::endl;
+	}
+	std::cout << "gripperRotation = " << values.gripperRotation << std::endl;
+	std::cout << "gripper = " << values.gripper << std::endl;
+
+	return values;
+}
+
+//std::vector<int> mirrorAnglesOverY(std::vector<int> angles) {
+//
+//}
