@@ -37,7 +37,7 @@
 <hr>
 <div class="blogPost">
   <h3 style="text-align:center;">Woensdag 30 mei</h3>
-  <object style="float:middle; width:600px; height:450px;" data="https://www.youtube.com/embed/Tl4lwq4C6Vc"></object>
+  <object style="align:center; width:600px; height:450px;" data="https://www.youtube.com/embed/Tl4lwq4C6Vc"></object>
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
