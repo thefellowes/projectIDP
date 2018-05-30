@@ -48,7 +48,7 @@ public:
 	int getPosGripper();
 
 	void letsGetGroovy();
-	void setServoValues(ArmServos values, int delay);
+	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
 	ArmServos readServoValues();
 
 };

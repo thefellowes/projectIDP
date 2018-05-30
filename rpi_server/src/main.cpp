@@ -45,15 +45,18 @@ int main(void) {
 	ax12a.begin(BaudRate, DirectionPin, Serial);
 
 	Arm arm(ax12a, servos);
+	arm.letsGetGroovy();
 	//arm.moveTo(-10, 0, 180, 512);
 	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	//arm.moveTo(-17.5, 7.5, 270, 512);
 
-	std::thread thread_listen(listen_t, std::ref(arm));
-	std::thread thread_armMove(&Arm::startMovement, std::ref(arm));
+	ArmServos values = arm.readServoValues();
 
-	thread_listen.join();
-	thread_armMove.join();
+	//std::thread thread_listen(listen_t, std::ref(arm));
+	//std::thread thread_armMove(&Arm::startMovement, std::ref(arm));
+
+	//thread_listen.join();
+	//thread_armMove.join();
 	ax12a.end();
 	return 0;
 }

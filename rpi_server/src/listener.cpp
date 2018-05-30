@@ -79,8 +79,8 @@ char** str_split(char* a_str, const char a_delim)
 
 void listen_t(Arm &arm) {
 	int sockfd;
-	bool rotating = false;
-	float rotSpeed = 0;
+	//bool rotating = false;
+	//float rotSpeed = 0;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
@@ -134,7 +134,7 @@ void listen_t(Arm &arm) {
 
 		//X, Y, A, B
 		struct user_input parsed_input = parse_input(tokenSwitch);
-		printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y, parsed_input.r);
+		printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
 		printf("Rotation is : %f\n", parsed_input.r);
 		if (parsed_input.r >= 0) {
 			if (parsed_input.r > 1023) parsed_input.r = 1023;

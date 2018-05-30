@@ -1,3 +1,6 @@
+#ifndef ARMCONSTANTES_H
+#define ARMCONSTANTES_H
+
 #include <vector>
 
 
@@ -20,3 +23,5 @@ const float maxSpeedRotation = 10;	//size to change rotation
 const int moveDelay = 10;
 const float moveToStepSize = 0.1f;
 const int moveToDelay = (moveToStepSize / maxSpeed * maxSpeedRotation);
+
+#endif
