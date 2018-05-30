@@ -77,8 +77,10 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-void listen(Arm &arm) {
-    int sockfd;
+void listen_t(Arm &arm) {
+	int sockfd;
+	bool rotating = false;
+	float rotSpeed = 0;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
@@ -132,10 +134,29 @@ void listen(Arm &arm) {
 
 		//X, Y, A, B
 		struct user_input parsed_input = parse_input(tokenSwitch);
-		printf("Move : %f |  %f", parsed_input.x, parsed_input.y);
-		arm.move(parsed_input.x, parsed_input.y);		
+		printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y, parsed_input.r);
+		printf("Rotation is : %f\n", parsed_input.r);
+		if (parsed_input.r >= 0) {
+			if (parsed_input.r > 1023) parsed_input.r = 1023;
+			arm.setRotation(parsed_input.r);
+		}
+		// if(parsed_input.r != 0){
+			// printf("Trying to rotate! %f\n");
+			// if(rotating == false){rotating = true; rotSpeed = parsed_input.r;}
+			// else if(rotating == true){rotating = false;}
+			// else{
+				// printf("At least i tried :( %s\n");
+			// }
+			// printf("rotSpeed = %f\n", rotSpeed);
+		// if(rotating){
+			// arm.setSpeed(parsed_input.x, parsed_input.y, rotSpeed);					
+		// }
+		// else{
+			arm.setSpeed(parsed_input.x, parsed_input.y, 0);					
+		//}
 
 		free(tokenSwitch);
+		//}
 	}
 
     close(sockfd);
