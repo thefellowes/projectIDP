@@ -98,7 +98,7 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 }
 void Arm::setRotation(float rotation) {
 	ax12a.moveSpeed(servos.armRotation, rotation, 200);
-	
+	posRotation = rotation;
 }
 
 std::vector<int> Arm::getArmServoPositions()
@@ -114,14 +114,16 @@ std::vector<int> Arm::getArmServoPositions()
 
 // delay in milliseconds
 int Arm::move(int delay)
-{	
+{
 	//change position
 	posX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY += maxSpeed * speedY;
-	//posRotation += maxSpeedRotation * speedRotation;
 
 	//turn arm
-	//turn(servos.armRotation, posRotation);
+	if (speedRotation != 0) {
+		posRotation += maxSpeedRotation * speedRotation;
+		turn(servos.armRotation, posRotation);
+	}
 
 	if (!posPossible(posX, posY)) {
 		float vectorSize = sqrt(posX * posX + posY * posY);
@@ -237,23 +239,38 @@ void Arm::letsGetGroovy()
 {
 	ArmServos oldValues = readServoValues();
 		//setServoValues({ rotation, { base joint, mid joint, head joint }, head rotation, gripper }, delay, oldValues);
-	oldValues = setServoValues({ 210, { 470, 748, 820 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 478, 881, 820 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 632, 962, 820 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 722,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 722,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 722,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 722,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-}
+	//oldValues = setServoValues({ 210, { 470, 748, 820 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 478, 881, 820 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 632, 962, 820 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
+
+	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+
+	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	
+	
+	}
 
 ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues) 
 {
@@ -295,6 +312,10 @@ ArmServos Arm::readServoValues() {
 	return values;
 }
 
-//std::vector<int> mirrorAnglesOverY(std::vector<int> angles) {
-//
-//}
+std::vector<int> mirrorAnglesOverY(std::vector<int> angles) {
+	int size = angles.size();
+	for (int i = 0; i < size; i++) {
+		angles[i] = (512 - angles[i] + 512);
+	}
+	return angles;
+}

@@ -87,7 +87,7 @@ void listen_t(Arm &arm) {
 	struct sockaddr_storage their_addr;
 	char buf[MAXBUFLEN];
 	socklen_t addr_len;
-	char s[INET6_ADDRSTRLEN];
+	//char s[INET6_ADDRSTRLEN];
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
 	hints.ai_socktype = SOCK_DGRAM;
@@ -123,10 +123,10 @@ void listen_t(Arm &arm) {
 			perror("recvfrom");
 			exit(1);
 		}
-		printf("listener: got packet from %s\n",
-		inet_ntop(their_addr.ss_family,
-		get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
-		printf("listener: packet is %d bytes long\n", numbytes);
+		//printf("listener: got packet from %s\n",
+		//inet_ntop(their_addr.ss_family,
+		//get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
+		//printf("listener: packet is %d bytes long\n", numbytes);
 		buf[numbytes] = '\0';
 
 		char** tokenSwitch;
@@ -134,29 +134,24 @@ void listen_t(Arm &arm) {
 
 		//X, Y, A, B
 		struct user_input parsed_input = parse_input(tokenSwitch);
-		printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
-		printf("Rotation is : %f\n", parsed_input.r);
+		//printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
+		//printf("Rotation is : %f\n", parsed_input.r);
 		if (parsed_input.r >= 0) {
 			if (parsed_input.r > 1023) parsed_input.r = 1023;
 			arm.setRotation(parsed_input.r);
 		}
-		// if(parsed_input.r != 0){
-			// printf("Trying to rotate! %f\n");
-			// if(rotating == false){rotating = true; rotSpeed = parsed_input.r;}
-			// else if(rotating == true){rotating = false;}
-			// else{
-				// printf("At least i tried :( %s\n");
-			// }
-			// printf("rotSpeed = %f\n", rotSpeed);
-		// if(rotating){
-			// arm.setSpeed(parsed_input.x, parsed_input.y, rotSpeed);					
-		// }
-		// else{
-			arm.setSpeed(parsed_input.x, parsed_input.y, 0);					
-		//}
+
+		arm.setSpeed(parsed_input.x, parsed_input.y);
+
+		if (parsed_input.doStop == true) {
+			arm.stopMovement();
+			std::cout << "Application Stoped" << std::endl;
+			break;
+		}
+
 
 		free(tokenSwitch);
-		//}
+
 	}
 
     close(sockfd);

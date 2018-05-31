@@ -33,7 +33,7 @@ public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);
 	void startMovement();
 	void stopMovement();
-	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed);
+	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed = 0);
 	void setRotation(float rotation);
 	std::vector<int> getArmServoPositions();
 	int move(int delay);
