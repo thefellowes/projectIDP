@@ -8,6 +8,8 @@ struct user_input {
 	float y;
 	float a;
 	float b;
+	float r;
+	bool doStop;
 };
 
 #endif

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 #include "dbg.h"
 #include "arm.h"
@@ -30,22 +31,32 @@
 #define Serial "/dev/ttyAMA0" 
 
 
-int main(void){	
+int main(void) {
 	AX12A ax12a;
+	ArmServos servos;
+
+	servos.armRotation = IDturn;
+	servos.gripperRotation = 13;//not connected/defined yet
+	servos.gripperRotation = 13;//not connected/defined yet
+	servos.joints.push_back(ID);
+	servos.joints.push_back(ID1);
+	servos.joints.push_back(ID2);
+
 	ax12a.begin(BaudRate, DirectionPin, Serial);
 
-	std::vector<int> servos = {IDturn, ID, ID1, ID2};
+	Arm arm(ax12a, servos);
+	//arm.letsGetGroovy();
+	//arm.moveTo(-10, 0, 180, 512);
+	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	//arm.moveTo(-17.5, 7.5, 270, 512);
 	
-	Arm arm(ax12a, servos);	
-	arm.moveTo(-10, 0, 180, 512);
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	arm.moveTo(-17.5, 7.5, 270, 512);
-	
-	std::thread thread_listen(listen_t, arm);
-	// std::thread thread_vision(vision_t, arm);
-	// std::thread thread_listen(listen_t, arm);
+	//ArmServos values = arm.readServoValues();
+
+	std::thread thread_listen(listen_t, std::ref(arm));
+	std::thread thread_armMove(&Arm::startMovement, std::ref(arm));
 
 	thread_listen.join();
+	thread_armMove.join();
 	ax12a.end();
 	return 0;
 }

@@ -1,3 +1,6 @@
+#ifndef __INVERSE_KINEMATICS_H__
+#define __INVERSE_KINEMATICS_H__
+
 #define _USE_MATH_DEFINES
 
 
@@ -28,3 +31,5 @@ template <typename T>
 T convertToRange(const T value, const T originalMax, const T newMax);
 template <typename T>
 T convertToRange(const T value, const T originalMin, const T originalMax, const T newMin, const T newMax);
+
+#endif
