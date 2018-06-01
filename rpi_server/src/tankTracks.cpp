@@ -91,6 +91,7 @@ void TankTracks::startMotors()
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	std::cout << "tankTracks Stopped" << std::endl;
 }
 
 void TankTracks::stopMotors()

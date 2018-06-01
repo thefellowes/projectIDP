@@ -1,7 +1,7 @@
 #include <thread>
 #include <chrono>
 #include "InverseKinematics.h"	//also includes: "armConstantes.h"
-#include "armConstantes.h"
+#include "armConstants.h"
 #include "arm.h"
 
 //debug:
@@ -54,20 +54,20 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
-//	ax12a.move(servos.armRotation, posRotation);
-//	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
-//
-//	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
-//	bool newPosPossible = constraint(newPos, constr_min, constr_max);
-//
-//	//extra check if position is possible
-//	if (newPosPossible) {
-//		int size = newPos.size();
-//		for (int i = 0; i < size; i++) {
-//			ax12a.moveSpeed(servos.joints[i], newPos[i], 300);
-//			//std::this_thread::sleep_for(std::chrono::milliseconds(20));
-//		}
-//	}
+	ax12a.move(servos.armRotation, posRotation);
+	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
+	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
+	bool newPosPossible = constraint(newPos, constr_min, constr_max);
+
+	//extra check if position is possible
+	if (newPosPossible) {
+		int size = newPos.size();
+		for (int i = 0; i < size; i++) {
+			ax12a.moveSpeed(servos.joints[i], newPos[i], 300);
+			//std::this_thread::sleep_for(std::chrono::milliseconds(20));
+		}
+	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 }
@@ -82,6 +82,7 @@ void Arm::startMovement()
 			move(moveDelay);
 		std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
 	}
+	std::cout << "Arm Stopped" << std::endl;
 }
 
 void Arm::stopMovement()
@@ -159,6 +160,12 @@ void Arm::setGripperPosition(int position)
 {
 	turn(servos.gripperRotation, position);
 }
+//void Arm::setGripperHorizontal() {
+//	turn(servos.gripperRotation, 512);
+//}
+//void Arm::setGripperVertical() {
+//	turn(servos.gripperRotation, 210);
+//}
 
 void Arm::moveTo(float x, float y, float ha)
 {

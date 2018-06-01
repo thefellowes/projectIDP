@@ -29,6 +29,7 @@
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
 #define IDturn (14u)
+#define IDgripperRotation (144u)
 #define ID (3u)
 #define ID1 (9u)
 #define ID2 (61u)
@@ -53,8 +54,8 @@ int main(void) {
 	TankTracks tankTracks(leftMotor, rightMotor);
 
 	servos.armRotation = IDturn;
-	servos.gripperRotation = 13;//not connected/defined yet
-	servos.gripperRotation = 13;//not connected/defined yet
+	servos.gripper = 12;//not connected/defined yet
+	servos.gripperRotation = IDgripperRotation;
 	servos.joints.push_back(ID);
 	servos.joints.push_back(ID1);
 	servos.joints.push_back(ID2);
@@ -69,13 +70,17 @@ int main(void) {
 	
 	//ArmServos values = arm.readServoValues();
 
-	std::thread thread_listen(listen_t, std::ref(arm), std::ref(tankTracks));
-	std::thread thread_armMove(&Arm::startMovement, std::ref(arm));
-	std::thread thread_tankTrackMove(&TankTracks::startMotors, std::ref(tankTracks));
+	//Calculate Mandelbrot
 
-	thread_listen.join();
-	thread_armMove.join();
-	thread_tankTrackMove.join();
+	//Start processes in seperate threads
+	std::vector<std::thread> threads;
+	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks)));
+	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
+	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+
+	//close threads
+	for (auto &thrd : threads)
+		thrd.join();
 
 	ax12a.end();
 	return 0;

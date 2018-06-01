@@ -7,7 +7,7 @@
 #include <vector>
 #include <math.h>
 #include <iostream>
-#include "armConstantes.h"
+#include "armConstants.h"
 
 
 //Grab these from config file in a more finalized project

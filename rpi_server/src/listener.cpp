@@ -147,7 +147,8 @@ void listen_t(Arm &arm, TankTracks &tankTracks) {
 
 		if (parsed_input.doStop == true) {
 			arm.stopMovement();
-			std::cout << "Application Stoped" << std::endl;
+			tankTracks.stopMotors();
+			std::cout << "Application Stopped" << std::endl;
 			break;
 		}
 
@@ -155,7 +156,7 @@ void listen_t(Arm &arm, TankTracks &tankTracks) {
 		free(tokenSwitch);
 
 	}
-
+	std::cout << "Listener Stopped" << std::endl;
     close(sockfd);
     return;
 }
