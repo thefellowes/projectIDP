@@ -10,7 +10,7 @@ T positive(T x) {
 	return x < 0 ? x*-1 : x;
 }
 
-const int TankTracks::acceleration = 15;
+const int TankTracks::acceleration = 200;
 
 void TankTracks::moveMotors()
 {	
@@ -61,8 +61,14 @@ void TankTracks::startMotors()
 {
 	motorsRunning = true;
 
+	int oldSpeedLeftMotor;
+	int oldSpeedRightMotor;
+
 	while (motorsRunning)
 	{
+		oldSpeedLeftMotor = speedLeftMotor;
+		oldSpeedRightMotor = speedRightMotor;
+
 		if(nextSpeedLeftMotor > speedLeftMotor && nextSpeedLeftMotor > speedLeftMotor + acceleration){
 			speedLeftMotor += acceleration;
 		}else if(nextSpeedLeftMotor < speedLeftMotor && nextSpeedLeftMotor < speedLeftMotor - acceleration){
@@ -79,8 +85,11 @@ void TankTracks::startMotors()
 			speedRightMotor = nextSpeedRightMotor;
 		}
 
-		moveMotors();
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+		if (oldSpeedLeftMotor != speedLeftMotor || oldSpeedRightMotor != speedRightMotor) {
+			moveMotors();
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 
@@ -93,8 +102,8 @@ void TankTracks::stopMotors()
 void TankTracks::setSpeed(int speedLeft, int speedRight)
 {
 	//check if speed of motors not lower than minimum speed
-	speedLeft = positive(speedLeft) < leftMotor.minSpeed ? (speedLeft/positive(speedLeft)) * leftMotor.minSpeed : speedLeft;
-	speedRight = positive(speedRight) < rightMotor.minSpeed ? (speedRight/positive(speedRight)) * rightMotor.minSpeed : speedRight;
+	if (speedLeft  != 0) speedLeft  = positive(speedLeft) < leftMotor.minSpeed ? (speedLeft/positive(speedLeft)) * leftMotor.minSpeed : speedLeft;
+	if (speedRight != 0) speedRight = positive(speedRight) < rightMotor.minSpeed ? (speedRight/positive(speedRight)) * rightMotor.minSpeed : speedRight;
 
 	//for debug:
 	std::cout << "speedLeftMotor: " << speedLeft << std::endl;
@@ -121,9 +130,8 @@ void TankTracks::move(float throttle, float direction, int maxSpeed)
 	//stop motors if both inputs in stop range; make turn on place if direction not equal to 0
 	if(throttle > -0.1 && throttle < 0.1){
 		if(direction == 0){
-			stop();
-			std::cout << "stop 0,0" << std::endl;
-			return;
+			speedL = 0;
+			speedR = 0;
 		}
 		else{
 			speedL = direction * speed;

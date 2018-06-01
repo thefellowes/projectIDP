@@ -17,10 +17,11 @@ void Motor::changeRotationDelay()
 Motor::Motor(int pwmPin, int directionPinA, int directionPinB) : pwmPin(pwmPin), directionPinA(directionPinA), directionPinB(directionPinB)
 {
 	speed = 0;
+	isClockwise = false;
+	isCounterClockwise = false;
 
-	//TODO: setup of wiringpi also done in AX12A.cpp --> do this setup in main
-	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
-	wiringPiSetupGpio(); //This function needs to be called with root privileges.
+	////Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
+	//wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	//setup pwmpin and directionpins
 	pinMode(pwmPin, PWM_OUTPUT);
@@ -35,20 +36,28 @@ Motor::Motor(int pwmPin, int directionPinA, int directionPinB) : pwmPin(pwmPin),
 
 void Motor::setClockwise()
 {
-	changeRotationDelay();
+	if (!isClockwise) {
+		changeRotationDelay();
 
-	//set direction
-	digitalWrite(directionPinA, HIGH);
-	digitalWrite(directionPinB, LOW);
+		//set direction
+		digitalWrite(directionPinA, HIGH);
+		digitalWrite(directionPinB, LOW);
+
+		isClockwise = true;
+	}
 }
 
 void Motor::setCounterClockwise()
 {
-	changeRotationDelay();
+	if (!isCounterClockwise) {
+		changeRotationDelay();
 
-	//set direction
-	digitalWrite(directionPinA, LOW);
-	digitalWrite(directionPinB, HIGH);
+		//set direction
+		digitalWrite(directionPinA, LOW);
+		digitalWrite(directionPinB, HIGH);
+
+		isCounterClockwise = true;
+	}
 }
 
 //speed of the motor from 0 to 1024
@@ -73,6 +82,8 @@ void Motor::stop()
 	digitalWrite(directionPinA, LOW);
 	digitalWrite(directionPinB, LOW);
 	pwmWrite(pwmPin, 0);
+	isClockwise = false;
+	isCounterClockwise = false;
 }
 
 Motor::~Motor()

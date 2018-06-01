@@ -16,6 +16,7 @@
 
 #include "parser.h"
 #include "arm.h"
+#include "tankTracks.h"
 
 #define MYPORT "1313"
 #define MAXBUFLEN 100
@@ -77,7 +78,7 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-void listen_t(Arm &arm) {
+void listen_t(Arm &arm, TankTracks &tankTracks) {
 	int sockfd;
 	//bool rotating = false;
 	//float rotSpeed = 0;
@@ -142,6 +143,7 @@ void listen_t(Arm &arm) {
 		}
 
 		arm.setSpeed(parsed_input.x, parsed_input.y);
+		tankTracks.move(parsed_input.a, parsed_input.b, 512);
 
 		if (parsed_input.doStop == true) {
 			arm.stopMovement();

@@ -16,10 +16,14 @@
 #include <chrono>
 #include <vector>
 
+#include <wiringPi.h>
+
 #include "dbg.h"
 #include "arm.h"
 #include "AX12A.h"
 #include "listener.h"
+#include "motor.h"
+#include "tankTracks.h"
 
 
 #define DirectionPin (18u)
@@ -32,8 +36,21 @@
 
 
 int main(void) {
+	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
+	wiringPiSetupGpio(); //This function needs to be called with root privileges.
+
+	int pwmPinL = 12;
+	int directionPinAL = 5;
+	int directionPinBL = 6;
+	int pwmPinR = 13;
+	int directionPinAR = 19;
+	int directionPinBR = 26;
+
 	AX12A ax12a;
 	ArmServos servos;
+	Motor leftMotor(pwmPinL, directionPinAL, directionPinBL);
+	Motor rightMotor(pwmPinR, directionPinAR, directionPinBR);
+	TankTracks tankTracks(leftMotor, rightMotor);
 
 	servos.armRotation = IDturn;
 	servos.gripperRotation = 13;//not connected/defined yet
@@ -52,11 +69,14 @@ int main(void) {
 	
 	//ArmServos values = arm.readServoValues();
 
-	std::thread thread_listen(listen_t, std::ref(arm));
+	std::thread thread_listen(listen_t, std::ref(arm), std::ref(tankTracks));
 	std::thread thread_armMove(&Arm::startMovement, std::ref(arm));
+	std::thread thread_tankTrackMove(&TankTracks::startMotors, std::ref(tankTracks));
 
 	thread_listen.join();
 	thread_armMove.join();
+	thread_tankTrackMove.join();
+
 	ax12a.end();
 	return 0;
 }

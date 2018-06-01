@@ -7,6 +7,8 @@ class Motor {
 		int directionPinA;
 		int directionPinB;
 		int speed;
+		bool isClockwise;
+		bool isCounterClockwise;
 		void changeRotationDelay();
 	public:
 		static const int minSpeed;

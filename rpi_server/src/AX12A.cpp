@@ -40,8 +40,8 @@ int AX12A::read_error(void)
 
 void AX12A::begin(long baud, unsigned char directionPin, const char* srl)
 {
-	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
-	wiringPiSetupGpio(); //This function needs to be called with root privileges.
+	////Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
+	//wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	Direction_Pin = directionPin;
 	pinMode(Direction_Pin, OUTPUT);
