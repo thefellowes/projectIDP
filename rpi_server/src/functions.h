@@ -1,7 +1,6 @@
 
 #ifndef functions_h
 #define functions_h
-#include "stdafx.h"
 #include "opencv2\opencv.hpp"
 #include <vector>
 #include <string>
@@ -13,8 +12,9 @@ class functions {
 
 private:
 	int middleX, middleY, x, y, w, h = 0;
-	RotatedRect marker;
-	ColorIsolator isolator;
+	std::vector<RotatedRect> markers;
+	std::vector<ColorIsolator> isolators;
+	std::vector<std::string> colorNames;
 	Sliders sliders;
 	Mat image;
 
@@ -22,15 +22,17 @@ private:
 
 public:
 
-	functions(std::vector<int> initValues);
+	functions(std::vector<std::vector<int>> initValues);
 
 	Mat getImage();
 
 	void update(Mat image_);
 
+	void updateMarkers();
+
 	std::string getStance();
 
-	RotatedRect find_marker(Mat image, std::vector<int> lowerArray, std::vector<int> upperArray);
+	RotatedRect find_marker(Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName);
 
 	void find_marker_cup(Mat image);
 
