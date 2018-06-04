@@ -24,6 +24,7 @@
 #include "listener.h"
 #include "motor.h"
 #include "tankTracks.h"
+#include "talker.h"
 
 
 #define DirectionPin (18u)
@@ -52,6 +53,7 @@ int main(void) {
 	Motor leftMotor(pwmPinL, directionPinAL, directionPinBL);
 	Motor rightMotor(pwmPinR, directionPinAR, directionPinBR);
 	TankTracks tankTracks(leftMotor, rightMotor);
+	Talker talker(ax12a);
 
 	servos.armRotation = IDturn;
 	servos.gripper = 12;//not connected/defined yet
@@ -74,9 +76,10 @@ int main(void) {
 
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
-	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks)));
+	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
 	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+	threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	//close threads
 	for (auto &thrd : threads)

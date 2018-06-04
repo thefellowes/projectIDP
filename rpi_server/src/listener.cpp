@@ -17,6 +17,7 @@
 #include "parser.h"
 #include "arm.h"
 #include "tankTracks.h"
+#include "talker.h"
 
 #define MYPORT "1313"
 #define MAXBUFLEN 100
@@ -78,7 +79,7 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-void listen_t(Arm &arm, TankTracks &tankTracks) {
+void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 	int sockfd;
 	//bool rotating = false;
 	//float rotSpeed = 0;
@@ -137,9 +138,9 @@ void listen_t(Arm &arm, TankTracks &tankTracks) {
 		struct user_input parsed_input = parse_input(tokenSwitch);
 		//printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
 		//printf("Rotation is : %f\n", parsed_input.r);
-		if (parsed_input.r >= 0) {
-			if (parsed_input.r > 1023) parsed_input.r = 1023;
-			arm.setRotation(parsed_input.r);
+		if (parsed_input.rotation >= 0) {
+			if (parsed_input.rotation > 1023) parsed_input.rotation = 1023;
+			arm.setRotation(parsed_input.rotation);
 		}
 
 		arm.setSpeed(parsed_input.x, parsed_input.y);
@@ -148,6 +149,7 @@ void listen_t(Arm &arm, TankTracks &tankTracks) {
 		if (parsed_input.doStop == true) {
 			arm.stopMovement();
 			tankTracks.stopMotors();
+			talker.stopTalking();
 			std::cout << "Application Stopped" << std::endl;
 			break;
 		}
