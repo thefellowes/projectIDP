@@ -5,11 +5,8 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <vector>
-#include "Sliders.hpp"
-#include "ColorIsolator.hpp"
+#include "ColorIsolator.h"
 #include "functions.h"
-
-using namespace cv;
 
 int main()
 {
@@ -20,10 +17,10 @@ int main()
 	markerValues.push_back({ 6, 100, 100, 10, 255, 255 }); //orange
 	markerValues.push_back({ 0, 100, 100, 5, 255, 255 }); //red
 	
-	VideoCapture cap(0);
+	cv::VideoCapture cap(0);
 	if (!cap.isOpened())
 		return -1;
-	Mat frame;
+	cv::Mat frame;
 	cap.grab();
 	cap.retrieve(frame);
 	functions funct = functions(markerValues);
@@ -33,6 +30,6 @@ int main()
 		cap >> frame;	
 		funct.update(frame);
 		frame = funct.getImage();
-		waitKey(1);
+		cv::waitKey(1);
 	}
 }
