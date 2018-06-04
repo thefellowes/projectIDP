@@ -27,24 +27,30 @@ private:
 	int posRotation;
 	std::vector<int> currentPosServos;
 	bool posPossible(float x, float y);
-	void turn(int servo, int position);
+	void turn(int servo, int &position);
 	int calcRotationSpeed(float diff, int ms);
 public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);
 	void startMovement();
 	void stopMovement();
-	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed);
+	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed = 0);
+	void setRotation(float rotation);
 	std::vector<int> getArmServoPositions();
 	int move(int delay);
 	void setGripperPosition(int position);
 	void moveTo(float x, float y, float ha);
-	void moveTo(float x, float y, float ha, int rotation);
+	void moveTo(float x, float y, float ha, int rotation, bool getCurvedPath=true);
 	void grab(bool close);
 	float getPosX();
 	float getPosY();
 	float getHeadAngle();
 	int getPosRotation();
 	int getPosGripper();
+
+	void letsGetGroovy();
+	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
+	ArmServos readServoValues();
+
 };
 
 #endif //ARM_H

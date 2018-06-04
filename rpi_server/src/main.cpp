@@ -14,38 +14,72 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <vector>
+
+#include <wiringPi.h>
 
 #include "dbg.h"
 #include "arm.h"
-// #include "AX12A.h"
+#include "AX12A.h"
 #include "listener.h"
+#include "motor.h"
+#include "tankTracks.h"
 
 
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
 #define IDturn (14u)
+#define IDgripperRotation (144u)
 #define ID (3u)
 #define ID1 (9u)
 #define ID2 (61u)
 #define Serial "/dev/ttyAMA0" 
 
 
-int main(void){	
+int main(void) {
+	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
+	wiringPiSetupGpio(); //This function needs to be called with root privileges.
+
+	int pwmPinL = 12;
+	int directionPinAL = 5;
+	int directionPinBL = 6;
+	int pwmPinR = 13;
+	int directionPinAR = 19;
+	int directionPinBR = 26;
+
 	AX12A ax12a;
+	ArmServos servos;
+	Motor leftMotor(pwmPinL, directionPinAL, directionPinBL);
+	Motor rightMotor(pwmPinR, directionPinAR, directionPinBR);
+	TankTracks tankTracks(leftMotor, rightMotor);
+
+	servos.armRotation = IDturn;
+	servos.gripper = 12;//not connected/defined yet
+	servos.gripperRotation = IDgripperRotation;
+	servos.joints.push_back(ID);
+	servos.joints.push_back(ID1);
+	servos.joints.push_back(ID2);
+
 	ax12a.begin(BaudRate, DirectionPin, Serial);
 
-	std::vector<int> servos = {IDturn, ID, ID1, ID2};
+	Arm arm(ax12a, servos);
+	//arm.letsGetGroovy();
+	//arm.moveTo(-10, 0, 180, 512);
+	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	//arm.moveTo(-17.5, 7.5, 270, 512);
 	
-	Arm arm(ax12a, servos);	
-	arm.moveTo(-10, 0, 180, 512);
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	arm.moveTo(-17.5, 7.5, 270, 512);
-	
-	std::thread thread_listen(listen_t, arm);
-	// std::thread thread_vision(vision_t, arm);
-	// std::thread thread_listen(listen_t, arm);
+	//ArmServos values = arm.readServoValues();
 
-	thread_listen.join();
+	//Start processes in seperate threads
+	std::vector<std::thread> threads;
+	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks)));
+	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
+	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+
+	//close threads
+	for (auto &thrd : threads)
+		thrd.join();
+
 	ax12a.end();
 	return 0;
 }

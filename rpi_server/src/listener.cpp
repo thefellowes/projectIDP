@@ -16,6 +16,7 @@
 
 #include "parser.h"
 #include "arm.h"
+#include "tankTracks.h"
 
 #define MYPORT "1313"
 #define MAXBUFLEN 100
@@ -77,15 +78,17 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-void listen(Arm &arm) {
-    int sockfd;
+void listen_t(Arm &arm, TankTracks &tankTracks) {
+	int sockfd;
+	//bool rotating = false;
+	//float rotSpeed = 0;
 	struct addrinfo hints, *servinfo, *p;
 	int rv;
 	int numbytes;
 	struct sockaddr_storage their_addr;
 	char buf[MAXBUFLEN];
 	socklen_t addr_len;
-	char s[INET6_ADDRSTRLEN];
+	//char s[INET6_ADDRSTRLEN];
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC; // set to AF_INET to force IPv4
 	hints.ai_socktype = SOCK_DGRAM;
@@ -121,10 +124,10 @@ void listen(Arm &arm) {
 			perror("recvfrom");
 			exit(1);
 		}
-		printf("listener: got packet from %s\n",
-		inet_ntop(their_addr.ss_family,
-		get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
-		printf("listener: packet is %d bytes long\n", numbytes);
+		//printf("listener: got packet from %s\n",
+		//inet_ntop(their_addr.ss_family,
+		//get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
+		//printf("listener: packet is %d bytes long\n", numbytes);
 		buf[numbytes] = '\0';
 
 		char** tokenSwitch;
@@ -132,12 +135,41 @@ void listen(Arm &arm) {
 
 		//X, Y, A, B
 		struct user_input parsed_input = parse_input(tokenSwitch);
-		printf("Move : %f |  %f", parsed_input.x, parsed_input.y);
-		arm.move(parsed_input.x, parsed_input.y);		
+		//printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
+		//printf("Rotation is : %f\n", parsed_input.r);
+
+		//Stop application on controller command
+		if (parsed_input.doStop == true) {
+			arm.stopMovement();
+			tankTracks.stopMotors();
+			std::cout << "Application Stopped" << std::endl;
+			break;
+		}
+
+		//Rotate arm to given position
+		arm.setRotation(parsed_input.rotation);
+
+		//Set speed of arm and tankTracks
+		arm.setSpeed(parsed_input.x, parsed_input.y);
+		tankTracks.move(parsed_input.a, parsed_input.b, 512);
+
+		//Open/Close gripper
+		if (parsed_input.gripper == 0) {};//open gripper
+		if (parsed_input.gripper == 1) {};//close gripper
+
+		//Start/Stop dance
+		if (parsed_input.dance == 0) {};//stop dance
+		if (parsed_input.dance == 1) {};//start dance
+
+		//Start/Stop linedance
+		if (parsed_input.lineDance == 0) {};//stop lineDance
+		if (parsed_input.lineDance == 1) {};//start lineDance
+
 
 		free(tokenSwitch);
-	}
 
+	}
+	std::cout << "Listener Stopped" << std::endl;
     close(sockfd);
     return;
 }
