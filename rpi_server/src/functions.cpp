@@ -26,11 +26,11 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
-		markers.push_back(RotatedRect(Point2f(0, 0), Size2f(0, 0), 0));
-		markers.push_back(RotatedRect(Point2f(0, 0), Size2f(0, 0), 0));		
-		markers.push_back(RotatedRect(Point2f(0, 0), Size2f(0, 0), 0));
-		markers.push_back(RotatedRect(Point2f(0, 0), Size2f(0, 0), 0));
-		markers.push_back(RotatedRect(Point2f(0, 0), Size2f(0, 0), 0));
+		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
+		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
+		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
+		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
+		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
 	}
 
 	cv::Mat functions::getImage()
@@ -114,7 +114,7 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		}
 		return returnString;
 	}
-	cv::RotatedRect functions::find_marker(Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName)
+	cv::RotatedRect functions::find_marker(cv::Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName)
 	{
 			cv::Mat canny_output;
 			std::vector<std::vector<cv::Point>> contours;
@@ -161,7 +161,7 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 
 		// Reduce the noise so we avoid false circle detection
-		cv::GaussianBlur(gray, gray, Size(9, 9), 2, 2);
+		cv::GaussianBlur(gray, gray, cv::Size(9, 9), 2, 2);
 
 		std::vector<cv::Vec3f> circles;
 
@@ -174,8 +174,8 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		{
 			cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
 			int radius = cvRound(circles[i][2]);
-			cv::circle(image, center, 3, Scalar(0, 255, 0), -1, 8, 0);// circle center     
-			cv::circle(image, center, radius, Scalar(0, 0, 255), 3, 8, 0);// circle outline
+			cv::circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);// circle center     
+			cv::circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);// circle outline
 			std::cout << "center : " << center << "\nradius : " << radius << std::endl;
 		}
 
