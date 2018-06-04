@@ -98,7 +98,8 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 	speedRotation = rotationSpeed;
 }
 void Arm::setRotation(float rotation) {
-	ax12a.moveSpeed(servos.armRotation, rotation, 200);
+	rotation *= 1023;
+	ax12a.moveSpeed(servos.armRotation, (int)rotation, 200);
 	posRotation = rotation;
 }
 
@@ -254,16 +255,16 @@ void Arm::letsGetGroovy()
 	//oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
 	//oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
 
-	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
-	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+	oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
 
 	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
 	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);

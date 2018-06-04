@@ -70,8 +70,6 @@ int main(void) {
 	
 	//ArmServos values = arm.readServoValues();
 
-	//Calculate Mandelbrot
-
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
 	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks)));

@@ -107,8 +107,8 @@ void TankTracks::setSpeed(int speedLeft, int speedRight)
 	if (speedRight != 0) speedRight = positive(speedRight) < rightMotor.minSpeed ? (speedRight/positive(speedRight)) * rightMotor.minSpeed : speedRight;
 
 	//for debug:
-	std::cout << "speedLeftMotor: " << speedLeft << std::endl;
-	std::cout << "speedRightMotor: " << speedRight << std::endl;
+	//std::cout << "speedLeftMotor: " << speedLeft << std::endl;
+	//std::cout << "speedRightMotor: " << speedRight << std::endl;
 	
 	nextSpeedLeftMotor = speedLeft;
 	nextSpeedRightMotor = speedRight;
