@@ -138,14 +138,8 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 		struct user_input parsed_input = parse_input(tokenSwitch);
 		//printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
 		//printf("Rotation is : %f\n", parsed_input.r);
-		if (parsed_input.rotation >= 0) {
-			if (parsed_input.rotation > 1023) parsed_input.rotation = 1023;
-			arm.setRotation(parsed_input.rotation);
-		}
 
-		arm.setSpeed(parsed_input.x, parsed_input.y);
-		tankTracks.move(parsed_input.a, parsed_input.b, 512);
-
+		//Stop application on controller command
 		if (parsed_input.doStop == true) {
 			arm.stopMovement();
 			tankTracks.stopMotors();
@@ -153,6 +147,25 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 			std::cout << "Application Stopped" << std::endl;
 			break;
 		}
+
+		//Rotate arm to given position
+		arm.setRotation(parsed_input.rotation);
+
+		//Set speed of arm and tankTracks
+		arm.setSpeed(parsed_input.x, parsed_input.y);
+		tankTracks.move(parsed_input.a, parsed_input.b, 512);
+
+		//Open/Close gripper
+		if (parsed_input.gripper == 0) {};//open gripper
+		if (parsed_input.gripper == 1) {};//close gripper
+
+		//Start/Stop dance
+		if (parsed_input.dance == 0) {};//stop dance
+		if (parsed_input.dance == 1) {};//start dance
+
+		//Start/Stop linedance
+		if (parsed_input.lineDance == 0) {};//stop lineDance
+		if (parsed_input.lineDance == 1) {};//start lineDance
 
 
 		free(tokenSwitch);

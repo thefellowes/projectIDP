@@ -1,8 +1,7 @@
 #ifndef ColorIsolator_HPP
 #define ColorIsolator_HPP
 
-#include <opencv2\opencv.hpp>
-#include "Sliders.h"
+#include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
 
@@ -12,59 +11,35 @@ class ColorIsolator {
 	std::vector<int> initValues;
 	std::string windowName;
 	std::vector<std::string> sliderNames;
-	Sliders sliders;
+	std::vector<int> lower = { 0, 0, 0 };
+	std::vector<int> upper = { 255, 255, 255 };
 	std::vector<int> minVal = { 0, 0, 0 };
 	std::vector<int> maxVal = { 255, 255, 255 };
 
 public:
-	ColorIsolator() : showControls(true), initValues(), windowName(""), sliderNames(), sliders(), minVal(), maxVal() {};
-	ColorIsolator(std::vector<int> initValues1, std::string windowName1, std::vector<std::string> sliderNames1)
+	ColorIsolator() : initValues() {};
+	ColorIsolator(std::vector<int> initValues1)
 	{
-		sliderNames = sliderNames1;
 		initValues = initValues1;
-		windowName = windowName1;
-		showControls = true;
-		std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
-		std::vector<int> defaultInitValues = { 0, 0, 0, 255, 255, 255 };
-
-		if (windowName == "")
-		{
-			std::vector<char> chars = { 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z' };
-			windowName = id_generator(chars);
-		}
-
-		sliderNames = appendWhereNoneString(sliderNames, names);
-		initValues = appendWhereNoneInt(initValues, defaultInitValues);
-		sliders = Sliders(windowName, names.size(), "", 0, 255, true, sliderNames, {}, {}, initValues);
+		lower = { initValues[0], initValues[1], initValues[2] };
+		upper = { initValues[3], initValues[4], initValues[5] };
 	}
 
-	Mat isolate(Mat frame) {
-		cvtColor(frame, frame, COLOR_BGR2HSV);
-
-		std::vector<int> lower = { sliders.val(0), sliders.val(1), sliders.val(2) };
-		std::vector<int> upper = { sliders.val(3), sliders.val(4), sliders.val(5) };
-
-		Mat newImage;
-		inRange(frame, lower, upper, newImage);
+	cv::Mat isolate(cv::Mat frame) {
+		cv::cvtColor(frame, frame, cv::COLOR_BGR2HSV);
+		cv::Mat newImage;
+		cv::inRange(frame, lower, upper, newImage);
 		return newImage;
 	}
 
 	std::vector<int> getLower()
 	{
-		std::vector<int> toReturn;
-		toReturn.push_back(sliders.val(0));
-		toReturn.push_back(sliders.val(1));
-		toReturn.push_back(sliders.val(2));
-		return toReturn;
+		return lower;
 	}
 
 	std::vector<int> getUpper()
 	{
-		std::vector<int> toReturn;
-		toReturn.push_back(sliders.val(3));
-		toReturn.push_back(sliders.val(4));
-		toReturn.push_back(sliders.val(5));
-		return toReturn;
+		return upper;
 	}
 
 	std::string id_generator(std::vector<char> chars)

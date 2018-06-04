@@ -4,12 +4,15 @@
 struct user_input parse_input(char** input_data);
 
 struct user_input {
+	bool doStop;
 	float x;
 	float y;
 	float a;
 	float b;
-	float r;
-	bool doStop;
+	float rotation;
+	int gripper;
+	int dance;
+	int lineDance;
 };
 
 #endif
