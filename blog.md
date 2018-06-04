@@ -73,17 +73,17 @@ overflow: hidden;
   <div style="clear:both;"></div>
 <hr>
 <div class="blogPost">
-  <h3 style="text-align:center;">A university project</h3>
-  <p style="float:left; width:40%;">Bert's avonturen<p>
-  <div class="imageWrapper">
-    <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446238460739715073/Naamloos.png">
-  </div>
-  <div style="clear:both;"></div>
-<hr>
-<div class="blogPost">
   <h3 style="text-align:center;">Donderdag 24 mei</h3>
   <p style="float:left; width:40%;">Na een week hard zwoegen is er zeker weer resultaat toonbaar, de jongens van werktuigbouwkunde hebben een prachtig lichaam voor Bert in elkaar gezet!<p>
   <div class="imageWrapper">
     <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/235020164372889600/453106342115278849/20180604_100120.jpg">
+  </div>
+  <div style="clear:both;"></div>
+ <hr>
+<div class="blogPost">
+  <h3 style="text-align:center;">A university project</h3>
+  <p style="float:left; width:40%;">Bert's avonturen<p>
+  <div class="imageWrapper">
+    <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446238460739715073/Naamloos.png">
   </div>
   <div style="clear:both;"></div>
