@@ -80,6 +80,7 @@ char** str_split(char* a_str, const char a_delim)
 }
 
 void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
+	int batteryPerc;
 	int sockfd;
 	//bool rotating = false;
 	//float rotSpeed = 0;
@@ -139,7 +140,6 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 		//printf("Move : %f |  %f \n", parsed_input.x, parsed_input.y);
 		//printf("Rotation is : %f\n", parsed_input.r);
 		if (parsed_input.rotation >= 0) {
-			if (parsed_input.rotation > 1023) parsed_input.rotation = 1023;
 			arm.setRotation(parsed_input.rotation);
 		}
 
@@ -153,14 +153,34 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 			std::cout << "Application Stopped" << std::endl;
 			break;
 		}
+
+		//update batteryPercentage
+		batteryPerc = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
+		batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
+
+		//if batteryPercentage to low shutdown pi
+		//TODO: check on which batteryPercentage to shutdown the Pi
+		if(batteryPerc < 10){
+			//TODO: make stopfunction in a Robot class which contains arm tanktracks etc.????? because stop also used some lines above
+			arm.stopMovement();
+			tankTracks.stopMotors();
+			talker.stopTalking();
+			std::cout << "Application Stopped" << std::endl;
+		}
 		
 		if (parsed_input.checkBattery) {
-			batteryPerc = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
-			batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
 			const char* battery = std::to_string(batteryPerc).c_str();
-
 			talker.sendMessage(battery);
 		}
+
+		if (parsed_input.gripper == 0) { arm.grab(false); }
+		else if (parsed_input.gripper == 1) { arm.grab(true); }
+
+		if (parsed_input.dance == 0) { arm.letsGetGroovy(); }
+		else if (parsed_input.dance == 1) { std::cout << "Stop Dance has not been implemented yet" << std::endl; }
+
+		if (parsed_input.lineDance == 0) { std::cout << "Start LineDance has not been implemented yet" << std::endl; }
+		else if (parsed_input.lineDance == 1) { std::cout << "Stop LineDance has not been implemented yet" << std::endl; }
 
 
 		free(tokenSwitch);

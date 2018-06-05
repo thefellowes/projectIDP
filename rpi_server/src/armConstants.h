@@ -8,6 +8,10 @@
 const int servoMinRotation = 0;
 const int servoMaxRotation = 1023;
 
+//MIN and MAX speed value of servo
+const int servoMinSpeed = 0;
+const int servoMaxSpeed = 1023;
+
 //Length of arm parts
 const int l1 = 13;
 const int l2 = 13;
