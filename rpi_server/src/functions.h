@@ -4,18 +4,16 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
-#include "ColorIsolator.h"
 
 class functions {
 
 private:
 	int middleX, middleY, x, y, w, h = 0;
 	std::vector<cv::RotatedRect> markers;
-	std::vector<ColorIsolator> isolators;
+	std::vector<std::vector<int>> lowerArrays;
+	std::vector<std::vector<int>> upperArrays;
 	std::vector<std::string> colorNames;
 	cv::Mat image;
-
-	void setCoordinates(int x, int y, int w, int h, int middleX, int middle_Y);
 
 public:
 
@@ -29,7 +27,7 @@ public:
 
 	std::string getStance();
 
-	cv::RotatedRect find_marker(cv::Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName);
+	std::vector<cv::RotatedRect> functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
 
 	void find_marker_cup(cv::Mat image);
 

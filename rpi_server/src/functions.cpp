@@ -1,36 +1,33 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
-#include "ColorIsolator.h"
 #include "functions.h"
-
-void functions::setCoordinates(int x, int y, int w, int h, int middleX, int middle_Y)
-	{
-		this->middleX = middleX;
-		this->x = x;
-		this->y = y;
-		this->h = h;
-		this->w = w;
-	}
 
 	functions::functions(std::vector<std::vector<int>> initValues = {})
 	{
 		std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
-		isolators.push_back(ColorIsolator(initValues[0]));
-		isolators.push_back(ColorIsolator(initValues[1]));
-		isolators.push_back(ColorIsolator(initValues[2]));
-		isolators.push_back(ColorIsolator(initValues[3]));
-		isolators.push_back(ColorIsolator(initValues[4]));
+		for (int i = 0; i < 5; i++)
+		{
+			std::vector<int> lower, upper;
+			for (int j = 0; j < 3; j++)
+			{
+				lower.push_back(initValues[i][j]);
+			}
+			for (int k = 3; k < 6; k++)
+			{
+				upper.push_back(initValues[i][k]);
+			}
+
+			lowerArrays.push_back(lower);
+			upperArrays.push_back(upper);
+			markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
+		}
+
 		colorNames.push_back("blue");
 		colorNames.push_back("green");
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
-		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
-		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
-		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
-		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
-		markers.push_back(cv::RotatedRect(cv::Point2f(0, 0), cv::Size2f(0, 0), 0));
 	}
 
 	cv::Mat functions::getImage()
@@ -43,7 +40,6 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		image = image_;
 		updateMarkers();
 		cv::imshow("image", image);
-		//imshow("greenimage", isolator.isolate(image));
 	}
 
 	void functions::updateMarkers()
@@ -51,9 +47,9 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		int biggestY = 100000000;
 		cv::Point2f rect_points_index[4];
 		cv::Scalar color(0, 255, 0);
+		markers = find_markers(image, lowerArrays, upperArrays);
 		for (int i = 0; i < 5; i++)
 		{
-			markers[i] = find_marker(image, isolators[i].getLower(), isolators[i].getUpper(), colorNames[i]);
 			cv::Point2f rect_points[4];
 			markers[i].points(rect_points);
 			
@@ -114,55 +110,61 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 		}
 		return returnString;
 	}
-	cv::RotatedRect functions::find_marker(cv::Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName)
+
+	std::vector<cv::RotatedRect> functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
 	{
-			cv::Mat canny_output;
+			std::vector<cv::RotatedRect> outputVector;
 			std::vector<std::vector<cv::Point>> contours;
 			std::vector<cv::Point> contours1 = { { 0,0 } };
 			std::vector<cv::Vec4i> hierarchy;
-
-			cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
-			cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-			cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
-			cv::Canny(gray, edged, 35, 125);
-			cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
-			cv::inRange(hsv_img, lowerArray, upperArray, frame_threshed);
-			cv::Mat imgray = frame_threshed;
-			double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
-			cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+			int minY = 1000000000000;
 			int minArea = 1000;
 			int maxArea = 30000;
-
-			for (auto c : contours)
+			cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
+			
+			for (int i = 0; i < 5; i++)
 			{
-				if (cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea) {
-					contours1 = c;
-					maxArea = cv::contourArea(contours1);
+				cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+				cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
+				cv::Canny(gray, edged, 35, 125);
+				cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
+				cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
+				double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
+				cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+					
+				for (auto c : contours)
+				{
+					if (cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea)
+					{
+						contours1 = c;
+						maxArea = cv::contourArea(contours1);
+					}
 				}
+
+				if (maxArea < 30000)
+				{
+					cv::Rect points = boundingRect(contours1);
+					w = points.width;
+					h = points.height;
+					x = points.x;
+					y = points.y;
+					middleX = x + w / 2;
+					middleY = y + h / 2;
+					cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
+					cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+					maxArea = 30000;
+				}
+
+				outputVector.push_back(cv::minAreaRect(contours1));
 			}
-
-			cv::Rect points = boundingRect(contours1);
-			int w = points.width;
-			int h = points.height;
-			int x = points.x;
-			int y = points.y;
-			int middleX = x + w / 2;
-			int middleY = y + h / 2;
-			setCoordinates(x, y, w, h, middleX, middleY);
-
-			cv::putText(image, colorName, { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
-			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
-			return cv::minAreaRect(contours1);
+			return outputVector;
 	}
 
 	void functions::find_marker_cup(cv::Mat image)
 	{
 		cv::Mat gray;
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-
 		// Reduce the noise so we avoid false circle detection
-		cv::GaussianBlur(gray, gray, cv::Size(9, 9), 2, 2);
-
 		std::vector<cv::Vec3f> circles;
 
 		// Apply the Hough Transform to find the circles
@@ -176,7 +178,6 @@ void functions::setCoordinates(int x, int y, int w, int h, int middleX, int midd
 			int radius = cvRound(circles[i][2]);
 			cv::circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);// circle center     
 			cv::circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);// circle outline
-			std::cout << "center : " << center << "\nradius : " << radius << std::endl;
 		}
 
 		// Show your results

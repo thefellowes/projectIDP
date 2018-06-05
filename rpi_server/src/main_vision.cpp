@@ -5,7 +5,6 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <vector>
-#include "ColorIsolator.h"
 #include "functions.h"
 
 int main()
@@ -27,7 +26,8 @@ int main()
 	
 	while (true)
 	{
-		cap >> frame;	
+		cap >> frame;
+		//funct.find_marker_cup(frame);
 		funct.update(frame);
 		frame = funct.getImage();
 		cv::waitKey(1);
