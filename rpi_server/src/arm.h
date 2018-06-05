@@ -46,6 +46,7 @@ public:
 	float getHeadAngle();
 	int getPosRotation();
 	int getPosGripper();
+	int getVoltage();
 
 	void letsGetGroovy();
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);

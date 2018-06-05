@@ -118,8 +118,8 @@ std::vector<int> Arm::getArmServoPositions()
 int Arm::move(int delay)
 {
 	//change position
-	posX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	posY += maxSpeed * speedY;
+	float newPosX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
+	float newPosY += maxSpeed * speedY;
 
 	//turn arm
 	if (speedRotation != 0) {
@@ -241,6 +241,10 @@ int Arm::getPosRotation()
 int Arm::getPosGripper()
 {
 	return ax12a.readPosition(servos.gripper);
+}
+
+int Arm::getVoltage() {
+	return ax12a.readVoltage(servos.armRotation);
 }
 
 void Arm::letsGetGroovy() 
