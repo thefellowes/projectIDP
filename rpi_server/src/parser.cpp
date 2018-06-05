@@ -21,7 +21,6 @@ struct user_input parse_input(char** input_data) {
     		switch (*(input_data + i)[0]) {
 				//Stop application
 				case 'S':
-					printf("Found S");
 					doStop = true;
 					break;
     			//Forward and backward arm
@@ -70,7 +69,6 @@ struct user_input parse_input(char** input_data) {
 					lineDance = (int)atof(*(input_data + i) + 1);
 					break;
 				case 'B':
-					printf("Found B");
 					checkBattery = true;
 					break;
     			default:
