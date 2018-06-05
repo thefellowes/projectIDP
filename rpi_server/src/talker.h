@@ -24,10 +24,14 @@ class Talker{
 	private:
 		AX12A ax12a;
 		bool stop;
+		int sockfd;
+		struct addrinfo *servinfo, *p;
 	public:
 		Talker(AX12A &ax12a);
+		void sendMessage(const char *message);
 		void startTalking();
 		void stopTalking();
+		~Talker();
 };
 
 #endif

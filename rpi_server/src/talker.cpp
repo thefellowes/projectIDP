@@ -5,26 +5,10 @@ Talker::Talker(AX12A &ax12a)
 {
 	this->ax12a = ax12a;
 	stop = false;
-}
 
-void Talker::stopTalking(){
-	stop = true;
-}
-
-void Talker::startTalking(){
-	int sockfd;
-	struct addrinfo hints, *servinfo, *p;
+	//create connection
+	struct addrinfo hints;
 	int rv;
-	int numbytes;
-
-	std::string batteryPerc;
-	stop = false;
-	
-	//Throw an exeption if we dont get the required amount of parameters
-	/**if(argc != 2){
-		fprintf(stderr, "usage: talker hostname message\n");
-		exit(1);
-	}**/
 	
 	memset(&hints, 0, sizeof hints);
 	hints.ai_family = AF_UNSPEC;
@@ -46,21 +30,48 @@ void Talker::startTalking(){
 	if(p == NULL){
 		fprintf(stderr, "talker: faild to create socket \n");
 	}
+}
 
-	while(!stop){
-		batteryPerc = std::to_string((int)(((float)ax12a.readVoltage(254) - 9.9) / (11.1 - 9.9) * 100));//TODO: change 254 for a servoID if 254 not working
-		const char* battery = batteryPerc.c_str();
+void Talker::sendMessage(const char *message)
+{
+	int numbytes;
 
-		if((numbytes = sendto(sockfd, battery, strlen(battery), 0, p->ai_addr, p->ai_addrlen)) == -1){
+	for(int i = 0; i < 5; i++){
+		if((numbytes = sendto(sockfd, message, strlen(message), 0, p->ai_addr, p->ai_addrlen)) == -1){
 			perror("talker: sendto");
 			exit(1);
 		}
-
-		printf("talker: sent %d bytes to %s\n", numbytes, IPAdress);
-
-		std::this_thread::sleep_for(std::chrono::seconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	
+	//printf("talker: sent %s to %s\n", message, IPAdress);
+	//printf("talker: sent %d bytes to %s\n", numbytes, IPAdress);
+}
+
+//call this method in a thread
+void Talker::startTalking()
+{
+	int batteryPerc;
+	stop = false;
+	
+	while(!stop){
+		batteryPerc = (int)(((float)ax12a.readVoltage(14u) - 99) / (126 - 99) * 100);//Broadcast id 254 not responding so using one of the servo id's
+		batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
+		const char* battery = std::to_string(batteryPerc).c_str();
+		
+		sendMessage(battery);
+
+		std::this_thread::sleep_for(std::chrono::seconds(5));
+	}
+}
+
+void Talker::stopTalking(){
+	stop = true;
+}
+
+Talker::~Talker()
+{
+	//close connection
 	freeaddrinfo(servinfo);
 
 	close(sockfd);
