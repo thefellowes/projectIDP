@@ -1,37 +1,37 @@
 
 #ifndef functions_h
 #define functions_h
-#include <opencv2\opencv.hpp>
+#include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
 #include "ColorIsolator.h"
-#include "Sliders.h"
-using namespace cv;
 
 class functions {
 
 private:
 	int middleX, middleY, x, y, w, h = 0;
-	RotatedRect marker;
-	ColorIsolator isolator;
-	Sliders sliders;
-	Mat image;
+	std::vector<cv::RotatedRect> markers;
+	std::vector<ColorIsolator> isolators;
+	std::vector<std::string> colorNames;
+	cv::Mat image;
 
 	void setCoordinates(int x, int y, int w, int h, int middleX, int middle_Y);
 
 public:
 
-	functions(std::vector<int> initValues);
+	functions(std::vector<std::vector<int>> initValues);
 
-	Mat getImage();
+	cv::Mat getImage();
 
-	void update(Mat image_);
+	void update(cv::Mat image_);
+
+	void updateMarkers();
 
 	std::string getStance();
 
-	RotatedRect find_marker(Mat image, std::vector<int> lowerArray, std::vector<int> upperArray);
+	cv::RotatedRect find_marker(cv::Mat image, std::vector<int> lowerArray, std::vector<int> upperArray, std::string colorName);
 
-	void find_marker_cup(Mat image);
+	void find_marker_cup(cv::Mat image);
 
 };
 
