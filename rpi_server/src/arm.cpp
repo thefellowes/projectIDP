@@ -101,7 +101,7 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 }
 // rotation variable between 0.0 and 1.0
 void Arm::setRotation(float rotation) {
-	posRotation = round(rotation * 1023);
+	posRotation = (int)(((rotation * 1023) - 1023) * -1); //round(rotation * 1023);
 	posRotation = turn(servos.armRotation, posRotation, 200);
 }
 
@@ -135,7 +135,7 @@ int Arm::move(int delay)
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
 	}
 
-	std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
+	//std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
 
 	//check if position is posible
 	if (posPossible(posX, posY)) {
@@ -246,30 +246,23 @@ int Arm::getVoltage() {
 	int count = 0;
 	int temp;
 
-	temp = ax12a.readVoltage(servos.armRotation);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
 	int size = servos.joints.size();
 	for (int i = 0; i < size; i++) {
 		//std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		temp = ax12a.readVoltage(servos.joints[i]);
-		if (temp > 0 && temp < 126) { total += temp; count++; }
+		if (temp > 90 && temp < 126) { total += temp; count++; }
 	}
-	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	temp = ax12a.readVoltage(servos.gripperRotation);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
-	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	temp = ax12a.readVoltage(servos.gripper);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
 
-	std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
+	return count > 0 ? total/count : -1;
 
-	return total / count;
+	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
 
 void Arm::letsGetGroovy() 
 {
 	moveInterrupted = true;
 	ArmServos oldValues = readServoValues();
+	ArmServos originalPosition = oldValues;
 		//setServoValues({ rotation, { base joint, mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 	//oldValues = setServoValues({ 210, { 470, 748, 820 }, 512, 512 }, 500, oldValues);
 	//oldValues = setServoValues({ 210, { 478, 881, 820 }, 512, 512 }, 500, oldValues);
@@ -300,7 +293,8 @@ void Arm::letsGetGroovy()
 	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
 	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
 	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	
+
+	setServoValues(originalPosition, 500);
 	moveInterrupted = false;
 }
 
