@@ -27,7 +27,7 @@ private:
 	int posRotation;
 	std::vector<int> currentPosServos;
 	bool posPossible(float x, float y);
-	void turn(int servo, int &position, int speed=200);
+	int turn(const int servo, int position, int speed=200);
 	int calcRotationSpeed(float diff, int ms);
 public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);
@@ -37,7 +37,7 @@ public:
 	void setRotation(float rotation);
 	std::vector<int> getArmServoPositions();
 	int move(int delay);
-	void setGripperPosition(int position);
+	void setGripperRotation(int position);
 	void moveTo(float x, float y, float ha);
 	void moveTo(float x, float y, float ha, int rotation, bool getCurvedPath=true);
 	void grab(bool close);
@@ -49,6 +49,7 @@ public:
 	int getVoltage();
 
 	void letsGetGroovy();
+	ArmServos setServoValues(ArmServos values, int delay);
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
 	ArmServos readServoValues();
 

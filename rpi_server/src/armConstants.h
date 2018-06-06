@@ -3,6 +3,8 @@
 
 #include <vector>
 
+//Speed of Gripper servo
+const int gripperSpeed = 100;
 
 //MIN and MAX turn value of servo
 const int servoMinRotation = 0;
