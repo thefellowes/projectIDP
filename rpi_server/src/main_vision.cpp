@@ -21,15 +21,20 @@ int main()
 		return -1;
 	cv::Mat frame;
 	cap.grab();
+	int count = 0;
 	cap.retrieve(frame);
 	functions funct = functions(markerValues);
 	
 	while (true)
 	{
-		cap >> frame;
-		//funct.find_marker_cup(frame);
-		funct.update(frame);
-		frame = funct.getImage();
-		cv::waitKey(1);
+		if (count % 200 == 0)
+		{
+			cap >> frame;
+			//funct.find_marker_cup(frame);
+			funct.update(frame);
+			frame = funct.getImage();
+			cv::waitKey(1);
+		}
+		count++;
 	}
 }

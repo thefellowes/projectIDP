@@ -120,6 +120,7 @@
 			int minY = 1000000000000;
 			int minArea = 1000;
 			int maxArea = 30000;
+			int indicator = 0;
 			cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
 			
 			for (int i = 0; i < 5; i++)
@@ -131,17 +132,17 @@
 				cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
 				double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
 				cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-					
+
 				for (auto c : contours)
 				{
 					if (cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea)
 					{
 						contours1 = c;
-						maxArea = cv::contourArea(contours1);
+						minArea = cv::contourArea(contours1);
+						indicator = i;
 					}
 				}
-
-				if (maxArea < 30000)
+				if (minArea > 1000)
 				{
 					cv::Rect points = boundingRect(contours1);
 					w = points.width;
@@ -150,13 +151,16 @@
 					y = points.y;
 					middleX = x + w / 2;
 					middleY = y + h / 2;
-					cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
+					cv::putText(image, colorNames[indicator], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
 					cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
 					maxArea = 30000;
 				}
-
+				minArea = 1000;
 				outputVector.push_back(cv::minAreaRect(contours1));
 			}
+
+				
+
 			return outputVector;
 	}
 
@@ -184,4 +188,4 @@
 		cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
 		cv::imshow("Hough Circle Transform Demo", image);
 	}
-
+	
