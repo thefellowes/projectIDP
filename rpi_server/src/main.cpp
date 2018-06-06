@@ -43,11 +43,11 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	int pwmPinL = 12;
-	int directionPinAL = 5;
-	int directionPinBL = 6;
+	int directionPinAL = 16;
+	int directionPinBL = 20;
 	int pwmPinR = 13;
-	int directionPinAR = 19;
-	int directionPinBR = 26;
+	int directionPinAR = 6;
+	int directionPinBR = 19;
 
 	AX12A ax12a;
 	ArmServos servos;
@@ -73,6 +73,7 @@ int main(void) {
 	
 	//ArmServos values = arm.readServoValues();
 
+	debug("Starting threads...");
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
 	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
