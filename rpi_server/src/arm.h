@@ -49,6 +49,7 @@ public:
 	int getVoltage();
 
 	void letsGetGroovy();
+	ArmServos setServoValues(ArmServos values, int delay);
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
 	ArmServos readServoValues();
 

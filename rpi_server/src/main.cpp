@@ -85,5 +85,7 @@ int main(void) {
 		thrd.join();
 
 	ax12a.end();
+
+	//TODO: Send ShutDown PI Command
 	return 0;
 }

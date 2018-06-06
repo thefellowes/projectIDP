@@ -146,26 +146,19 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 		arm.setSpeed(parsed_input.x, parsed_input.y);
 		tankTracks.move(parsed_input.a, parsed_input.b, 512);
 
-		if (parsed_input.doStop == true) {
-			arm.stopMovement();
-			tankTracks.stopMotors();
-			talker.stopTalking();
-			std::cout << "Application Stopped" << std::endl;
-			break;
-		}
-
 		//update batteryPercentage
 		batteryPerc = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
 		batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
 
 		//if batteryPercentage to low shutdown pi
 		//TODO: check on which batteryPercentage to shutdown the Pi
-		if(batteryPerc < 10){
-			//TODO: make stopfunction in a Robot class which contains arm tanktracks etc.????? because stop also used some lines above
+		if(batteryPerc < 10 || parsed_input.doStop == true){
 			arm.stopMovement();
+			arm.setServoValues({ 510,{ 200, 924, 689 }, 512, -1 }, 500);
 			tankTracks.stopMotors();
 			talker.stopTalking();
 			std::cout << "Application Stopped" << std::endl;
+			break;
 		}
 		
 		if (parsed_input.checkBattery) {

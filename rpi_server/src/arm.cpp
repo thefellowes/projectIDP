@@ -135,6 +135,8 @@ int Arm::move(int delay)
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
 	}
 
+	std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
+
 	//check if position is posible
 	if (posPossible(posX, posY)) {
 		std::vector<int> newPos = posToAngles(posX, posY, headAngle);
@@ -156,7 +158,7 @@ int Arm::move(int delay)
 	posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
 	posY -= maxSpeed * speedY;
 
-	std::cout << ax12a.readLoad(servos.joints[0]) << std::endl;
+	
 
 	return -1;
 }
@@ -302,6 +304,9 @@ void Arm::letsGetGroovy()
 	moveInterrupted = false;
 }
 
+ArmServos Arm::setServoValues(ArmServos values, int delay) {
+	return setServoValues(values, delay, readServoValues());
+}
 ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues) 
 {
 	ax12a.moveSpeed(servos.armRotation, values.armRotation, calcRotationSpeed((oldValues.armRotation - values.armRotation), delay));
