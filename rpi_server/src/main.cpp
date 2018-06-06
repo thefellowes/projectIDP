@@ -43,11 +43,11 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	int pwmPinL = 12;
-	int directionPinAL = 5;
-	int directionPinBL = 6;
+	int directionPinAL = 16;
+	int directionPinBL = 20;
 	int pwmPinR = 13;
-	int directionPinAR = 19;
-	int directionPinBR = 26;
+	int directionPinAR = 6;
+	int directionPinBR = 19;
 
 	AX12A ax12a;
 	ArmServos servos;
