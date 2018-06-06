@@ -30,6 +30,7 @@
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
 #define IDturn (14u)
+#define IDgripper (6u)
 #define IDgripperRotation (144u)
 #define ID (3u)
 #define ID1 (9u)
@@ -56,7 +57,7 @@ int main(void) {
 	Talker talker(ax12a);
 
 	servos.armRotation = IDturn;
-	servos.gripper = 12;//not connected/defined yet
+	servos.gripper = IDgripper;
 	servos.gripperRotation = IDgripperRotation;
 	servos.joints.push_back(ID);
 	servos.joints.push_back(ID1);

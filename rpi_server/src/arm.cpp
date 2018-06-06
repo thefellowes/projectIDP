@@ -13,7 +13,7 @@ bool Arm::posPossible(float x, float y)
 	return (x * x + y * y > armlength * armlength) ? false : true;
 }
 
-void Arm::turn(int servo, int &position, int speed)
+int Arm::turn(const int servo, int position, int speed)
 {
 	//check if rotation position out of range
 	position = position < servoMinRotation ? servoMinRotation : position > servoMaxRotation ? servoMaxRotation : position;
@@ -23,6 +23,8 @@ void Arm::turn(int servo, int &position, int speed)
 
 	//turn servo
 	ax12a.moveSpeed(servo, position, speed);
+
+	return position;
 }
 
 // diff = difference in position (old_position - new_position)
@@ -54,7 +56,7 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
-	turn(servos.armRotation, posRotation);
+	posRotation = turn(servos.armRotation, posRotation);
 	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
@@ -99,8 +101,8 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 }
 // rotation variable between 0.0 and 1.0
 void Arm::setRotation(float rotation) {
-	posRotation = (int)(rotation * 1023);
-	turn(servos.armRotation, posRotation, 200);
+	posRotation = round(rotation * 1023);
+	posRotation = turn(servos.armRotation, posRotation, 200);
 }
 
 std::vector<int> Arm::getArmServoPositions()
@@ -124,7 +126,7 @@ int Arm::move(int delay)
 	//turn arm
 	if (speedRotation != 0) {
 		posRotation += maxSpeedRotation * speedRotation;
-		turn(servos.armRotation, posRotation);
+		posRotation = turn(servos.armRotation, posRotation);
 	}
 
 	if (!posPossible(posX, posY)) {
@@ -159,7 +161,7 @@ int Arm::move(int delay)
 	return -1;
 }
 
-void Arm::setGripperPosition(int position)
+void Arm::setGripperRotation(int position)
 {
 	turn(servos.gripperRotation, position);
 }
@@ -205,14 +207,8 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 
 void Arm::grab(bool close)
 {
-	if (close) {
-		//close
-		turn(servos.gripper, 0, 100);
-	}
-	else {
-		//open
-		turn(servos.gripper, 512, 100);
-	}
+	if (close) turn(servos.gripper, 0, gripperSpeed);	//close
+	else turn(servos.gripper, 512, gripperSpeed);		//open
 }
 
 float Arm::getPosX()
@@ -240,8 +236,32 @@ int Arm::getPosGripper()
 	return ax12a.readPosition(servos.gripper);
 }
 
+//int Arm::getVoltage() {
+//	return ax12a.readVoltage(servos.armRotation);
+//}
 int Arm::getVoltage() {
-	return ax12a.readVoltage(servos.armRotation);
+	int total = 0;
+	int count = 0;
+	int temp;
+
+	temp = ax12a.readVoltage(servos.armRotation);
+	if (temp > 0 && temp < 126) { total += temp; count++; }
+	int size = servos.joints.size();
+	for (int i = 0; i < size; i++) {
+		//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		temp = ax12a.readVoltage(servos.joints[i]);
+		if (temp > 0 && temp < 126) { total += temp; count++; }
+	}
+	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	temp = ax12a.readVoltage(servos.gripperRotation);
+	if (temp > 0 && temp < 126) { total += temp; count++; }
+	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	temp = ax12a.readVoltage(servos.gripper);
+	if (temp > 0 && temp < 126) { total += temp; count++; }
+
+	std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
+
+	return total / count;
 }
 
 void Arm::letsGetGroovy() 
