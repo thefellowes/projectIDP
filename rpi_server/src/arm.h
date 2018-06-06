@@ -27,7 +27,7 @@ private:
 	int posRotation;
 	std::vector<int> currentPosServos;
 	bool posPossible(float x, float y);
-	void turn(int servo, int &position);
+	void turn(int servo, int &position, int speed=200);
 	int calcRotationSpeed(float diff, int ms);
 public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);

@@ -4,7 +4,7 @@
 #include <string>
 
 #define JOY_MIDDLE 512
-#define MAX_MAXROTATION 1023
+#define MAX_ROTATION 1023
 
 /*
  * Function to translate the "raw" input from the controller into a value that the pi can handle
@@ -54,10 +54,10 @@ struct user_input parse_input(char** input_data) {
 				//Rotation arm
     			case 'r':
 					rotation = (int)atof(*(input_data + i)+1);
-					rotation = rotation / MAX_MAXROTATION;
+					rotation = rotation / MAX_ROTATION;
     				break;
 				//Arm gripper (On/Off)
-				case 'A':
+				case 'G':
 					gripper = (int)atof(*(input_data + i) + 1);
 					break;
 				//Dance (On/Off)
@@ -70,6 +70,8 @@ struct user_input parse_input(char** input_data) {
 					break;
 				case 'B':
 					checkBattery = true;
+					break;
+				case 'A':
 					break;
     			default:
     				printf("unclassified token: %s\n", *(input_data + i));
