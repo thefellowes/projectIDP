@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include "functions.h"
+#include <thread>
 
 int main()
 {
@@ -27,14 +28,10 @@ int main()
 	
 	while (true)
 	{
-		if (count % 200 == 0)
-		{
 			cap >> frame;
 			//funct.find_marker_cup(frame);
 			funct.update(frame);
-			frame = funct.getImage();
+			cv::imshow("image", frame);
 			cv::waitKey(1);
-		}
-		count++;
 	}
 }
