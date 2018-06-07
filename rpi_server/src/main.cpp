@@ -30,6 +30,7 @@
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
 #define IDturn (14u)
+#define IDgripper (6u)
 #define IDgripperRotation (144u)
 #define ID (3u)
 #define ID1 (9u)
@@ -42,11 +43,11 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	int pwmPinL = 12;
-	int directionPinAL = 5;
-	int directionPinBL = 6;
+	int directionPinAL = 16;
+	int directionPinBL = 20;
 	int pwmPinR = 13;
-	int directionPinAR = 19;
-	int directionPinBR = 26;
+	int directionPinAR = 6;
+	int directionPinBR = 19;
 
 	AX12A ax12a;
 	ArmServos servos;
@@ -56,7 +57,7 @@ int main(void) {
 	Talker talker(ax12a);
 
 	servos.armRotation = IDturn;
-	servos.gripper = 12;//not connected/defined yet
+	servos.gripper = IDgripper;
 	servos.gripperRotation = IDgripperRotation;
 	servos.joints.push_back(ID);
 	servos.joints.push_back(ID1);
@@ -72,6 +73,7 @@ int main(void) {
 	
 	//ArmServos values = arm.readServoValues();
 
+	debug("Starting threads...");
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
 	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
@@ -84,5 +86,7 @@ int main(void) {
 		thrd.join();
 
 	ax12a.end();
+
+	//TODO: Send ShutDown PI Command
 	return 0;
 }
