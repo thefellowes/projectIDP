@@ -47,7 +47,7 @@ struct user_input parse_input(char** input_data) {
     			//Left and right movement
     			case 'b':
     				b = atof(*(input_data + i)+1);
-					b = (b - JOY_MIDDLE) / JOY_MIDDLE;
+					b = ((b - JOY_MIDDLE) / JOY_MIDDLE) * -1;
 					if(b < 0.05 && b > -0.05){b=0;}
 					//printf("b is:  %f\n", b);
     				break;
