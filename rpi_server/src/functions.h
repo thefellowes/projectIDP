@@ -12,6 +12,7 @@ private:
 	std::vector<cv::RotatedRect> markers;
 	std::vector<std::vector<int>> lowerArrays;
 	std::vector<std::vector<int>> upperArrays;
+	std::vector<cv::RotatedRect> returnVector;
 	std::vector<std::string> colorNames;
 	cv::Mat image;
 
@@ -27,7 +28,9 @@ public:
 
 	std::string getStance();
 
-	std::vector<cv::RotatedRect> functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
+	void find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
+
+	void find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i);
 
 	void find_marker_cup(cv::Mat image);
 
