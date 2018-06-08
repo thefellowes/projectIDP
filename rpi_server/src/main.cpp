@@ -26,6 +26,7 @@
 #include "tankTracks.h"
 #include "talker.h"
 #include "cmdmas.h"
+#include "functions.h"
 
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
@@ -55,6 +56,14 @@ int main(void) {
 	Motor rightMotor(pwmPinR, directionPinAR, directionPinBR);
 	TankTracks tankTracks(leftMotor, rightMotor);
 	Talker talker(ax12a);
+
+	std::vector<std::vector<int>> markerValues;
+	markerValues.push_back({ 100, 73, 44, 141, 255, 255 }); //blue
+	markerValues.push_back({ 40, 50, 50, 85, 220, 200 }); //green
+	markerValues.push_back({ 20, 100, 100, 40, 255, 255 }); //yellow
+	markerValues.push_back({ 1, 100, 100, 10, 255, 255 }); //orange
+	markerValues.push_back({ 160, 20, 70, 190, 255, 255 }); //red
+	functions funct = functions(markerValues);
 
 	servos.armRotation = IDturn;
 	servos.gripper = IDgripper;

@@ -29,6 +29,28 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
+		vision();
+	}
+
+	int functions::vision()
+	{
+		cv::VideoCapture cap(0);
+		if (!cap.isOpened())
+			return -1;
+		cv::Mat frame;
+		cap.grab();
+		int count = 0;
+		cap.retrieve(frame);
+
+		while(true)
+		{
+			cap >> frame;
+			//funct.find_marker_cup(frame);
+			update(frame);
+			cv::imshow("image", frame);
+			cv::waitKey(1);
+		}
+
 	}
 
 	cv::Mat functions::getImage()
@@ -51,7 +73,7 @@
 		for (int i = 0; i < 5; i++)
 		{
 			cv::Point2f rect_points[4];
-			returnVector[i].points(rect_points);
+			markers[i].points(rect_points);
 			
 			if (rect_points[0].y < biggestY && rect_points[0].y > 0)
 			{
@@ -69,7 +91,7 @@
 		}
 
 	}
-	
+
 	std::string functions::getStance()
 	{
 		std::string returnString = "";
@@ -112,34 +134,35 @@
 	}
 
 	void functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
-	{		
+	{
 		std::vector<std::thread> color_pool;
 		int i = 0;
-		while(i < 5)
-			{
-				color_pool.push_back(std::thread(&functions::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays),std::ref(upperArrays), std::ref(i)));
-				i++;
-			}
+		while (i < 5)
+		{
+			color_pool.push_back(std::thread(&functions::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays), std::ref(upperArrays), std::ref(i)));
+			i++;
+		}
 
 		i = 0;
-		while(i < 5)
+		while (i < 5)
 		{
 			color_pool[i].join();
 			i++;
 		}
-	
+
 	}
+
 	void functions::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
 	{
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
 		std::vector<cv::Vec4i> hierarchy;
-		int minArea = 1000;
+		int minArea = 3000;
 		int maxArea = 30000;
 		cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 		cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
-		cv::Canny(gray, edged, 35, 125);
+		//cv::Canny(gray, edged, 35, 125);
 		cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
 		cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
 		double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
@@ -168,7 +191,7 @@
 		}
 
 		minArea = 1000;
-		returnVector.push_back(cv::minAreaRect(contours1));
+		markers[i] = cv::minAreaRect(contours1);
 	}
 	void functions::find_marker_cup(cv::Mat image)
 	{

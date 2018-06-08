@@ -12,7 +12,6 @@ private:
 	std::vector<cv::RotatedRect> markers;
 	std::vector<std::vector<int>> lowerArrays;
 	std::vector<std::vector<int>> upperArrays;
-	std::vector<cv::RotatedRect> returnVector;
 	std::vector<std::string> colorNames;
 	cv::Mat image;
 
@@ -23,6 +22,8 @@ public:
 	cv::Mat getImage();
 
 	void update(cv::Mat image_);
+
+	int vision();
 
 	void updateMarkers();
 
