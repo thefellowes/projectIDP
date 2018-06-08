@@ -172,6 +172,8 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 
 		//if batteryPercentage to low shutdown pi
 		//TODO: check on which batteryPercentage to shutdown the Pi
+		if (parsed_input.doStop == true) std::cout << "doStop = true" << std::endl;
+		if (batteryPerc < 10) std::cout << "batteryPerc < 10" << std::endl;
 		if(batteryPerc < 10 || parsed_input.doStop == true){
 			arm.stopMovement();
 			arm.setServoValues({ 510,{ 200, 924, 689 }, 512, -1 }, 500);
@@ -186,8 +188,8 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 			talker.sendMessage(battery);
 		}
 
-		if (parsed_input.gripper == 0) { arm.grab(false); }
-		else if (parsed_input.gripper == 1) { arm.grab(true); }
+		if (parsed_input.gripper == 0) { arm.grab(true); }
+		else if (parsed_input.gripper == 1) { arm.grab(false); }
 
 		if (parsed_input.dance == 0) { arm.letsGetGroovy(); }
 		else if (parsed_input.dance == 1) { std::cout << "Stop Dance has not been implemented yet" << std::endl; }

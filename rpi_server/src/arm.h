@@ -4,13 +4,11 @@
 #include <vector>
 #include <string>
 #include "AX12A.h"
-
-struct ArmServos {
-	int armRotation;
-	std::vector<int> joints;
-	int gripperRotation;
-	int gripper;
-};
+#include "armConstants.h"
+//#include "readCSV.cpp"
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 class Arm {
 private:
@@ -51,8 +49,10 @@ public:
 	void letsGetGroovy();
 	ArmServos setServoValues(ArmServos values, int delay);
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
+	bool constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServos constr_max);
 	ArmServos readServoValues();
 
+	std::vector<std::vector<int>> CSVtoi(std::string fileName);
 };
 
 #endif //ARM_H

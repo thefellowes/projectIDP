@@ -4,7 +4,7 @@
 #include "motor.h"
 
 const int Motor::minSpeed = 120;
-const int Motor::maxSpeed = 1023;
+const int Motor::maxSpeed = 800;
 
 void Motor::changeRotationDelay()
 {
