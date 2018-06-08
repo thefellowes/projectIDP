@@ -29,7 +29,6 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
-		vision();
 	}
 
 	int functions::vision()

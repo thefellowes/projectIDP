@@ -88,6 +88,7 @@ int main(void) {
 	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
 	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+	threads.push_back(std::thread(&functions::vision));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	//close threads
