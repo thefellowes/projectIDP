@@ -79,8 +79,24 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
+int getBatteryPercentage(Arm &arm) {
+	int result = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
+	result = result > 100 ? 100 : result < 0 ? 0 : result;
+	return result;
+}
+
 void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 	int batteryPerc;
+	int batteryPercBuffer = 0;
+	int batteryPercBufferSize = 25;
+	int tempInt;
+	for (int i = 0; i < batteryPercBufferSize; i++) {
+		tempInt = getBatteryPercentage(arm);
+		if (tempInt != 0) batteryPercBuffer += tempInt;
+		std::this_thread::sleep_for(std::chrono::milliseconds(500/batteryPercBufferSize));
+	}
+	batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+
 	int sockfd;
 	//bool rotating = false;
 	//float rotSpeed = 0;
@@ -147,16 +163,22 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 		tankTracks.move(parsed_input.a, parsed_input.b, 512);
 
 		//update batteryPercentage
-		batteryPerc = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
-		batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
+		//batteryPerc = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
+		//batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
+		tempInt = getBatteryPercentage(arm);
+		if (tempInt != 0) batteryPercBuffer += tempInt - batteryPerc;
+		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		//std::cout << "batteryPerc=" << batteryPerc << std::endl;
 
 		//if batteryPercentage to low shutdown pi
 		//TODO: check on which batteryPercentage to shutdown the Pi
+		if (parsed_input.doStop == true) std::cout << "doStop = true" << std::endl;
+		if (batteryPerc < 10) std::cout << "batteryPerc < 10" << std::endl;
 		if(batteryPerc < 10 || parsed_input.doStop == true){
 			arm.stopMovement();
 			arm.setServoValues({ 510,{ 200, 924, 689 }, 512, -1 }, 500);
 			tankTracks.stopMotors();
-			talker.stopTalking();
+			//talker.stopTalking();
 			std::cout << "Application Stopped" << std::endl;
 			break;
 		}
@@ -166,8 +188,8 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 			talker.sendMessage(battery);
 		}
 
-		if (parsed_input.gripper == 0) { arm.grab(false); }
-		else if (parsed_input.gripper == 1) { arm.grab(true); }
+		if (parsed_input.gripper == 0) { arm.grab(true); }
+		else if (parsed_input.gripper == 1) { arm.grab(false); }
 
 		if (parsed_input.dance == 0) { arm.letsGetGroovy(); }
 		else if (parsed_input.dance == 1) { std::cout << "Stop Dance has not been implemented yet" << std::endl; }

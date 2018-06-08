@@ -4,6 +4,12 @@
 #include "armConstants.h"
 #include "arm.h"
 
+#include <limits>
+#include <cstdint>
+#ifndef INTMIN
+#define INTMIN (-1) //(std::numeric_limits<std::int32_t>::min())
+#endif
+
 //debug:
 #include <iostream>
 
@@ -41,6 +47,11 @@ int Arm::calcRotationSpeed(float diff, int ms)
 	return roundf(speed);
 }
 
+//ArmServos Arm::setServoValues(ArmServos values) 
+//{
+//
+//}
+
 Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 {
 	ax12a = servoControl;
@@ -60,7 +71,7 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
 	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
-	bool newPosPossible = constraint(newPos, constr_min, constr_max);
+	bool newPosPossible = constraint(newPos, constr_min.joints, constr_max.joints);
 
 	//extra check if position is possible
 	if (newPosPossible) {
@@ -101,7 +112,7 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 }
 // rotation variable between 0.0 and 1.0
 void Arm::setRotation(float rotation) {
-	posRotation = round(rotation * 1023);
+	posRotation = (int)(((rotation * 1023) - 1023) * -1); //round(rotation * 1023);
 	posRotation = turn(servos.armRotation, posRotation, 200);
 }
 
@@ -135,12 +146,12 @@ int Arm::move(int delay)
 		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
 	}
 
-	std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
+	//std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
 
 	//check if position is posible
 	if (posPossible(posX, posY)) {
 		std::vector<int> newPos = posToAngles(posX, posY, headAngle);
-		bool newPosPossible = constraint(newPos, constr_min, constr_max);
+		bool newPosPossible = constraint(newPos, constr_min.joints, constr_max.joints);
 		//extra check if position is possible
 		if (newPosPossible) {
 			int size = newPos.size();
@@ -209,8 +220,8 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 
 void Arm::grab(bool close)
 {
-	if (close) turn(servos.gripper, 0, gripperSpeed);	//close
-	else turn(servos.gripper, 512, gripperSpeed);		//open
+	if (close) turn(servos.gripper, 710, gripperSpeed);	//close
+	else turn(servos.gripper, 900, gripperSpeed);		//open
 }
 
 float Arm::getPosX()
@@ -246,30 +257,30 @@ int Arm::getVoltage() {
 	int count = 0;
 	int temp;
 
-	temp = ax12a.readVoltage(servos.armRotation);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
 	int size = servos.joints.size();
 	for (int i = 0; i < size; i++) {
 		//std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		temp = ax12a.readVoltage(servos.joints[i]);
-		if (temp > 0 && temp < 126) { total += temp; count++; }
+		if (temp > 90 && temp < 126) { total += temp; count++; }
 	}
-	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	temp = ax12a.readVoltage(servos.gripperRotation);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
-	//std::this_thread::sleep_for(std::chrono::milliseconds(5));
-	temp = ax12a.readVoltage(servos.gripper);
-	if (temp > 0 && temp < 126) { total += temp; count++; }
 
-	std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
+	return count > 0 ? total/count : -1;
 
-	return total / count;
+	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
 
 void Arm::letsGetGroovy() 
 {
 	moveInterrupted = true;
 	ArmServos oldValues = readServoValues();
+	ArmServos originalPosition = oldValues;
+
+	std::vector<std::vector<int>> positions = CSVtoi("/home/bert/dev/projectIDP/rpi_server/build/dancePositions.txt");
+	int size = positions.size();
+	for (int i = 0; i < size; i++) {
+		oldValues = setServoValues({ positions[i][0],{ positions[i][1], positions[i][2], positions[i][3] }, positions[i][4], positions[i][5] }, positions[i][6], oldValues);
+	}
+
 		//setServoValues({ rotation, { base joint, mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 	//oldValues = setServoValues({ 210, { 470, 748, 820 }, 512, 512 }, 500, oldValues);
 	//oldValues = setServoValues({ 210, { 478, 881, 820 }, 512, 512 }, 500, oldValues);
@@ -279,28 +290,29 @@ void Arm::letsGetGroovy()
 	//oldValues = setServoValues({ 210, { 446, 763, 820 }, 512, 512 }, 500, oldValues);
 	//oldValues = setServoValues({ 210, { 446, 763, 210 }, 512, 512 }, 500, oldValues);
 
-	oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
-	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
-	oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
+	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 621, 309, 591 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 813,{ 403, 715, 433 }, 512, 512 }, 1000, oldValues);
+	//oldValues = setServoValues({ 512,{ 512, 512, 512 }, 512, 512 }, 500, oldValues);
 
-	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
-	oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
-	
+	//oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 799, { 591, 309, 429 }, -1, -1}, 500, oldValues);
+	//oldValues = setServoValues({ 800, { 594, 536, 579 }, -1, -1}, 500, oldValues);
+
+	//setServoValues(originalPosition, 500);
 	moveInterrupted = false;
 }
 
@@ -309,17 +321,98 @@ ArmServos Arm::setServoValues(ArmServos values, int delay) {
 }
 ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues) 
 {
+	constraintServoValues(values, constr_min, constr_max);
+
+	if (values.armRotation == INTMIN) values.armRotation = oldValues.armRotation;
 	ax12a.moveSpeed(servos.armRotation, values.armRotation, calcRotationSpeed((oldValues.armRotation - values.armRotation), delay));
 	int size = servos.joints.size();
 	for (int i = 0; i < size; i++) {
+		if (values.joints[i] == INTMIN) values.joints[i] = oldValues.joints[i];
 		ax12a.moveSpeed(servos.joints[i], values.joints[i], calcRotationSpeed((oldValues.joints[i] - values.joints[i]), delay));
 	}
+	if (values.gripperRotation == INTMIN) values.gripperRotation = oldValues.gripperRotation;
 	ax12a.moveSpeed(servos.gripperRotation, values.gripperRotation, calcRotationSpeed((oldValues.gripperRotation - values.gripperRotation), delay));
+	if (values.gripper == INTMIN) values.gripper = oldValues.gripper;
 	ax12a.moveSpeed(servos.gripper, values.gripper, calcRotationSpeed((oldValues.gripper - values.gripper), delay));
 	std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
 	return values;
+
+	//std::cout << "values are = ";
+
+	//if (values.armRotation == INTMIN) values.armRotation = oldValues.armRotation;
+	//std::cout << values.armRotation << ",";
+	//int size = values.joints.size();
+	//for (int i = 0; i < size; i++) {
+	//	if (values.joints[i] == INTMIN) values.joints[i] = oldValues.joints[i];
+	//	std::cout << values.joints[i] << ",";
+	//}
+	//if (values.gripperRotation == INTMIN) values.gripperRotation = oldValues.gripperRotation;
+	//std::cout << values.gripperRotation << ",";
+	//if (values.gripper == INTMIN) values.gripper = oldValues.gripper;
+	//std::cout << values.gripper;
+
+	//std::cout << std::endl;
+
+	return values;
 }
+
+bool Arm::constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServos constr_max)
+{
+	bool result = true;
+
+	//Constraint armRotation
+	if (values.armRotation < constr_min.armRotation) {
+		values.armRotation = constr_min.armRotation;
+		result = false;
+	}
+	else if (values.armRotation > constr_max.armRotation) {
+		values.armRotation = constr_min.armRotation;
+		result = false;
+	}
+
+	//Constraint all joint servo values
+	if (values.joints.size() == constr_min.joints.size() && constr_min.joints.size() == constr_max.joints.size()) {
+		int size = values.joints.size();
+		for (int i = 0; i < size; i++) {
+			if (values.joints[i] < constr_min.joints[i]) {
+				values.joints[i] = constr_min.joints[i];
+				result = false;
+			}
+			else if (values.joints[i] > constr_max.joints[i]) {
+				values.joints[i] = constr_min.joints[i];
+				result = false;
+			}
+		}
+	}
+	else {
+		std::cout << "WARNING: Input Vector sizes aren't the same. No constraints were done" << std::endl;
+		result = false;
+	}
+
+	//Constraint gripperRotation
+	if (values.gripperRotation < constr_min.gripperRotation) {
+		values.gripperRotation = constr_min.gripperRotation;
+		result = false;
+	}
+	else if (values.gripperRotation > constr_max.gripperRotation) {
+		values.gripperRotation = constr_min.gripperRotation;
+		result = false;
+	}
+
+	//Constraint gripper
+	if (values.gripper < constr_min.gripper) {
+		values.gripper = constr_min.gripper;
+		result = false;
+	}
+	else if (values.gripper > constr_max.gripper) {
+		values.gripper = constr_min.gripper;
+		result = false;
+	}
+
+	return result;
+}
+
 ArmServos Arm::readServoValues() {
 	ArmServos values;
 
@@ -335,7 +428,8 @@ ArmServos Arm::readServoValues() {
 	values.gripper = ax12a.readPosition(servos.gripper);
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-	std::cout << "oldValues = setServoValues({ " << values.armRotation << ", { " << values.joints[0] << ", " << values.joints[1] << ", " << values.joints[2] << " }, " << values.gripperRotation << ", " << values.gripper << "}, 500, oldValues);" << std::endl;
+	//std::cout << "oldValues = setServoValues({ " << values.armRotation << ", { " << values.joints[0] << ", " << values.joints[1] << ", " << values.joints[2] << " }, " << values.gripperRotation << ", " << values.gripper << "}, 500, oldValues);" << std::endl;
+	//std::cout << "values: " << values.armRotation << ", " << values.joints[0] << ", " << values.joints[1] << ", " << values.joints[2] << ", " << values.gripperRotation << ", " << values.gripper << std::endl;
 	//size = servos.joints.size();
 	//for (int i = 0; i < size; i++) {
 	//	values.joints[i] = ax12a.readPosition(servos.joints[i]);
@@ -353,4 +447,49 @@ std::vector<int> mirrorAnglesOverY(std::vector<int> angles) {
 		angles[i] = (512 - angles[i] + 512);
 	}
 	return angles;
+}
+
+
+
+
+
+
+
+
+
+
+//Without value between commas (",,") value will be INT_MIN
+std::vector<std::vector<int>> Arm::CSVtoi(std::string fileName)
+{
+	std::vector<std::vector<int>> data;
+	std::ifstream infile(fileName);
+	
+	while (infile)
+	{
+		std::string s;
+		if (!getline(infile, s)) break;
+
+		s = s.substr(0, s.find_first_of(";\r"));
+		s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+
+		if (s != "")
+		{
+			std::istringstream ss(s);
+			std::vector<int> record;
+
+			while (ss)
+			{
+				std::string s;
+				if (!getline(ss, s, ',')) break;
+				record.push_back(s != "" ? std::stoi(s) : INTMIN);
+			}
+
+			data.push_back(record);
+		}
+	}
+	if (!infile.eof()) {
+		std::cerr << "Error Reading File\n";
+	}
+
+	return data;
 }

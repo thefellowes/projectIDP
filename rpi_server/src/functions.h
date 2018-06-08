@@ -23,11 +23,15 @@ public:
 
 	void update(cv::Mat image_);
 
+	int vision();
+
 	void updateMarkers();
 
 	std::string getStance();
 
-	std::vector<cv::RotatedRect> functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
+	void find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
+
+	void find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i);
 
 	void find_marker_cup(cv::Mat image);
 

@@ -26,6 +26,7 @@
 #include "tankTracks.h"
 #include "talker.h"
 #include "cmdmas.h"
+#include "functions.h"
 
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
@@ -43,11 +44,11 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	int pwmPinL = 12;
-	int directionPinAL = 5;
-	int directionPinBL = 6;
+	int directionPinAL = 16;
+	int directionPinBL = 20;
 	int pwmPinR = 13;
-	int directionPinAR = 19;
-	int directionPinBR = 26;
+	int directionPinAR = 6;
+	int directionPinBR = 19;
 
 	AX12A ax12a;
 	ArmServos servos;
@@ -55,6 +56,14 @@ int main(void) {
 	Motor rightMotor(pwmPinR, directionPinAR, directionPinBR);
 	TankTracks tankTracks(leftMotor, rightMotor);
 	Talker talker(ax12a);
+
+	std::vector<std::vector<int>> markerValues;
+	markerValues.push_back({ 100, 73, 44, 141, 255, 255 }); //blue
+	markerValues.push_back({ 40, 50, 50, 85, 220, 200 }); //green
+	markerValues.push_back({ 20, 100, 100, 40, 255, 255 }); //yellow
+	markerValues.push_back({ 1, 100, 100, 10, 255, 255 }); //orange
+	markerValues.push_back({ 160, 20, 70, 190, 255, 255 }); //red
+	functions funct = functions(markerValues);
 
 	servos.armRotation = IDturn;
 	servos.gripper = IDgripper;
@@ -79,6 +88,7 @@ int main(void) {
 	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
 	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+	threads.push_back(std::thread(&functions::vision));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	//close threads

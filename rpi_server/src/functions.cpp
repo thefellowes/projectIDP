@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "functions.h"
+#include <thread>
 
 	functions::functions(std::vector<std::vector<int>> initValues = {})
 	{
@@ -30,6 +31,27 @@
 		colorNames.push_back("red");
 	}
 
+	int functions::vision()
+	{
+		cv::VideoCapture cap(0);
+		if (!cap.isOpened())
+			return -1;
+		cv::Mat frame;
+		cap.grab();
+		int count = 0;
+		cap.retrieve(frame);
+
+		while(true)
+		{
+			cap >> frame;
+			//funct.find_marker_cup(frame);
+			update(frame);
+			cv::imshow("image", frame);
+			cv::waitKey(1);
+		}
+
+	}
+
 	cv::Mat functions::getImage()
 	{
 		return image;
@@ -39,7 +61,6 @@
 	{
 		image = image_;
 		updateMarkers();
-		cv::imshow("image", image);
 	}
 
 	void functions::updateMarkers()
@@ -47,7 +68,7 @@
 		int biggestY = 100000000;
 		cv::Point2f rect_points_index[4];
 		cv::Scalar color(0, 255, 0);
-		markers = find_markers(image, lowerArrays, upperArrays);
+		find_markers(image, lowerArrays, upperArrays);
 		for (int i = 0; i < 5; i++)
 		{
 			cv::Point2f rect_points[4];
@@ -69,7 +90,7 @@
 		}
 
 	}
-	
+
 	std::string functions::getStance()
 	{
 		std::string returnString = "";
@@ -111,55 +132,66 @@
 		return returnString;
 	}
 
-	std::vector<cv::RotatedRect> functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
+	void functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
 	{
-			std::vector<cv::RotatedRect> outputVector;
-			std::vector<std::vector<cv::Point>> contours;
-			std::vector<cv::Point> contours1 = { { 0,0 } };
-			std::vector<cv::Vec4i> hierarchy;
-			int minY = 1000000000000;
-			int minArea = 1000;
-			int maxArea = 30000;
-			cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
-			
-			for (int i = 0; i < 5; i++)
-			{
-				cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-				cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
-				cv::Canny(gray, edged, 35, 125);
-				cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
-				cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
-				double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
-				cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
-					
-				for (auto c : contours)
-				{
-					if (cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea)
-					{
-						contours1 = c;
-						maxArea = cv::contourArea(contours1);
-					}
-				}
+		std::vector<std::thread> color_pool;
+		int i = 0;
+		while (i < 5)
+		{
+			color_pool.push_back(std::thread(&functions::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays), std::ref(upperArrays), std::ref(i)));
+			i++;
+		}
 
-				if (maxArea < 30000)
-				{
-					cv::Rect points = boundingRect(contours1);
-					w = points.width;
-					h = points.height;
-					x = points.x;
-					y = points.y;
-					middleX = x + w / 2;
-					middleY = y + h / 2;
-					cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
-					cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
-					maxArea = 30000;
-				}
+		i = 0;
+		while (i < 5)
+		{
+			color_pool[i].join();
+			i++;
+		}
 
-				outputVector.push_back(cv::minAreaRect(contours1));
-			}
-			return outputVector;
 	}
 
+	void functions::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
+	{
+		std::vector<std::vector<cv::Point>> contours;
+		std::vector<cv::Point> contours1 = { { 0,0 } };
+		std::vector<cv::Vec4i> hierarchy;
+		int minArea = 3000;
+		int maxArea = 30000;
+		cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
+		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+		cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
+		//cv::Canny(gray, edged, 35, 125);
+		cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
+		cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
+		double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
+		cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+		for (auto c : contours)
+		{
+			if (cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea)
+			{
+				contours1 = c;
+				minArea = cv::contourArea(contours1);
+			}
+		}
+
+		if (minArea > 1000)
+		{
+			cv::Rect points = boundingRect(contours1);
+			functions::w = points.width;
+			h = points.height;
+			x = points.x;
+			y = points.y;
+			middleX = x + w / 2;
+			middleY = y + h / 2;
+			cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
+			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+		}
+
+		minArea = 1000;
+		markers[i] = cv::minAreaRect(contours1);
+	}
 	void functions::find_marker_cup(cv::Mat image)
 	{
 		cv::Mat gray;
@@ -184,4 +216,4 @@
 		cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
 		cv::imshow("Hough Circle Transform Demo", image);
 	}
-
+	

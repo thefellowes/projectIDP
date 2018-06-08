@@ -3,8 +3,15 @@
 
 #include <vector>
 
+struct ArmServos {
+	int armRotation;
+	std::vector<int> joints;
+	int gripperRotation;
+	int gripper;
+};
+
 //Speed of Gripper servo
-const int gripperSpeed = 100;
+const int gripperSpeed = 200;
 
 //MIN and MAX turn value of servo
 const int servoMinRotation = 0;
@@ -20,8 +27,8 @@ const int l2 = 13;
 //Default values where the angles in the real world is 0 (arm laying flat backwards) 
 const std::vector<int> defaultValues = { 210,512,512 };
 //MIN and MAX constraint values of the servos
-const std::vector<int> constr_min = { 131,30,187 };
-const std::vector<int> constr_max = { 902,991,830 };
+const ArmServos constr_min = { 0, { 131,30,187 }, 0, 600 };
+const ArmServos constr_max = { 1023, { 902,991,830 }, 1023, 900 };
 
 const float maxSpeed = 0.175f;	//size to change position
 const float maxSpeedRotation = 10;	//size to change rotation
