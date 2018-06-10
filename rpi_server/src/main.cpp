@@ -1,3 +1,5 @@
+#include "vision.h"
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -26,7 +28,7 @@
 #include "tankTracks.h"
 #include "talker.h"
 #include "cmdmas.h"
-#include "functions.h"
+
 
 #define DirectionPin (18u)
 #define BaudRate (1000000ul)
@@ -63,7 +65,7 @@ int main(void) {
 	markerValues.push_back({ 20, 100, 100, 40, 255, 255 }); //yellow
 	markerValues.push_back({ 1, 100, 100, 10, 255, 255 }); //orange
 	markerValues.push_back({ 160, 20, 70, 190, 255, 255 }); //red
-	functions funct = functions(markerValues);
+	Vision vision(markerValues);
 
 	servos.armRotation = IDturn;
 	servos.gripper = IDgripper;
@@ -85,10 +87,10 @@ int main(void) {
 	debug("Starting threads...");
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
-	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker)));
+	threads.push_back(std::thread(listen_t, std::ref(arm), std::ref(tankTracks), std::ref(talker), std::ref(vision)));
 	threads.push_back(std::thread(&Arm::startMovement, std::ref(arm)));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
-	threads.push_back(std::thread(&functions::vision));
+	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	//close threads

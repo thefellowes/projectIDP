@@ -14,6 +14,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 
+#include "vision.h"
 #include "parser.h"
 #include "arm.h"
 #include "tankTracks.h"
@@ -85,7 +86,7 @@ int getBatteryPercentage(Arm &arm) {
 	return result;
 }
 
-void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
+void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker, Vision &vision) {
 	int batteryPerc;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
@@ -173,11 +174,12 @@ void listen_t(Arm &arm, TankTracks &tankTracks, Talker &talker) {
 		//if batteryPercentage to low shutdown pi
 		//TODO: check on which batteryPercentage to shutdown the Pi
 		if (parsed_input.doStop == true) std::cout << "doStop = true" << std::endl;
-		if (batteryPerc < 10) std::cout << "batteryPerc < 10" << std::endl;
-		if(batteryPerc < 10 || parsed_input.doStop == true){
+		if (batteryPerc < 10 && batteryPerc > 0) std::cout << "batteryPerc < 10" << std::endl;
+		if((batteryPerc < 10 && batteryPerc > 0) || parsed_input.doStop == true){
 			arm.stopMovement();
 			arm.setServoValues({ 510,{ 200, 924, 689 }, 512, -1 }, 500);
 			tankTracks.stopMotors();
+			vision.stopVision();
 			//talker.stopTalking();
 			std::cout << "Application Stopped" << std::endl;
 			break;
