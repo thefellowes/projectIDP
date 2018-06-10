@@ -29,6 +29,8 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
+		colorNames.push_back("black");
+		colorNames.push_back("white");
 	}
 
 	int Vision::startVision()
