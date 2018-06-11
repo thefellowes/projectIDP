@@ -1,10 +1,10 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
-#include "functions.h"
+#include "vision.h"
 #include <thread>
 
-	functions::functions(std::vector<std::vector<int>> initValues = {})
+	Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	{
 		std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
 		for (int i = 0; i < 5; i++)
@@ -29,20 +29,49 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
+		colorNames.push_back("black");
+		colorNames.push_back("white");
 	}
 
-	cv::Mat functions::getImage()
+	int Vision::startVision()
+	{
+		isActive = true;
+
+		cv::VideoCapture cap(0);
+		if (!cap.isOpened())
+			return -1;
+		cv::Mat frame;
+		cap.grab();
+		int count = 0;
+		cap.retrieve(frame);
+
+		while(isActive)
+		{
+			cap >> frame;
+			//funct.find_marker_cup(frame);
+			update(frame);
+			cv::imshow("image", frame);
+			cv::waitKey(1);
+		}
+
+	}
+
+	void Vision::stopVision() {
+		isActive = false;
+	}
+
+	cv::Mat Vision::getImage()
 	{
 		return image;
 	}
 
-	void functions::update(cv::Mat image_)
+	void Vision::update(cv::Mat image_)
 	{
 		image = image_;
 		updateMarkers();
 	}
 
-	void functions::updateMarkers()
+	void Vision::updateMarkers()
 	{
 		int biggestY = 100000000;
 		cv::Point2f rect_points_index[4];
@@ -51,7 +80,7 @@
 		for (int i = 0; i < 5; i++)
 		{
 			cv::Point2f rect_points[4];
-			returnVector[i].points(rect_points);
+			markers[i].points(rect_points);
 			
 			if (rect_points[0].y < biggestY && rect_points[0].y > 0)
 			{
@@ -69,8 +98,8 @@
 		}
 
 	}
-	
-	std::string functions::getStance()
+
+	std::string Vision::getStance(int h, int w)
 	{
 		std::string returnString = "";
 		if (h * w > 0)
@@ -111,35 +140,36 @@
 		return returnString;
 	}
 
-	void functions::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
-	{		
+	void Vision::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
+	{
 		std::vector<std::thread> color_pool;
 		int i = 0;
-		while(i < 5)
-			{
-				color_pool.push_back(std::thread(&functions::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays),std::ref(upperArrays), std::ref(i)));
-				i++;
-			}
+		while (i < 5)
+		{
+			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays), std::ref(upperArrays), std::ref(i)));
+			i++;
+		}
 
 		i = 0;
-		while(i < 5)
+		while (i < 5)
 		{
 			color_pool[i].join();
 			i++;
 		}
-	
+
 	}
-	void functions::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
+
+	void Vision::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
 	{
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
 		std::vector<cv::Vec4i> hierarchy;
-		int minArea = 1000;
+		int minArea = 3000;
 		int maxArea = 30000;
 		cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
 		cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
-		cv::Canny(gray, edged, 35, 125);
+		//cv::Canny(gray, edged, 35, 125);
 		cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
 		cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
 		double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
@@ -157,20 +187,20 @@
 		if (minArea > 1000)
 		{
 			cv::Rect points = boundingRect(contours1);
-			functions::w = points.width;
-			h = points.height;
-			x = points.x;
-			y = points.y;
-			middleX = x + w / 2;
-			middleY = y + h / 2;
+			int w = points.width;
+			int h = points.height;
+			int x = points.x;
+			int y = points.y;
+			int middleX = x + w / 2;
+			int middleY = y + h / 2;
 			cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
 			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
 		}
 
 		minArea = 1000;
-		returnVector.push_back(cv::minAreaRect(contours1));
+		markers[i] = cv::minAreaRect(contours1);
 	}
-	void functions::find_marker_cup(cv::Mat image)
+	void Vision::find_marker_cup(cv::Mat image)
 	{
 		cv::Mat gray;
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);

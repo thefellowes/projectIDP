@@ -1,32 +1,36 @@
 
-#ifndef functions_h
-#define functions_h
+#ifndef VISION_H
+#define VISION_H
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
 
-class functions {
+class Vision {
 
 private:
-	int middleX, middleY, x, y, w, h = 0;
+	bool isActive;
+
+	//int middleX, middleY, x, y, w, h = 0;
 	std::vector<cv::RotatedRect> markers;
 	std::vector<std::vector<int>> lowerArrays;
 	std::vector<std::vector<int>> upperArrays;
-	std::vector<cv::RotatedRect> returnVector;
 	std::vector<std::string> colorNames;
 	cv::Mat image;
 
 public:
 
-	functions(std::vector<std::vector<int>> initValues);
+	Vision(std::vector<std::vector<int>> initValues);
 
 	cv::Mat getImage();
 
 	void update(cv::Mat image_);
 
+	int startVision();
+	void stopVision();
+
 	void updateMarkers();
 
-	std::string getStance();
+	std::string getStance(int h, int w);
 
 	void find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
 

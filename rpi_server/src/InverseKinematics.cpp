@@ -105,7 +105,7 @@ std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, fl
 		float ha = ha1 + (dha * perc);
 
 		std::vector<int> servoValues = posToAnglesNoOOR(x, y, ha);
-		positionPossible = constraint(servoValues, constr_min, constr_max);
+		positionPossible = constraint(servoValues, constr_min.joints, constr_max.joints);
 		if (!positionPossible) positionErrorCount++;
 
 		path.push_back(servoValues);
