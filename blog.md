@@ -17,7 +17,7 @@ overflow: hidden;
 </style>
 
 <div class="blogPost">
-  <h3 style="text-align:center;">Maandag, 11 mei</h3>
+  <h3 style="text-align:center;">Maandag, 11 juni</h3>
   <p style="float:left; width:40%;">Op deze schone maandag zijn we allemaal blij, Bert heeft vorige week zijn eerste "stapjes" gezet. We hebben ook een prachtige controller, en goeie vooruitgang op onze vision. Deze week moeten we nog een paar dingen afkrijgen, zoals de arm op het lichaam zetten, en volgende week zijn de van doel puntjes op alle i's te zetten.<p>
   <div class="imageWrapper">
 	<img style="float:right; border-radius: 20px;" src="">
