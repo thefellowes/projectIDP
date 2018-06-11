@@ -17,7 +17,7 @@ int main()
 	markerValues.push_back({ 6, 100, 100, 10, 255, 255 }); //orange
 	markerValues.push_back({ 0, 100, 100, 5, 255, 255 }); //red
 	markerValues.push_back({ 0, 0, 0, 30, 30, 30 });//black
-	markerValues.push_back({225, 225, 225, 255, 255, 255})//white
+	markerValues.push_back({225, 225, 225, 255, 255, 255});//white
 	// for black
 	//cv::inRange(imgHSV, cv::Scalar(0, 0, 0, 0), cv::Scalar(180, 255, 30, 0), imgThreshold);
 	// for white   
