@@ -16,6 +16,7 @@ private:
 	std::vector<std::vector<int>> upperArrays;
 	std::vector<std::string> colorNames;
 	cv::Mat image;
+	int programNumber;
 
 public:
 
@@ -25,9 +26,11 @@ public:
 
 	void update(cv::Mat image_);
 
-	int startVision(int number);
+	int startVision();
 
 	void stopVision();
+
+	void setProgram(int number);
 
 	void updateMarkers();
 

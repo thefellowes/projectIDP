@@ -33,9 +33,11 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
+
+		programNumber = -1;
 	}
 
-	int Vision::startVision(int number)
+	int Vision::startVision()
 	{
 		isActive = true;
 
@@ -51,9 +53,13 @@
 		{
 			cap >> frame;
 			image = frame;
-			switch (number) {
+			switch (programNumber) {
 				case 1:
 					find_marker_cup();
+					break;
+				case 2:
+					find_waitPoint();
+					find_line();
 					break;
 				default:
 					update(frame);
@@ -68,6 +74,11 @@
 
 	void Vision::stopVision() {
 		isActive = false;
+	}
+
+	void Vision::setProgram(int number)
+	{
+		programNumber = number;
 	}
 
 	cv::Mat Vision::getImage()
@@ -296,6 +307,7 @@
 						std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;
 						//std::this_thread::sleep_for(std::chrono::seconds(30));
 						//passedWaitPoint = true;
+						std::cout << "Move forward until line found and start following line again" << std::endl;
 					}
 				}
 			}
