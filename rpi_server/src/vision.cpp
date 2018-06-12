@@ -11,7 +11,7 @@
 	Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	{
 		std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i < 5; i++)
 		{
 			std::vector<int> lower, upper;
 			for (int j = 0; j < 3; j++)
@@ -33,8 +33,6 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
-		colorNames.push_back("black");
-		colorNames.push_back("white");
 	}
 
 	int Vision::startVision(int number)
@@ -211,56 +209,6 @@
 
 		minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
-	}
-
-	void Vision::find_marker_circles()
-	{
-		cv::Mat gray;
-		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-		// Reduce the noise so we avoid false circle detection
-		std::vector<cv::Vec3f> circles;
-
-		// Apply the Hough Transform to find the circles
-		cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1, 30, 200, 50, 0, 0);
-		int maxArea = 500;
-
-		// Draw the circles detected
-		for (size_t i = 0; i < circles.size(); i++)
-		{
-			cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-			int radius = cvRound(circles[i][2]);
-			cv::circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);// circle center     
-			cv::circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);// circle outline
-		}
-
-	}
-	void Vision::find_marker_white()
-	{
-		int scale = 4;
-		cv::Mat src_gray, eroded;
-		cv::cvtColor(image, src_gray, cv::COLOR_BGR2GRAY);
-		resize(src_gray, src_gray, cv::Size(src_gray.cols / scale, src_gray.rows / scale)); // optionally resize image to speed up the process
-
-		cv::rectangle(src_gray, cv::Rect(5, 5, src_gray.cols - 10, src_gray.rows - 10), cv::Scalar(0), 4); // correction 1
-		src_gray = src_gray >127;
-
-		std::vector<std::vector<cv::Point>> contours;
-
-		for (int i = 2; i < src_gray.cols / 2; i++)
-		{
-			cv::Mat kernel = cv::Mat::ones(i, i, CV_8U);
-			cv::erode(src_gray, eroded, kernel);
-
-			findContours(eroded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-			if (contours.size() == 1 & contours[0].size() < 5)
-			{
-				cv::resize(kernel, kernel, cv::Size(), 0.9, 0.9); // correction 2
-				cv::dilate(eroded, eroded, kernel);
-				cv::findContours(eroded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
-				cv::polylines(image, cv::Mat(contours[0]) * scale, true, cv::Scalar(0, 0, 255)); // resize up the contour and draw
-				break;
-			}
-		}
 	}
 
 	void Vision::find_marker_cup()

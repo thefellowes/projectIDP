@@ -39,10 +39,6 @@ public:
 
 	void find_marker_cup();
 
-	void find_marker_circles();
-
-	void find_marker_white();
-
 	void find_line();
 
 	void find_waitPoint();
