@@ -11,11 +11,11 @@ nightcoreListener::nightcoreListener(int _in_pin) {
 	pinMode(in_pin, INPUT)
 }
 
-int get_in_pin() {
+int nightcoreListener::get_in_pin() {
   return digitalRead(in_pin);
 }
 
-int run() {
+int nightcoreListener::run() {
 	while (1) {
 		if (get_in_pin() == HIGH) {
 			printf("High AF\n");
