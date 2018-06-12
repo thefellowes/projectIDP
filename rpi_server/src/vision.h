@@ -25,7 +25,8 @@ public:
 
 	void update(cv::Mat image_);
 
-	int startVision();
+	int startVision(int number);
+
 	void stopVision();
 
 	void updateMarkers();

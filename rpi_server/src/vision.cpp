@@ -33,7 +33,7 @@
 		colorNames.push_back("white");
 	}
 
-	int Vision::startVision()
+	int Vision::startVision(int number)
 	{
 		isActive = true;
 
@@ -49,8 +49,15 @@
 		{
 			cap >> frame;
 			image = frame;
-			find_marker_cup();
-			//update(frame);
+			switch (number) {
+				case 1:
+					find_marker_cup();
+					break;
+				default:
+					update(frame);
+					break;
+			}
+
 			cv::imshow("image", frame);
 			cv::waitKey(1);
 		}
