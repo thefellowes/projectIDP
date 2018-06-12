@@ -1,0 +1,19 @@
+;Make a comment like this. (useful fo separating different moves)
+
+;rotation, joint 1 (1st servo), joint 1 (2nd servo), joint 2, joint 3, gripper rotation, gripper, time to go to this position
+;Spaces are not required.
+;If a servo value doesn't change from one position to the other, you can leave said value empty. (NOTE: ONLY APPLIES TO SERVO VALUES. NOT THE TIME VALUE.)
+
+;example
+512, 512, 512, 512, 512, 512, 512, 750
+800, , , 309, 591, , , 750
+
+;Standup snake move
+512, 512, 512, 512, 512, 512, 900, 1000
+512, 403, 403, 715, 433, 512, 600, 1500
+512, 621, 621, 309, 591, 512, 900, 1500
+512, 403, 403, 715, 433, 512, 600, 1500
+813, 621, 621, 309, 591, 512, 900, 1500
+813, 403, 403, 715, 433, 512, 600, 1500
+813, 621, 621, 309, 591, 512, 900, 1500
+813, 403, 403, 715, 433, 512, 600, 1500
