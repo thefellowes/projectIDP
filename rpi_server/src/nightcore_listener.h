@@ -1,9 +1,14 @@
 #ifndef __NIGHTCORE_LISTENER_H__
 #define __NIGHTCORE_LISTENER_H__
 
-#define IN_PIN 25
-
-void nc_init();
-int get_in_pin();
+class nightcoreListener {
+private:
+  int in_pin;
+  
+public:
+  nightcoreListener(int _in_pin);
+  int get_in_pin();
+  void run();
+}
 
 #endif //__NIGHTCORE_LISTENER_H__
