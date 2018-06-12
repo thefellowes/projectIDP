@@ -5,20 +5,17 @@
 
 #include "nightcore_listener.h"
 
-#define IN_PIN 25
-
-
-void nc_init() {
-  wiringPiSetupGpio();
-  pinMode(IN_PIN, INPUT);
+nightcoreListener::nightcoreListener(int _in_pin) {
+	in_pin = _in_pin;
+	wiringPiSetupGpio();
+	pinMode(in_pin, INPUT)
 }
 
 int get_in_pin() {
-  return digitalRead(IN_PIN);
+  return digitalRead(in_pin);
 }
 
-int beat_t(void) {
-	nc_init();
+int run() {
 	while (1) {
 		if (get_in_pin() == HIGH) {
 			printf("High AF\n");
