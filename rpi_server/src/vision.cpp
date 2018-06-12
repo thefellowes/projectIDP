@@ -7,7 +7,7 @@
 	Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	{
 		std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < 7; i++)
 		{
 			std::vector<int> lower, upper;
 			for (int j = 0; j < 3; j++)
@@ -48,8 +48,9 @@
 		while(isActive)
 		{
 			cap >> frame;
-			//funct.find_marker_cup(frame);
-			update(frame);
+			image = frame;
+			find_marker_cup();
+			//update(frame);
 			cv::imshow("image", frame);
 			cv::waitKey(1);
 		}
@@ -76,7 +77,7 @@
 		int biggestY = 100000000;
 		cv::Point2f rect_points_index[4];
 		cv::Scalar color(0, 255, 0);
-		find_markers(image, lowerArrays, upperArrays);
+		find_markers();
 		for (int i = 0; i < 5; i++)
 		{
 			cv::Point2f rect_points[4];
@@ -140,18 +141,18 @@
 		return returnString;
 	}
 
-	void Vision::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
+	void Vision::find_markers()
 	{
 		std::vector<std::thread> color_pool;
 		int i = 0;
-		while (i < 5)
+		while (i < lowerArrays.size())
 		{
-			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays), std::ref(upperArrays), std::ref(i)));
+			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i)));
 			i++;
 		}
 
 		i = 0;
-		while (i < 5)
+		while (i < lowerArrays.size())
 		{
 			color_pool[i].join();
 			i++;
@@ -159,7 +160,7 @@
 
 	}
 
-	void Vision::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
+	void Vision::find_marker_by_color(int i)
 	{
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
@@ -184,7 +185,7 @@
 			}
 		}
 
-		if (minArea > 1000)
+		if (minArea > 3000)
 		{
 			cv::Rect points = boundingRect(contours1);
 			int w = points.width;
@@ -197,10 +198,11 @@
 			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
 		}
 
-		minArea = 1000;
+		minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
 	}
-	void Vision::find_marker_cup(cv::Mat image)
+
+	void Vision::find_marker_circles()
 	{
 		cv::Mat gray;
 		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
@@ -220,8 +222,41 @@
 			cv::circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);// circle outline
 		}
 
+	}
+	void Vision::find_marker_white()
+	{
+		int scale = 4;
+		cv::Mat src_gray, eroded;
+		cv::cvtColor(image, src_gray, cv::COLOR_BGR2GRAY);
+		resize(src_gray, src_gray, cv::Size(src_gray.cols / scale, src_gray.rows / scale)); // optionally resize image to speed up the process
+
+		cv::rectangle(src_gray, cv::Rect(5, 5, src_gray.cols - 10, src_gray.rows - 10), cv::Scalar(0), 4); // correction 1
+		src_gray = src_gray >127;
+
+		std::vector<std::vector<cv::Point>> contours;
+
+		for (int i = 2; i < src_gray.cols / 2; i++)
+		{
+			cv::Mat kernel = cv::Mat::ones(i, i, CV_8U);
+			cv::erode(src_gray, eroded, kernel);
+
+			findContours(eroded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+			if (contours.size() == 1 & contours[0].size() < 5)
+			{
+				cv::resize(kernel, kernel, cv::Size(), 0.9, 0.9); // correction 2
+				cv::dilate(eroded, eroded, kernel);
+				cv::findContours(eroded, contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+				cv::polylines(image, cv::Mat(contours[0]) * scale, true, cv::Scalar(0, 0, 255)); // resize up the contour and draw
+				break;
+			}
+		}
+	}
+	void Vision::find_marker_cup()
+	{
+		find_marker_by_color(1);
+		//find_marker_circles();
 		// Show your results
-		cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
-		cv::imshow("Hough Circle Transform Demo", image);
+		//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
+		//cv::imshow("Hough Circle Transform Demo", image);
 	}
 	

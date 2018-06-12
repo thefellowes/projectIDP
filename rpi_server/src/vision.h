@@ -32,11 +32,15 @@ public:
 
 	std::string getStance(int h, int w);
 
-	void find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays);
+	void find_markers();
 
-	void find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i);
+	void find_marker_by_color(int i);
 
-	void find_marker_cup(cv::Mat image);
+	void find_marker_cup();
+
+	void find_marker_circles();
+
+	void find_marker_white();
 
 };
 
