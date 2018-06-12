@@ -3,6 +3,10 @@
 #include <string>
 #include "vision.h"
 #include <thread>
+#include <chrono>
+#include <numeric>
+
+#include <iostream>
 
 	Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	{
@@ -251,6 +255,7 @@
 			}
 		}
 	}
+
 	void Vision::find_marker_cup()
 	{
 		find_marker_by_color(1);
@@ -260,3 +265,84 @@
 		//cv::imshow("Hough Circle Transform Demo", image);
 	}
 	
+	void Vision::find_line()
+	{
+		cv::Mat mask = image.clone();
+		std::vector<std::vector<cv::Point>> contours;
+		std::vector<cv::Point> maxContour;
+		
+		//Detect dark line:
+		cv::cvtColor(mask, mask, cv::COLOR_RGB2GRAY);
+		cv::GaussianBlur(mask, mask, cv::Size(5, 5), 0, 0);
+		cv::threshold(mask, mask, 60, 255, cv::THRESH_BINARY_INV);
+
+		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+		//If contour(s) found, analyse img
+		if (contours.size() != 0) {
+			std::vector<int> indices(contours.size());
+			std::iota(indices.begin(), indices.end(), 0); //fill indices from 0 to size of indices;
+
+			//Sort indices of contours by size contours
+			sort(indices.begin(), indices.end(), [&contours](int lhs, int rhs) {
+				return cv::contourArea(contours[lhs]) > cv::contourArea(contours[rhs]);
+			});
+
+			//Biggest contour
+			maxContour = contours[indices[0]];
+
+			//Get extreme top and bottom point of line
+			cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
+				[](const cv::Point& lhs, const cv::Point& rhs) {
+				return lhs.y > rhs.y;
+			});
+			cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
+				[](const cv::Point& lhs, const cv::Point& rhs) {
+				return lhs.y > rhs.y;
+			});
+
+			//Give instruction to follow line
+			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+				std::cout << "Go straight ahead" << std::endl;
+			}
+			else if (extTop.x < image.rows / 3 * 1) {
+				std::cout << "Go Left" << std::endl;
+			}
+			else if (extTop.x > image.rows / 3 * 2) {
+				std::cout << "Go Right" << std::endl;
+			}
+			else {
+				std::cout << "No instruction" << std::endl;
+			}
+		}
+	}
+
+	void Vision::find_waitPoint()
+	{
+		cv::Mat mask = image.clone();
+		cv::Mat lowerRed;
+		cv::Mat upperRed;
+		std::vector<std::vector<cv::Point>> contours;
+		
+		//Detect red(circle):
+		cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
+		cv::inRange(mask, cv::Scalar(0, 70, 50), cv::Scalar(10, 225, 255), lowerRed);
+		cv::inRange(mask, cv::Scalar(170, 70, 50), cv::Scalar(180, 225, 255), upperRed);
+		cv::addWeighted(lowerRed, 1.0, upperRed, 1.0, 0.0, mask);
+
+		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+		//Only exucute if haven't wait before
+		//if (!passedWaitPoint) {
+			if (contours.size() != 0) {
+				for (int i = 0; i < contours.size(); i++) {
+					if (cv::contourArea(contours[i]) > 10000) {
+						//If red(cirle) found, move forward and wait 30 seconds
+						std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;
+						//std::this_thread::sleep_for(std::chrono::seconds(30));
+						//passedWaitPoint = true;
+					}
+				}
+			}
+		//}
+	}

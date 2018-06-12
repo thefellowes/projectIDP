@@ -42,6 +42,10 @@ public:
 
 	void find_marker_white();
 
+	void find_line();
+
+	void find_waitPoint();
+
 };
 
 #endif
