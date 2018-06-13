@@ -76,7 +76,7 @@ overflow: hidden;
   <h3 style="text-align:center;">Maandag, 14 mei</h3>
   <p style="float:left; width:40%;">Nu het lange weekend voorbij is gaat groep 8 weer aan de bak! Het wekelijkse gesprek met onze mentor, David, heeft weer plaatsgevonden en is met succes afgerond, we hebben uit dit gesprek de inspiratie gehaald om sprints te maken. De sprint voor deze week is opgehangen op het bord en wordt netjes bijgehouden.<p>
   <div class="imageWrapper">
-	<img style="float:right; border-radius: 20px;" src="https://imgur.com/YYDazM0">
+	<img style="float:right; border-radius: 20px;" src="https://i.imgur.com/YYDazM0.png">
   </div>
   <div style="clear:both;"></div>
 <hr>
@@ -84,7 +84,7 @@ overflow: hidden;
   <h3 style="text-align:center;">Maandag, 7 mei</h3>
   <p style="float:left; width:40%;">Na een weekje vakantie gaat groep 8 meteen weer hard aan de slag! Omdat er voor de vakantie goed is overlegd, en een goeie backlog is gemaakt, kunnen wij ons project aftrappen. De productie van onze Bert-bot, is namelijk van start gegaan. Er wordt op dit moment geprogrammeerd, ontworpen, en connecties worden gelegd<p>
   <div class="imageWrapper">
-	<img style="float:right; border-radius: 20px;" src="https://imgur.com/N9ZjFRd">
+	<img style="float:right; border-radius: 20px;" src="https://i.imgur.com/N9ZjFRd.png">
   </div>
   <div style="clear:both;"></div>
 <hr>
