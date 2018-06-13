@@ -3,6 +3,10 @@
 #include <string>
 #include "vision.h"
 #include <thread>
+#include <chrono>
+#include <numeric>
+
+#include <iostream>
 
 	Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	{
@@ -29,8 +33,8 @@
 		colorNames.push_back("yellow");
 		colorNames.push_back("orange");
 		colorNames.push_back("red");
-		colorNames.push_back("black");
-		colorNames.push_back("white");
+
+		programNumber = -1;
 	}
 
 	int Vision::startVision()
@@ -48,8 +52,20 @@
 		while(isActive)
 		{
 			cap >> frame;
-			//funct.find_marker_cup(frame);
-			update(frame);
+			image = frame;
+			switch (programNumber) {
+				case 1:
+					find_marker_cup();
+					break;
+				case 2:
+					find_waitPoint();
+					find_line();
+					break;
+				default:
+					update(frame);
+					break;
+			}
+
 			cv::imshow("image", frame);
 			cv::waitKey(1);
 		}
@@ -58,6 +74,11 @@
 
 	void Vision::stopVision() {
 		isActive = false;
+	}
+
+	void Vision::setProgram(int number)
+	{
+		programNumber = number;
 	}
 
 	cv::Mat Vision::getImage()
@@ -76,7 +97,7 @@
 		int biggestY = 100000000;
 		cv::Point2f rect_points_index[4];
 		cv::Scalar color(0, 255, 0);
-		find_markers(image, lowerArrays, upperArrays);
+		find_markers();
 		for (int i = 0; i < 5; i++)
 		{
 			cv::Point2f rect_points[4];
@@ -140,18 +161,18 @@
 		return returnString;
 	}
 
-	void Vision::find_markers(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays)
+	void Vision::find_markers()
 	{
 		std::vector<std::thread> color_pool;
 		int i = 0;
-		while (i < 5)
+		while (i < lowerArrays.size())
 		{
-			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(image), std::ref(lowerArrays), std::ref(upperArrays), std::ref(i)));
+			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i)));
 			i++;
 		}
 
 		i = 0;
-		while (i < 5)
+		while (i < lowerArrays.size())
 		{
 			color_pool[i].join();
 			i++;
@@ -159,7 +180,7 @@
 
 	}
 
-	void Vision::find_marker_by_color(cv::Mat image, std::vector<std::vector<int>> lowerArrays, std::vector<std::vector<int>> upperArrays, int i)
+	void Vision::find_marker_by_color(int i)
 	{
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
@@ -184,7 +205,7 @@
 			}
 		}
 
-		if (minArea > 1000)
+		if (minArea > 3000)
 		{
 			cv::Rect points = boundingRect(contours1);
 			int w = points.width;
@@ -197,31 +218,98 @@
 			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
 		}
 
-		minArea = 1000;
+		minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
 	}
-	void Vision::find_marker_cup(cv::Mat image)
+
+	void Vision::find_marker_cup()
 	{
-		cv::Mat gray;
-		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-		// Reduce the noise so we avoid false circle detection
-		std::vector<cv::Vec3f> circles;
-
-		// Apply the Hough Transform to find the circles
-		cv::HoughCircles(gray, circles, cv::HOUGH_GRADIENT, 1, 30, 200, 50, 0, 0);
-		int maxArea = 500;
-
-		// Draw the circles detected
-		for (size_t i = 0; i < circles.size(); i++)
-		{
-			cv::Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-			int radius = cvRound(circles[i][2]);
-			cv::circle(image, center, 3, cv::Scalar(0, 255, 0), -1, 8, 0);// circle center     
-			cv::circle(image, center, radius, cv::Scalar(0, 0, 255), 3, 8, 0);// circle outline
-		}
-
+		find_marker_by_color(1);
+		//find_marker_circles();
 		// Show your results
-		cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
-		cv::imshow("Hough Circle Transform Demo", image);
+		//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
+		//cv::imshow("Hough Circle Transform Demo", image);
 	}
 	
+	void Vision::find_line()
+	{
+		cv::Mat mask = image.clone();
+		std::vector<std::vector<cv::Point>> contours;
+		std::vector<cv::Point> maxContour;
+		
+		//Detect dark line:
+		cv::cvtColor(mask, mask, cv::COLOR_RGB2GRAY);
+		cv::GaussianBlur(mask, mask, cv::Size(5, 5), 0, 0);
+		cv::threshold(mask, mask, 60, 255, cv::THRESH_BINARY_INV);
+
+		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+		//If contour(s) found, analyse img
+		if (contours.size() != 0) {
+			std::vector<int> indices(contours.size());
+			std::iota(indices.begin(), indices.end(), 0); //fill indices from 0 to size of indices;
+
+			//Sort indices of contours by size contours
+			sort(indices.begin(), indices.end(), [&contours](int lhs, int rhs) {
+				return cv::contourArea(contours[lhs]) > cv::contourArea(contours[rhs]);
+			});
+
+			//Biggest contour
+			maxContour = contours[indices[0]];
+
+			//Get extreme top and bottom point of line
+			cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
+				[](const cv::Point& lhs, const cv::Point& rhs) {
+				return lhs.y > rhs.y;
+			});
+			cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
+				[](const cv::Point& lhs, const cv::Point& rhs) {
+				return lhs.y > rhs.y;
+			});
+
+			//Give instruction to follow line
+			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+				std::cout << "Go straight ahead" << std::endl;
+			}
+			else if (extTop.x < image.rows / 3 * 1) {
+				std::cout << "Go Left" << std::endl;
+			}
+			else if (extTop.x > image.rows / 3 * 2) {
+				std::cout << "Go Right" << std::endl;
+			}
+			else {
+				std::cout << "No instruction" << std::endl;
+			}
+		}
+	}
+
+	void Vision::find_waitPoint()
+	{
+		cv::Mat mask = image.clone();
+		cv::Mat lowerRed;
+		cv::Mat upperRed;
+		std::vector<std::vector<cv::Point>> contours;
+		
+		//Detect red(circle):
+		cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
+		cv::inRange(mask, cv::Scalar(0, 70, 50), cv::Scalar(10, 225, 255), lowerRed);
+		cv::inRange(mask, cv::Scalar(170, 70, 50), cv::Scalar(180, 225, 255), upperRed);
+		cv::addWeighted(lowerRed, 1.0, upperRed, 1.0, 0.0, mask);
+
+		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+		//Only exucute if haven't wait before
+		//if (!passedWaitPoint) {
+			if (contours.size() != 0) {
+				for (int i = 0; i < contours.size(); i++) {
+					if (cv::contourArea(contours[i]) > 10000) {
+						//If red(cirle) found, move forward and wait 30 seconds
+						std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;
+						//std::this_thread::sleep_for(std::chrono::seconds(30));
+						//passedWaitPoint = true;
+						std::cout << "Move forward until line found and start following line again" << std::endl;
+					}
+				}
+			}
+		//}
+	}
