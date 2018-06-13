@@ -89,14 +89,3 @@ overflow: hidden;
   <div style="clear:both;"></div>
 <hr>
 
-
-
-
-
-<div class="blogPost">
-  <h3 style="text-align:center;">A university project</h3>
-  <p style="float:left; width:40%;">Bert's avonturen<p>
-  <div class="imageWrapper">
-    <img style="float:right; border-radius:  20px;" src="https://cdn.discordapp.com/attachments/185375386283016192/446238460739715073/Naamloos.png">
-  </div>
-  <div style="clear:both;"></div>
