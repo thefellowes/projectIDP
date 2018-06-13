@@ -237,10 +237,9 @@
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> maxContour;
 		
-		//Detect dark line:
-		cv::cvtColor(mask, mask, cv::COLOR_RGB2GRAY);
-		cv::GaussianBlur(mask, mask, cv::Size(5, 5), 0, 0);
-		cv::threshold(mask, mask, 60, 255, cv::THRESH_BINARY_INV);
+		//Detect black line:
+		cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
+		cv::inRange(mask, cv::Scalar(0, 0, 0, 0), cv::Scalar(180, 255, 30, 0), mask);
 
 		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
