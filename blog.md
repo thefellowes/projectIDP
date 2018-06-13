@@ -84,7 +84,7 @@ overflow: hidden;
   <h3 style="text-align:center;">Maandag, 7 mei</h3>
   <p style="float:left; width:40%;">Na een weekje vakantie gaat groep 8 meteen weer hard aan de slag! Omdat er voor de vakantie goed is overlegd, en een goeie backlog is gemaakt, kunnen wij ons project aftrappen. De productie van onze Bert-bot, is namelijk van start gegaan. Er wordt op dit moment geprogrammeerd, ontworpen, en connecties worden gelegd<p>
   <div class="imageWrapper">
-	
+	<img style="float:right; border-radius: 20px;" src="https://i.imgur.com/N9ZjFRd.png">
   </div>
   <div style="clear:both;"></div>
 <hr>
