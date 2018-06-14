@@ -86,15 +86,6 @@ int main(void) {
 	controller.begin();
 
 	
-	//arm.letsGetGroovy("/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt");
-	//arm.moveTo(-10, 0, 180, 512);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	//arm.moveTo(-17.5, 7.5, 270, 512);
-	
-	//ArmServos values = arm.readServoValues();
-
-	
-
 	ax12a.end();
 
 	//TODO: Send ShutDown PI Command

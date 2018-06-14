@@ -159,9 +159,6 @@ char** Listener::str_split(char* a_str, const char a_delim)
 
 Listener::~Listener()
 {
-	//close connection
-	//freeaddrinfo(servinfo);
-
 	close(sockfd);
 }
 

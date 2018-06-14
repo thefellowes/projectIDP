@@ -8,7 +8,7 @@
 #include "functions.h"
 #include <thread>
 
-int main()
+int ____main___()
 {
 	std::vector<std::vector<int>> markerValues;
 	markerValues.push_back({ 100, 73, 44, 141, 255, 255 }); //blue
