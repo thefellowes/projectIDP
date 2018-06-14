@@ -65,7 +65,7 @@ Listener::Listener(const char* myPort)
 //    return;
 //}
 
-const char* getIP() {
+const char* Listener::getIP() {
 	if (IPStr == "-1") {
 		char s[INET6_ADDRSTRLEN];
 		int numbytes;
