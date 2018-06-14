@@ -1,7 +1,8 @@
 #include "listener.h"
 
-Listener::Listener(char* myPort) 
+Listener::Listener(const char* myPort) 
 {
+	IPStr = "-1";
 	struct addrinfo hints, *servinfo;
 	int rv;
 	
@@ -64,6 +65,24 @@ Listener::Listener(char* myPort)
 //    return;
 //}
 
+const char* Listener::getIP() {
+	if (IPStr == "-1") {
+		char s[INET6_ADDRSTRLEN];
+		int numbytes;
+		char buf[MAXBUFLEN];
+
+		if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN - 1, 0, (struct sockaddr *)&their_addr, &p->ai_addrlen)) == -1) {
+			perror("recvfrom");
+			exit(1);
+		}
+
+		return IPStr = inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
+	}
+	else {
+		return IPStr;
+	}
+}
+
 char** Listener::getToken() {
 	int numbytes;
 	char buf[MAXBUFLEN];
@@ -85,7 +104,7 @@ user_input Listener::getParsedInput() {
 	int numbytes;
 	char buf[MAXBUFLEN];
 
-	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN - 1, 0, p->ai_addr, &p->ai_addrlen)) == -1) {
+	if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN - 1, 0, (struct sockaddr *)&their_addr, &p->ai_addrlen)) == -1) {
 		perror("recvfrom");
 		exit(1);
 	}

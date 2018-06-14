@@ -51,11 +51,11 @@
 #define DirectionPinBR (19u)
 
 //Define Talker constants
-char* SERVERPORT = "1312";
-char* IPAddress = "192.168.1.11";
+const char* SERVERPORT = "1312";
+//const char* IPAddress = "192.168.1.11";
 
 //Define Listener constants
-char* MYPORT = "1313";
+const char* MYPORT = "1313";
 
 
 int main(void) {
@@ -63,7 +63,7 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	Listener listener(MYPORT);
-	Talker talker(SERVERPORT, IPAddress);
+	Talker talker(SERVERPORT, listener.getIP());
 
 	AX12A ax12a;
 	ax12a.begin(BaudRate, DirectionPin, Serial);

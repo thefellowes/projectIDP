@@ -25,7 +25,7 @@ class Talker{
 
 	//public functions
 	public:
-		Talker(char* serverPort, char* IPAddress);
+		Talker(const char* serverPort, const char* IPAddress);
 		void sendMessage(const char *message);
 		~Talker();
 };
