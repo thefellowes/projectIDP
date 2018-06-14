@@ -65,7 +65,7 @@ Listener::Listener(const char* myPort)
 //    return;
 //}
 
-const char* getIP() {
+const char* Listener::getIP() {
 	if (IPStr == "-1") {
 		char s[INET6_ADDRSTRLEN];
 		int numbytes;
@@ -178,9 +178,6 @@ char** Listener::str_split(char* a_str, const char a_delim)
 
 Listener::~Listener()
 {
-	//close connection
-	//freeaddrinfo(servinfo);
-
 	close(sockfd);
 }
 

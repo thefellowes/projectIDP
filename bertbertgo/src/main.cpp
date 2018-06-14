@@ -22,7 +22,7 @@
 #define PI_IP "192.168.1.17"
 #define SERVER_PORT "1313"
 #define MAXBUFLEN 100
-#define SEND_MESSAGE "HELP"
+#define SEND_MESSAGE "D0"
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa){
@@ -71,6 +71,7 @@ int main(void) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
+	system("mpc prev");
 
 	return 0;
 }

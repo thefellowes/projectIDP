@@ -39,6 +39,7 @@ class Listener{
 	//public functions
 	public:
 		Listener(const char* myPort);
+		const char* getIP();
 		//void listen_t();
 		char** getToken();
 		user_input getParsedInput();

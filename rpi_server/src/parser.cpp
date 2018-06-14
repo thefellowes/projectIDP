@@ -84,7 +84,6 @@ struct user_input parse_input(char** input_data) {
     	}	
     }
 
-//    float returnValues [] = {x, y, a, b};
 	parsed_input->doStop = doStop;
 	parsed_input->x = x;
 	parsed_input->y = y;
@@ -97,10 +96,5 @@ struct user_input parse_input(char** input_data) {
 	parsed_input->autoMove = autoMove;
 	parsed_input->checkBattery = checkBattery;
  
- 	//printf("Return values contains : %f\n", parsed_input->x);
- 	//printf("Return values contains : %f\n", parsed_input->y);
- 	//printf("Return values contains : %f\n", parsed_input->a);
- 	//printf("Return values contains : %f\n", parsed_input->b);
- 	//printf("Return values contains : %f\n", parsed_input->r);
     return *parsed_input;
 }

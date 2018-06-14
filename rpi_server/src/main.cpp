@@ -52,7 +52,7 @@
 
 //Define Talker constants
 const char* SERVERPORT = "1312";
-const char* IPAddress = "192.168.1.11";
+//const char* IPAddress = "192.168.1.11";
 
 //Define Listener constants
 const char* MYPORT = "1313";
@@ -63,7 +63,7 @@ int main(void) {
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
 	Listener listener(MYPORT);
-	Talker talker(SERVERPORT, IPAddress);
+	Talker talker(SERVERPORT, listener.getIP());
 
 	AX12A ax12a;
 	ax12a.begin(BaudRate, DirectionPin, Serial);
@@ -86,15 +86,6 @@ int main(void) {
 	controller.begin();
 
 	
-	//arm.letsGetGroovy("/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt");
-	//arm.moveTo(-10, 0, 180, 512);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	//arm.moveTo(-17.5, 7.5, 270, 512);
-	
-	//ArmServos values = arm.readServoValues();
-
-	
-
 	ax12a.end();
 
 	//TODO: Send ShutDown PI Command

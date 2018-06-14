@@ -1,11 +1,14 @@
 #include "controller.h"
-
 #include "listener.h"
 #include "talker.h"
 #include "arm.h"
 #include "tankTracks.h"
 #include "vision.h"
 #include "parser.h"
+#include "dbg.h"
+
+#define DANCE_PATH "/etc/dancePositions.txt"
+
 
 Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision)
 {
@@ -94,16 +97,18 @@ void Controller::begin()
 			if (parsed_input.gripper == 0) { arm.grab(true); }
 			else if (parsed_input.gripper == 1) { arm.grab(false); }
 
-			//if (parsed_input.dance == 0) { arm.letsGetGroov("/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt"); }
 			if (parsed_input.dance == 0) { 
-				std::string path = "/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt";
+				std::string path = DANCE_PATH;
 				std::future<void> danceFuture2 = std::async(std::launch::async, &Controller::letsGetGroovy, this, std::ref(path)); 
 				danceFuture2.wait();
 			}
-			else if (parsed_input.dance == 1) { std::cout << "Stop Dance has not been implemented yet" << std::endl; }
+			else
+				log_warn("Stop Dance has not been implemented yet");
 
-			if (parsed_input.lineDance == 0) { std::cout << "Start LineDance has not been implemented yet" << std::endl; }
-			else if (parsed_input.lineDance == 1) { std::cout << "Stop LineDance has not been implemented yet" << std::endl; }
+			if (parsed_input.lineDance == 0)
+				log_warn("Start LineDance has not been implemented yet");
+			else
+				log_warn("Stop LineDance has not been implemented yet");
 		}
 
 	}
