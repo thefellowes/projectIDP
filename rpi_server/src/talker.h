@@ -15,22 +15,18 @@
 #include <chrono>
 #include <string>
 
-#include "AX12A.h"
-
-#define SERVERPORT "1312"
-#define IPAdress "192.168.1.11"
-
 class Talker{
+	//private variables
 	private:
-		AX12A ax12a;
-		bool stop;
 		int sockfd;
 		struct addrinfo *servinfo, *p;
+	//private functions
+	private:
+
+	//public functions
 	public:
-		Talker(AX12A &ax12a);
+		Talker(char* serverPort, char* IPAddress);
 		void sendMessage(const char *message);
-		void startTalking();
-		void stopTalking();
 		~Talker();
 };
 

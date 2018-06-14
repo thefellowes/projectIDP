@@ -1,11 +1,7 @@
 #include "talker.h"
-#include "AX12A.h"
 
-Talker::Talker(AX12A &ax12a)
+Talker::Talker(char* serverPort, char* IPAddress)
 {
-	this->ax12a = ax12a;
-	stop = false;
-
 	//create connection
 	struct addrinfo hints;
 	int rv;
@@ -14,7 +10,7 @@ Talker::Talker(AX12A &ax12a)
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_DGRAM;
 	
-	if((rv = getaddrinfo(IPAdress, SERVERPORT, &hints, &servinfo)) != 0){
+	if((rv = getaddrinfo(IPAddress, serverPort, &hints, &servinfo)) != 0){
 		fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
 	}
 	
@@ -44,29 +40,8 @@ void Talker::sendMessage(const char *message)
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	
-	//printf("talker: sent %s to %s\n", message, IPAdress);
-	//printf("talker: sent %d bytes to %s\n", numbytes, IPAdress);
-}
-
-//call this method in a thread
-void Talker::startTalking()
-{
-	int batteryPerc;
-	stop = false;
-	
-	while(!stop){
-		batteryPerc = (int)(((float)ax12a.readVoltage(14u) - 99) / (126 - 99) * 100);//Broadcast id 254 not responding so using one of the servo id's
-		batteryPerc = batteryPerc > 100 ? 100 : batteryPerc < 0 ? 0 : batteryPerc;
-		const char* battery = std::to_string(batteryPerc).c_str();
-		
-		sendMessage(battery);
-
-		std::this_thread::sleep_for(std::chrono::seconds(5));
-	}
-}
-
-void Talker::stopTalking(){
-	stop = true;
+	//printf("talker: sent %s to %s\n", message, IPAddress);
+	//printf("talker: sent %d bytes to %s\n", numbytes, IPAddress);
 }
 
 Talker::~Talker()

@@ -27,8 +27,11 @@ const int l2 = 13;
 //Default values where the angles in the real world is 0 (arm laying flat backwards) 
 const std::vector<int> defaultValues = { 210,512,512 };
 //MIN and MAX constraint values of the servos
-const ArmServos constr_min = { 0, { 131,30,187 }, 0, 600 };
-const ArmServos constr_max = { 1023, { 902,991,830 }, 1023, 900 };
+//const ArmServos constr_min = { 0, { 131,131,30,187 }, 0, 600 };
+//const ArmServos constr_max = { 1023, { 902,902,991,830 }, 1023, 900 };
+
+const ArmServos constr_min = { 0,   { 274,274,30,187  }, 0,    600 };
+const ArmServos constr_max = { 1023,{ 749,749,991,830 }, 1023, 900 };
 
 const float maxSpeed = 0.175f;	//size to change position
 const float maxSpeedRotation = 10;	//size to change rotation
