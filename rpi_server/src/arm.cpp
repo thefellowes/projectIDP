@@ -174,6 +174,8 @@ void Arm::setGripperRotation(int position)
 {
 	turn(servos.gripperRotation, position);
 }
+
+
 //void Arm::setGripperHorizontal() {
 //	turn(servos.gripperRotation, 512);
 //}
@@ -185,6 +187,7 @@ void Arm::moveTo(float x, float y, float ha)
 {
 	moveTo(x, y, ha, posRotation);
 }
+
 
 void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 {
@@ -214,36 +217,43 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 	moveInterrupted = false;
 }
 
+
 void Arm::grab(bool close)
 {
 	if (close) turn(servos.gripper, 710, gripperSpeed);	//close
 	else turn(servos.gripper, 900, gripperSpeed);		//open
 }
 
+
 float Arm::getPosX()
 {
 	return posX;
 }
+
 
 float Arm::getPosY()
 {
 	return posY;
 }
 
+
 float Arm::getHeadAngle()
 {
 	return headAngle;
 }
+
 
 int Arm::getPosRotation()
 {
 	return posRotation;
 }
 
+
 int Arm::getPosGripper()
 {
 	return ax12a.readPosition(servos.gripper);
 }
+
 
 //int Arm::getVoltage() {
 //	return ax12a.readVoltage(servos.armRotation);
@@ -265,35 +275,12 @@ int Arm::getVoltage() {
 	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
 
-int Arm::letsGetGroovy(std::string path) 
-{
-	//continueDance = moveInterrupted = true;
-	//ArmServos oldValues = readServoValues(true);
-	//ArmServos originalPosition = oldValues;
-
-	//std::vector<std::vector<int>> positions = CSVtoi(path, INTMIN);
-	//int size = positions.size();
-	//for (int i = 0; i < size; i++) {
-	//	if (!continueDance) {
-	//		std::cout << "Stop Dance! i=" << i << ", size=" << size << std::endl;
-	//		break;
-	//	}
-	//	//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
-	//	oldValues = setServoValues({ positions[i][0],{ positions[i][1], positions[i][2], positions[i][3], positions[i][4] }, positions[i][5], positions[i][6] }, positions[i][7], oldValues);
-	//}
-
-	//if (continueDance) setServoValues(originalPosition, 500, oldValues);
-	//moveInterrupted = false;
-
-	return 0;
-}
-void Arm::stopGroovin() {
-	continueDance = false;
-}
 
 ArmServos Arm::setServoValues(ArmServos values, int delay) {
 	return setServoValues(values, delay, readServoValues());
 }
+
+
 ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues) 
 {
 	constraintServoValues(values, constr_min, constr_max);
@@ -331,6 +318,7 @@ ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues)
 
 	return values;
 }
+
 
 bool Arm::constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServos constr_max)
 {
@@ -388,6 +376,7 @@ bool Arm::constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServ
 	return result;
 }
 
+
 ArmServos Arm::readServoValues(bool showWarnings) {
 	ArmServos values;
 
@@ -425,14 +414,6 @@ std::vector<int> mirrorAnglesOverY(std::vector<int> angles) {
 	}
 	return angles;
 }
-
-
-
-
-
-
-
-
 
 
 //Without value between commas (",,") value will be INT_MIN

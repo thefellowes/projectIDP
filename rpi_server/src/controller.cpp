@@ -102,6 +102,7 @@ void Controller::begin()
 		thrd.join();
 }
 
+
 void Controller::letsGetGroovy(std::string path) 
 {
 	isDancing = armMoveInterrupted = true;
@@ -123,10 +124,13 @@ void Controller::letsGetGroovy(std::string path)
 
 	stopGroovin();
 }
+
+
 void Controller::stopGroovin() {
 	isDancing = armMoveInterrupted = false;
 	danceFuture.get();
 }
+
 
 //Start Async or in new thread
 void Controller::startReceiving() 

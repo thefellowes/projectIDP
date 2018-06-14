@@ -43,6 +43,7 @@ clean:
 install: all
 	install -d $(DESTDIR)/$(PREFIX)/bin/
 	install $(TARGET) $(DESTDIR)/$(PREFIX)/bin/
+	cp -v src/dancePositions.txt /etc/
 
 # The Checker
 check:
