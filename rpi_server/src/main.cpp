@@ -51,11 +51,11 @@
 #define DirectionPinBR (19u)
 
 //Define Talker constants
-char* SERVERPORT = "1312";
-char* IPAddress = "192.168.1.11";
+const char* SERVERPORT = "1312";
+const char* IPAddress = "192.168.1.11";
 
 //Define Listener constants
-char* MYPORT = "1313";
+const char* MYPORT = "1313";
 
 
 int main(void) {

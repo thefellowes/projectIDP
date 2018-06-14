@@ -1,6 +1,6 @@
 #include "talker.h"
 
-Talker::Talker(char* serverPort, char* IPAddress)
+Talker::Talker(const char* serverPort, const char* IPAddress)
 {
 	//create connection
 	struct addrinfo hints;

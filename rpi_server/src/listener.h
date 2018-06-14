@@ -26,8 +26,10 @@ class Listener{
 	private:
 		int sockfd;
 		struct addrinfo *p;
+		struct sockaddr_storage their_addr;
 		socklen_t* addr_len;
 		char** tokenSwitch;
+		const char* IPStr;
 
 	//private functions
 	private:
@@ -36,7 +38,7 @@ class Listener{
 
 	//public functions
 	public:
-		Listener(char* myPort);
+		Listener(const char* myPort);
 		//void listen_t();
 		char** getToken();
 		user_input getParsedInput();
