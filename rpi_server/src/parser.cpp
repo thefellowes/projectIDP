@@ -13,7 +13,7 @@ struct user_input parse_input(char** input_data) {
 	struct user_input *parsed_input = (struct user_input*) malloc(sizeof(struct user_input));
 	float x, y, a, b = 0;
 	float rotation = -1;
-	int gripper, dance, lineDance = -1;
+	int gripper, dance, lineDance, autoMove = -1;
 	bool doStop = false;
 	bool checkBattery = false;
     if(input_data){
@@ -68,6 +68,11 @@ struct user_input parse_input(char** input_data) {
 				case 'L':
 					lineDance = (int)atof(*(input_data + i) + 1);
 					break;
+				//Auto move
+				case 'F':
+					autoMove = (int)atof(*(input_data + i) + 1);
+					break;
+				//Check battery
 				case 'B':
 					checkBattery = true;
 					break;
@@ -89,6 +94,7 @@ struct user_input parse_input(char** input_data) {
 	parsed_input->gripper = gripper;
 	parsed_input->dance = dance;
 	parsed_input->lineDance = lineDance;
+	parsed_input->autoMove = autoMove;
 	parsed_input->checkBattery = checkBattery;
  
  	//printf("Return values contains : %f\n", parsed_input->x);
