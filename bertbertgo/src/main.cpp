@@ -70,8 +70,10 @@ int main(void) {
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	
 
-	system("mpc prev");
+	std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+	system("mpg321 ~/music/Golden_Earring_-_Radar_Love_-_45_RPM_SHORT_Version.mp3");
 
 	return 0;
 }
