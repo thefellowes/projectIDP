@@ -47,8 +47,8 @@ public:
 	int getPosGripper();
 	int getVoltage();
 
-	int letsGetGroovy(std::string path);
-	void stopGroovin();
+	//int letsGetGroovy(std::string path);
+	//void stopGroovin();
 	ArmServos setServoValues(ArmServos values, int delay);
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
 	bool constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServos constr_max);

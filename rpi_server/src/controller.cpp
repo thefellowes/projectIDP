@@ -45,6 +45,10 @@ void Controller::begin()
 		//Update batteryPercentage
 		if ((tempInt = getBatteryPercentage()) != 0) batteryPercBuffer += tempInt - batteryPerc;
 		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		if (batteryPerc < 10 && batteryPerc > 0) {
+			stopAll("Battery Percentage = " + batteryPerc);
+			break;
+		}
 		
 		if (receivedNewData) {
 			//New data is being read. Toggle the boolean to be sure we won't miss an update.
@@ -70,20 +74,10 @@ void Controller::begin()
 			}
 
 
-			//If batteryPercentage too low shutdown pi
+			//If stop-button is pressed, stop application.
 			//TODO: check on which batteryPercentage to shutdown the Pi
-			if ((batteryPerc < 10 && batteryPerc > 0) || parsed_input.doStop == true) {
-				std::cout << "Stopping Application - Reason: ";
-				if (parsed_input.doStop == true) std::cout << "doStop = true" << std::endl;
-				if (batteryPerc < 10 && batteryPerc > 0) std::cout << "batteryPerc < 10" << std::endl;
-
-				stopArmMove();
-				stopReceiving();
-				arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, -1 }, 500);
-				tankTracks.stopMotors();
-				vision.stopVision();
-
-
+			if (parsed_input.doStop) {
+				stopAll("Stop Button Pressed");
 				break;
 			}
 
@@ -100,12 +94,11 @@ void Controller::begin()
 				std::future<void> danceFuture2 = std::async(std::launch::async, &Controller::letsGetGroovy, this, std::ref(path)); 
 				danceFuture2.wait();
 			}
-			else
-				log_warn("Stop Dance has not been implemented yet");
+			else if (parsed_input.dance == 1) { isDancing = false; }
 
 			if (parsed_input.lineDance == 0)
 				log_warn("Start LineDance has not been implemented yet");
-			else
+			else if (parsed_input.lineDance == 1)
 				log_warn("Stop LineDance has not been implemented yet");
 		}
 
@@ -114,6 +107,16 @@ void Controller::begin()
 	//close threads
 	for (auto &thrd : threads)
 		thrd.join();
+}
+void Controller::stopAll(std::string reason) {
+	std::cout << "Stopping Application - Reason: " << reason << std::endl;
+
+	stopGroovin();
+	stopArmMove();
+	stopReceiving();
+	arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, -1 }, 500);
+	tankTracks.stopMotors();
+	vision.stopVision();
 }
 
 

@@ -66,7 +66,8 @@ Listener::Listener(const char* myPort)
 //}
 
 const char* Listener::getIP() {
-	if (IPStr == "-1") {
+	const char* noIP = "-1";
+	if (IPStr == noIP) {
 		char s[INET6_ADDRSTRLEN];
 		int numbytes;
 		char buf[MAXBUFLEN];
@@ -76,7 +77,9 @@ const char* Listener::getIP() {
 			exit(1);
 		}
 
-		return IPStr = inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
+		IPStr = inet_ntop(their_addr.ss_family, get_in_addr((struct sockaddr *)&their_addr), s, sizeof s);
+		printf("Controller's IP: %s\n", IPStr);
+		return IPStr;
 	}
 	else {
 		return IPStr;
@@ -91,7 +94,7 @@ char** Listener::getToken() {
 		perror("recvfrom");
 		exit(1);
 	}
-	printf("listener: packet is %d bytes long\n", numbytes);
+	//printf("listener: packet is %d bytes long\n", numbytes);
 	buf[numbytes] = '\0';
 
 	tokenSwitch = str_split(buf, '\n');
@@ -108,7 +111,7 @@ user_input Listener::getParsedInput() {
 		perror("recvfrom");
 		exit(1);
 	}
-	printf("listener: packet is %d bytes long\n", numbytes);
+	//printf("listener: packet is %d bytes long\n", numbytes);
 	buf[numbytes] = '\0';
 
 	tokenSwitch = str_split(buf, '\n');

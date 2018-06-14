@@ -45,10 +45,12 @@ private:
 
 	void letsGetGroovy(std::string path);
 	void stopGroovin();
+
 	//public functions
 public:
 	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision);
 	void begin();
+	void stopAll(std::string reason="*no reason found*");
 	
 	int getBatteryPercentage();
 

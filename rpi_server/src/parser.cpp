@@ -42,14 +42,14 @@ struct user_input parse_input(char** input_data) {
     				a = atof(*(input_data + i)+1);
 					a = ((a - JOY_MIDDLE) / JOY_MIDDLE) * -1;
 					if(a < 0.05 && a > -0.05){a=0;}
-    				printf("a is:  %f\n", a);
+    				//printf("a is:  %f\n", a);
     				break;
     			//Left and right movement
     			case 'b':
     				b = atof(*(input_data + i)+1);
 					b = ((b - JOY_MIDDLE) / JOY_MIDDLE);
 					if(b < 0.05 && b > -0.05){b=0;}
-					printf("b is:  %f\n", b);
+					//printf("b is:  %f\n", b);
     				break;
 				//Rotation arm
     			case 'r':
