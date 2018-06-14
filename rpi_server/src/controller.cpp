@@ -66,8 +66,6 @@ void Controller::begin()
 				if (parsed_input.doStop == true) std::cout << "doStop = true" << std::endl;
 				if (batteryPerc < 10 && batteryPerc > 0) std::cout << "batteryPerc < 10" << std::endl;
 
-				arm.stopGroovin();
-				//arm.stopMovement();
 				stopArmMove();
 				stopReceiving();
 				arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, -1 }, 500);
