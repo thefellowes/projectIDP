@@ -14,6 +14,7 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 {
 	receivedNewData = false;
 	armMoveInterrupted = false;
+	tankTrackMoveInterrupted = false;
 }
 
 void Controller::begin()
@@ -24,7 +25,8 @@ void Controller::begin()
 	threads.push_back(std::thread(&Controller::startReceiving, this));
 	threads.push_back(std::thread(&Controller::startArmMove, this));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
-	//threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
+	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
+	threads.push_back(std::thread(&Controller::startAutoMove, this));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	int batteryPerc;
@@ -57,7 +59,16 @@ void Controller::begin()
 			arm.setSpeed(parsed_input.x, parsed_input.y);
 
 			//Update tankTracks
-			tankTracks.move(parsed_input.a, parsed_input.b, 1023);
+			if (parsed_input.autoMove == 0) {
+				startAutoMove();
+			}
+			else if (parsed_input.autoMove == 1){
+				tankTrackMoveInterrupted = false;
+			}
+			if (!tankTrackMoveInterrupted) {
+				tankTracks.move(parsed_input.a, parsed_input.b, 1023);
+			}
+
 
 			//If batteryPercentage too low shutdown pi
 			//TODO: check on which batteryPercentage to shutdown the Pi
@@ -151,6 +162,18 @@ void Controller::startReceiving()
 }
 void Controller::stopReceiving() {
 	isReceiving = false;
+}
+
+void Controller::startAutoMove() {
+	tankTrackMoving = true;
+	std::cout << "Watch me go" << std::endl;
+	while (tankTrackMoving) {
+		if (!tankTrackMoveInterrupted) {
+			tankTracks.setSpeed(1023, 1023);
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	std::cout << "Turned off auto pilot mode" << std::endl;
 }
 
 void Controller::startArmMove() {

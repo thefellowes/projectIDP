@@ -41,6 +41,7 @@ private:
 	void stopReceiving();
 	void startArmMove();
 	void stopArmMove();
+	void startAutoMove();
 
 	void letsGetGroovy(std::string path);
 	void stopGroovin();
