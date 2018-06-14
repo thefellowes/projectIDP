@@ -14,6 +14,7 @@ class Arm {
 private:
 	AX12A ax12a;
 	ArmServos servos;
+	bool continueDance;
 	bool moveIsActive;
 	bool moveInterrupted;
 	float speedX;
@@ -46,13 +47,14 @@ public:
 	int getPosGripper();
 	int getVoltage();
 
-	void letsGetGroovy();
+	int letsGetGroovy(std::string path);
+	void stopGroovin();
 	ArmServos setServoValues(ArmServos values, int delay);
 	ArmServos setServoValues(ArmServos values, int delay, ArmServos oldValues);
 	bool constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServos constr_max);
-	ArmServos readServoValues();
+	ArmServos readServoValues(bool showWarnings=false);
 
-	std::vector<std::vector<int>> CSVtoi(std::string fileName);
+	std::vector<std::vector<int>> CSVtoi(std::string fileName, int nullValue);
 };
 
 #endif //ARM_H

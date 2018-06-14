@@ -41,7 +41,7 @@ std::vector<int> posToAngles(float x, float y, float headAngle) {
 	int servoValue2 = angleToServoValue(angle2, defaultValues[1]);
 	int servoValue3 = angleToServoValue(angle3, defaultValues[2]);
 
-	return { servoValue1, servoValue2, servoValue3 };
+	return { servoValue1, servoValue1, servoValue2, servoValue3 };
 }
 
 int angleToServoValue(float angle, int defaultValue) {

@@ -135,8 +135,8 @@ void TankTracks::move(float throttle, float direction, int maxSpeed)
 			speedR = 0;
 		}
 		else{
-			speedL = direction * speed;
-			speedR = -1 * direction * speed;
+			speedL = -1 * direction * speed;
+			speedR = direction * speed;
 		}
 	}else{
 		//Calculate percentage of throttle versus direction

@@ -4,7 +4,7 @@
 #include "motor.h"
 
 const int Motor::minSpeed = 120;
-const int Motor::maxSpeed = 800;
+const int Motor::maxSpeed = 1023;
 
 void Motor::changeRotationDelay()
 {
@@ -44,6 +44,7 @@ void Motor::setClockwise()
 		digitalWrite(directionPinB, LOW);
 
 		isClockwise = true;
+		isCounterClockwise = false;
 	}
 }
 
@@ -57,6 +58,7 @@ void Motor::setCounterClockwise()
 		digitalWrite(directionPinB, HIGH);
 
 		isCounterClockwise = true;
+		isClockwise = false;
 	}
 }
 
