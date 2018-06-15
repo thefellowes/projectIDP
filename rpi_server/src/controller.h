@@ -24,15 +24,15 @@ private:
 	Vision vision;
 
 	//char** tokenSwitch;
-	struct user_input parsed_input;
+	user_input parsed_input;
 
 	std::atomic<bool> receivedNewData;
-	bool isReceiving;
-	bool armIsMoving;
-	bool armMoveInterrupted;
-	bool isDancing;
-
-	std::future<void> danceFuture;
+	std::atomic<bool> isReceiving;
+	std::atomic<bool> armIsMoving;
+	std::atomic<bool> armMoveInterrupted;
+	std::atomic<bool> tankTrackMoving;
+	std::atomic<bool> tankTrackMoveInterrupted;
+	std::atomic<bool> isDancing;
 
 
 	//private functions

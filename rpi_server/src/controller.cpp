@@ -7,7 +7,7 @@
 #include "parser.h"
 #include "dbg.h"
 
-#define DANCE_PATH "/etc/dancePositions.txt"
+#define DANCE_PATH "/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt"
 
 
 Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision)
@@ -15,6 +15,7 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 	receivedNewData = false;
 	armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
+	isDancing = false;
 }
 
 void Controller::begin()
@@ -26,7 +27,6 @@ void Controller::begin()
 	threads.push_back(std::thread(&Controller::startArmMove, this));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
 	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
-	threads.push_back(std::thread(&Controller::startAutoMove, this));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	int batteryPerc;
@@ -63,10 +63,10 @@ void Controller::begin()
 			arm.setSpeed(parsed_input.x, parsed_input.y);
 
 			//Update tankTracks
-			if (parsed_input.autoMove == 0) {
+			if (parsed_input.autoMove == 1) {
 				startAutoMove();
 			}
-			else if (parsed_input.autoMove == 1){
+			else if (parsed_input.autoMove == 0){
 				tankTrackMoveInterrupted = false;
 			}
 			if (!tankTrackMoveInterrupted) {
@@ -90,11 +90,15 @@ void Controller::begin()
 			else if (parsed_input.gripper == 1) { arm.grab(false); }
 
 			if (parsed_input.dance == 0) { 
-				std::string path = DANCE_PATH;
-				std::future<void> danceFuture2 = std::async(std::launch::async, &Controller::letsGetGroovy, this, std::ref(path)); 
-				danceFuture2.wait();
+				std::cout << "dance started" << std::endl;
+				if (!isDancing) {
+					isDancing = true;
+					std::string path = DANCE_PATH;
+					std::thread groovin(&Controller::letsGetGroovy, this, std::ref(path));
+					groovin.detach();
+				}
 			}
-			else if (parsed_input.dance == 1) { isDancing = false; }
+			else if (parsed_input.dance == 1) { std::cout << "dance stopped" << std::endl; stopGroovin(); }
 
 			if (parsed_input.lineDance == 0)
 				log_warn("Start LineDance has not been implemented yet");
@@ -122,13 +126,19 @@ void Controller::stopAll(std::string reason) {
 
 void Controller::letsGetGroovy(std::string path) 
 {
-	isDancing = armMoveInterrupted = true;
+	std::cout << "in thread" << std::endl;
+	armMoveInterrupted = true;
+	std::cout << "armMoveInterrupted = true;" << std::endl;
 	ArmServos oldValues = arm.readServoValues(true);
+	std::cout << "ArmServos oldValues = arm.readServoValues(true);" << std::endl;
 	ArmServos originalPosition = oldValues;
+	std::cout << "ArmServos originalPosition = oldValues;" << std::endl;
 
+	std::cout << "dance started, reading file" << std::endl;
 	std::vector<std::vector<int>> positions = arm.CSVtoi(path, -1);
 	int size = positions.size();
 	for (int i = 0; i < size; i++) {
+		std::cout << "Dancing on: i=" << i << ", size=" << size << std::endl;
 		if (!isDancing) {
 			std::cout << "Stop Dance! i=" << i << ", size=" << size << std::endl;
 			break;
@@ -137,15 +147,15 @@ void Controller::letsGetGroovy(std::string path)
 		oldValues = arm.setServoValues({ positions[i][0],{ positions[i][1], positions[i][2], positions[i][3], positions[i][4] }, positions[i][5], positions[i][6] }, positions[i][7], oldValues);
 	}
 
-	if (isDancing) arm.setServoValues(originalPosition, 500, oldValues);
+	arm.setServoValues(originalPosition, 500, oldValues);
 
+	//Usually this function reaches the end by itself, and doesn't get interrupted because the stopGroovin function was called by another function.
+	//Therefore it calls the stopGroovin function by itself so that the proper values reset, even if new ones are added to the code.
 	stopGroovin();
 }
-
-
 void Controller::stopGroovin() {
-	isDancing = armMoveInterrupted = false;
-	danceFuture.get();
+	isDancing = false;
+	armMoveInterrupted = false;
 }
 
 
