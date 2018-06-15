@@ -199,5 +199,4 @@ label_d:
     delay(3000);
     i = 0;
   }
-//  delay(10);
 }
