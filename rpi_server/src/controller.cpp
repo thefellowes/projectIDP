@@ -34,10 +34,10 @@ void Controller::begin()
 	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
-	int batteryPerc;
+	int batteryPerc = 0;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
-	int tempInt;
+	int tempInt = 0;
 	for (int i = 0; i < batteryPercBufferSize; i++) {
 		tempInt = getBatteryPercentage();
 		if (tempInt != 0) batteryPercBuffer += tempInt;
@@ -95,18 +95,34 @@ void Controller::begin()
 			else if (parsed_input.gripper == 1) { arm.grab(false); }
 
 			if (parsed_input.dance == 0) { 
-				std::cout << "dance started" << std::endl; 
+				std::cout << "Starting Dance" << std::endl; 
 				isDancing = true; 
 			}
 			else if (parsed_input.dance == 1) { 
-				std::cout << "dance stopped" << std::endl; 
+				std::cout << "Stopping Dance" << std::endl; 
 				isDancing = false; 
 			}
 
-			if (parsed_input.lineDance == 0)
+			if (parsed_input.lineDance == 0) {
 				log_warn("Start LineDance has not been implemented yet");
-			else if (parsed_input.lineDance == 1)
+			}
+			else if (parsed_input.lineDance == 1) {
 				log_warn("Stop LineDance has not been implemented yet");
+			}
+
+			if (parsed_input.autoMoveO == 0) {
+				log_warn("Start autoMoveObstacleCourse has not been implemented yet");
+			}
+			else if (parsed_input.autoMoveO == 1) {
+				log_warn("Stop autoMoveObstacleCourse has not been implemented yet");
+			}
+
+			if (parsed_input.autoMoveL == 0) {
+				log_warn("Start autoMoveLine has not been implemented yet");
+			}
+			else if (parsed_input.autoMoveL == 1) {
+				log_warn("Stop autoMoveLine has not been implemented yet");
+			}
 		}
 
 	}

@@ -13,9 +13,11 @@
  * */
 struct user_input parse_input(char** input_data) {
 	struct user_input *parsed_input = (struct user_input*) malloc(sizeof(struct user_input));
-	float x, y, a, b = 0;
+	float x, y, a, b;
+	x = y = a = b = 0;
 	float rotation = -1;
-	int gripper, dance, lineDance, autoMove = -1;
+	int gripper, dance, lineDance, autoMoveO, autoMoveL;
+	gripper = dance = lineDance = autoMoveO, autoMoveL = -1;
 	bool doStop = false;
 	bool checkBattery = false;
 	if(input_data){
@@ -69,10 +71,15 @@ struct user_input parse_input(char** input_data) {
 					lineDance = (int)atof(*(input_data + i) + 1);
 					std::cout << "L found. Value=" << lineDance << std::endl;
 					break;
-					//Auto move
+					//Auto move Obstacle Course
 				case 'F':
-					autoMove = (int)atof(*(input_data + i) + 1);
-					std::cout << "F found. Value=" << autoMove << std::endl;
+					autoMoveO = (int)atof(*(input_data + i) + 1);
+					std::cout << "F found. Value=" << autoMoveO << std::endl;
+					break;
+					//Auto move Follow Line & Catch Balls
+				case 'V':
+					autoMoveL = (int)atof(*(input_data + i) + 1);
+					std::cout << "V found. Value=" << autoMoveL << std::endl;
 					break;
 					//Check battery
 				case 'B':
