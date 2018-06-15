@@ -3,6 +3,7 @@
 #include "parser.h"
 #include <string>
 #include "dbg.h"
+#include <iostream>
 
 #define JOY_MIDDLE 512
 #define MAX_ROTATION 1023
@@ -56,22 +57,27 @@ struct user_input parse_input(char** input_data) {
 					//Arm gripper (On/Off)
 				case 'G':
 					gripper = (int)atof(*(input_data + i) + 1);
+					std::cout << "G found. Value=" << gripper << std::endl;
 					break;
 					//Dance (On/Off)
 				case 'D':
 					dance = (int)atof(*(input_data + i) + 1);
+					std::cout << "D found. Value=" << dance << std::endl;
 					break;
 					//Line-Dance (On/Off)
 				case 'L':
 					lineDance = (int)atof(*(input_data + i) + 1);
+					std::cout << "L found. Value=" << lineDance << std::endl;
 					break;
 					//Auto move
 				case 'F':
 					autoMove = (int)atof(*(input_data + i) + 1);
+					std::cout << "F found. Value=" << autoMove << std::endl;
 					break;
 					//Check battery
 				case 'B':
 					checkBattery = true;
+					std::cout << "B found." << std::endl;
 					break;
 				case 'A':
 					break;

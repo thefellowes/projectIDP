@@ -32,7 +32,10 @@ private:
 	std::atomic<bool> armMoveInterrupted;
 	std::atomic<bool> tankTrackMoving;
 	std::atomic<bool> tankTrackMoveInterrupted;
+	std::atomic<bool> checkDancing;
 	std::atomic<bool> isDancing;
+
+	std::vector<std::vector<int>> dancePositions;
 
 
 	//private functions
@@ -43,8 +46,7 @@ private:
 	void stopArmMove();
 	void startAutoMove();
 
-	void letsGetGroovy(std::string path);
-	void stopGroovin();
+	void letsGetGroovy();
 
 	//public functions
 public:

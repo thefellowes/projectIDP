@@ -16,6 +16,8 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 	armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
 	isDancing = false;
+
+	dancePositions = arm.CSVtoi(DANCE_PATH, -1);
 }
 
 void Controller::begin()
@@ -26,6 +28,9 @@ void Controller::begin()
 	threads.push_back(std::thread(&Controller::startReceiving, this));
 	threads.push_back(std::thread(&Controller::startArmMove, this));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
+
+	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
+
 	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
@@ -90,15 +95,13 @@ void Controller::begin()
 			else if (parsed_input.gripper == 1) { arm.grab(false); }
 
 			if (parsed_input.dance == 0) { 
-				std::cout << "dance started" << std::endl;
-				if (!isDancing) {
-					isDancing = true;
-					std::string path = DANCE_PATH;
-					std::thread groovin(&Controller::letsGetGroovy, this, std::ref(path));
-					groovin.detach();
-				}
+				std::cout << "dance started" << std::endl; 
+				isDancing = true; 
 			}
-			else if (parsed_input.dance == 1) { std::cout << "dance stopped" << std::endl; stopGroovin(); }
+			else if (parsed_input.dance == 1) { 
+				std::cout << "dance stopped" << std::endl; 
+				isDancing = false; 
+			}
 
 			if (parsed_input.lineDance == 0)
 				log_warn("Start LineDance has not been implemented yet");
@@ -115,47 +118,14 @@ void Controller::begin()
 void Controller::stopAll(std::string reason) {
 	std::cout << "Stopping Application - Reason: " << reason << std::endl;
 
-	stopGroovin();
+	isDancing = false;
+	checkDancing = false;
+
 	stopArmMove();
 	stopReceiving();
-	arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, -1 }, 500);
+	arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, 600 }, 500);
 	tankTracks.stopMotors();
 	vision.stopVision();
-}
-
-
-void Controller::letsGetGroovy(std::string path) 
-{
-	std::cout << "in thread" << std::endl;
-	armMoveInterrupted = true;
-	std::cout << "armMoveInterrupted = true;" << std::endl;
-	ArmServos oldValues = arm.readServoValues(true);
-	std::cout << "ArmServos oldValues = arm.readServoValues(true);" << std::endl;
-	ArmServos originalPosition = oldValues;
-	std::cout << "ArmServos originalPosition = oldValues;" << std::endl;
-
-	std::cout << "dance started, reading file" << std::endl;
-	std::vector<std::vector<int>> positions = arm.CSVtoi(path, -1);
-	int size = positions.size();
-	for (int i = 0; i < size; i++) {
-		std::cout << "Dancing on: i=" << i << ", size=" << size << std::endl;
-		if (!isDancing) {
-			std::cout << "Stop Dance! i=" << i << ", size=" << size << std::endl;
-			break;
-		}
-		//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
-		oldValues = arm.setServoValues({ positions[i][0],{ positions[i][1], positions[i][2], positions[i][3], positions[i][4] }, positions[i][5], positions[i][6] }, positions[i][7], oldValues);
-	}
-
-	arm.setServoValues(originalPosition, 500, oldValues);
-
-	//Usually this function reaches the end by itself, and doesn't get interrupted because the stopGroovin function was called by another function.
-	//Therefore it calls the stopGroovin function by itself so that the proper values reset, even if new ones are added to the code.
-	stopGroovin();
-}
-void Controller::stopGroovin() {
-	isDancing = false;
-	armMoveInterrupted = false;
 }
 
 
@@ -204,6 +174,42 @@ void Controller::stopArmMove()
 {
 	armIsMoving = false;
 }
+
+void Controller::letsGetGroovy()
+{
+	checkDancing = true;
+
+	while (checkDancing)
+	{
+		if (isDancing)
+		{
+			armMoveInterrupted = true;
+			ArmServos oldValues = arm.readServoValues(true);
+			ArmServos originalPosition = oldValues;
+
+			int size = dancePositions.size();
+			if (size > 0)
+			{
+				std::cout << "Dancing has started" << std::endl;
+				for (int i = 0; i < size; i++) {
+					if (!isDancing) {
+						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
+						break;
+					}
+					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
+					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
+				}
+
+				arm.setServoValues(originalPosition, 500, oldValues);
+			}
+
+			isDancing = false;
+			armMoveInterrupted = false;
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+}
+
 
 int Controller::getBatteryPercentage() {
 	int result = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
