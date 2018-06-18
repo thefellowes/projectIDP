@@ -22,8 +22,7 @@ private:
 	Arm arm;
 	TankTracks tankTracks;
 	Vision vision;
-
-	//char** tokenSwitch;
+	nightcoreListener nc_l;
 	user_input parsed_input;
 
 	std::atomic<bool> receivedNewData;
@@ -50,7 +49,7 @@ private:
 
 	//public functions
 public:
-	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision);
+	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l);
 	void begin();
 	void stopAll(std::string reason="*no reason found*");
 	
