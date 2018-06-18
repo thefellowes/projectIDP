@@ -28,7 +28,7 @@ void Controller::begin()
 	threads.push_back(std::thread(&Controller::startReceiving, this));
 	threads.push_back(std::thread(&Controller::startArmMove, this));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
-
+    threads.push_back(std::thread(&Controller::startAutoMove, this));
 	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
 
 	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
@@ -69,10 +69,10 @@ void Controller::begin()
 
 			//Update tankTracks
 			if (parsed_input.autoMove == 1) {
-				startAutoMove();
+				tankTrackMoveInterrupted = false;
 			}
 			else if (parsed_input.autoMove == 0){
-				tankTrackMoveInterrupted = false;
+				tankTrackMoveInterrupted = true;
 			}
 			if (!tankTrackMoveInterrupted) {
 				tankTracks.move(parsed_input.a, parsed_input.b, 1023);
@@ -168,7 +168,13 @@ void Controller::startAutoMove() {
 	std::cout << "Watch me go" << std::endl;
 	while (tankTrackMoving) {
 		if (!tankTrackMoveInterrupted) {
-			tankTracks.setSpeed(1023, 1023);
+            if(Vision.find_marker_cup()){
+                std::cout << "Found the cup, going in!" << std::endl;
+                tankTracks.setSpeed(1023, 1023);   
+            }
+            else{
+                std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
+            }
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}

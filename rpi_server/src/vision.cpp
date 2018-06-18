@@ -180,8 +180,9 @@
 
 	}
 
-	void Vision::find_marker_by_color(int i)
-	{
+	//void Vision::find_marker_by_color(int i)
+	bool Vision::find_marker_by_color(int i)
+    {
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
 		std::vector<cv::Vec4i> hierarchy;
@@ -216,19 +217,22 @@
 			int middleY = y + h / 2;
 			cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
 			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
-		}
-
-		minArea = 3000;
+            return true;
+        }
+		//minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
+        return false;
 	}
 
-	void Vision::find_marker_cup()
+	//void Vision::find_marker_cup()
+    bool Vision::find_marker_cup()
 	{
-		find_marker_by_color(1);
+		bool result = find_marker_by_color(1);
 		//find_marker_circles();
 		// Show your results
 		//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
 		//cv::imshow("Hough Circle Transform Demo", image);
+        return result;
 	}
 	
 	void Vision::find_line()
