@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "opencv2/opencv.hpp"
+
 #include "listener.h"
 #include "talker.h"
 #include "arm.h"
@@ -10,7 +12,7 @@
 
 #include <atomic>
 #include <iostream>
-#include <future>
+#include <mutex>
 
 #define moveDelay (10)
 
@@ -23,13 +25,16 @@ private:
 	TankTracks tankTracks;
 	Vision vision;
 	nightcoreListener nc_l;
+	std::mutex mutex;
 	user_input parsed_input;
 
 	std::atomic<bool> receivedNewData;
 	std::atomic<bool> isReceiving;
 	std::atomic<bool> armIsMoving;
 	std::atomic<bool> armMoveInterrupted;
-	std::atomic<bool> tankTrackMoving;
+	std::atomic<bool> autoMoveOn;
+	std::atomic<bool> autoModeIsLine;
+	std::atomic<bool> autoModeIsObstacleCourse;
 	std::atomic<bool> tankTrackMoveInterrupted;
 	std::atomic<bool> checkDancing;
 	std::atomic<bool> isDancing;

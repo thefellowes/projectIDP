@@ -1,3 +1,5 @@
+#include "opencv2/opencv.hpp"
+
 #include "controller.h"
 #include "listener.h"
 #include "talker.h"
@@ -32,7 +34,7 @@ void Controller::begin()
     threads.push_back(std::thread(&Controller::startAutoMove, this));
 	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
 
-	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
+	//threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	int batteryPerc = 0;
@@ -60,46 +62,52 @@ void Controller::begin()
 			//New data is being read. Toggle the boolean to be sure we won't miss an update.
 			receivedNewData = false;
 
+			mutex.lock();
+			user_input parsedInput = parsed_input;
+			mutex.unlock();
+
 			//Parse the token to retrieve the user's input
 			//struct user_input parsed_input = parse_input(tokenSwitch);
 			
 			//Update arm
-			if (parsed_input.rotation >= 0)
-				arm.setRotation(parsed_input.rotation);
-			arm.setSpeed(parsed_input.x, parsed_input.y);
+			if (parsedInput.rotation >= 0)
+				arm.setRotation(parsedInput.rotation);
+			arm.setSpeed(parsedInput.x, parsedInput.y);
 
 			//Update tankTracks
-			if (parsed_input.autoMove == 1) {
-				tankTrackMoveInterrupted = false;
-			}
-			else if (parsed_input.autoMove == 0){
+			if (parsedInput.autoMoveO == 1) {
+				autoModeIsObstacleCourse = false;
 				tankTrackMoveInterrupted = true;
 			}
+			else if (parsedInput.autoMoveO == 0){
+				autoModeIsObstacleCourse = true;
+				tankTrackMoveInterrupted = false;
+			}
 			if (!tankTrackMoveInterrupted) {
-				tankTracks.move(parsed_input.a, parsed_input.b, 1023);
+				tankTracks.move(parsedInput.a, parsedInput.b, 1023);
 			}
 
 
 			//If stop-button is pressed, stop application.
 			//TODO: check on which batteryPercentage to shutdown the Pi
-			if (parsed_input.doStop) {
+			if (parsedInput.doStop) {
 				stopAll("Stop Button Pressed");
 				break;
 			}
 
-			if (parsed_input.checkBattery) {
+			if (parsedInput.checkBattery) {
 				const char* battery = std::to_string(batteryPerc).c_str();
 				talker.sendMessage(battery);
 			}
 
-			if (parsed_input.gripper == 0) { arm.grab(true); }
-			else if (parsed_input.gripper == 1) { arm.grab(false); }
+			if (parsedInput.gripper == 0) { arm.grab(true); }
+			else if (parsedInput.gripper == 1) { arm.grab(false); }
 
-			if (parsed_input.dance == 0) { 
+			if (parsedInput.dance == 0) {
 				std::cout << "Starting Dance" << std::endl; 
 				isDancing = true; 
 			}
-			else if (parsed_input.dance == 1) { 
+			else if (parsedInput.dance == 1) {
 				std::cout << "Stopping Dance" << std::endl; 
 				isDancing = false; 
 			}
@@ -111,17 +119,17 @@ void Controller::begin()
 				nc_l.stop_run();
 			}
 
-			if (parsed_input.autoMoveO == 0) {
-				log_warn("Start autoMoveObstacleCourse has not been implemented yet");
-			}
-			else if (parsed_input.autoMoveO == 1) {
-				log_warn("Stop autoMoveObstacleCourse has not been implemented yet");
-			}
+			//if (parsedInput.autoMoveO == 0) {
+			//	log_warn("Start autoMoveObstacleCourse has not been implemented yet");
+			//}
+			//else if (parsedInput.autoMoveO == 1) {
+			//	log_warn("Stop autoMoveObstacleCourse has not been implemented yet");
+			//}
 
-			if (parsed_input.autoMoveL == 0) {
+			if (parsedInput.autoMoveL == 0) {
 				log_warn("Start autoMoveLine has not been implemented yet");
 			}
-			else if (parsed_input.autoMoveL == 1) {
+			else if (parsedInput.autoMoveL == 1) {
 				log_warn("Stop autoMoveLine has not been implemented yet");
 			}
 		}
@@ -137,6 +145,7 @@ void Controller::stopAll(std::string reason) {
 
 	isDancing = false;
 	checkDancing = false;
+	autoMoveOn = false;
 
 	stopArmMove();
 	stopReceiving();
@@ -154,7 +163,10 @@ void Controller::startReceiving()
 	while (isReceiving) {
 		//tokenSwitch = listener.getToken();
 		//if (receivedNewData == false) parsed_input = listener.getParsedInput();
-		parsed_input = listener.getParsedInput();
+		user_input parsedInput = listener.getParsedInput();
+		mutex.lock();
+		parsed_input = parsedInput;
+		mutex.unlock();
 		//else std::chrono::milliseconds(1);
 		receivedNewData = true;
 	}
@@ -165,21 +177,38 @@ void Controller::stopReceiving() {
 }
 
 void Controller::startAutoMove() {
-	tankTrackMoving = true;
-	std::cout << "Watch me go" << std::endl;
-	while (tankTrackMoving) {
-		if (!tankTrackMoveInterrupted) {
-            if(Vision.find_marker_cup()){
-                std::cout << "Found the cup, going in!" << std::endl;
-                tankTracks.setSpeed(1023, 1023);   
-            }
-            else{
-                std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
-            }
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	autoMoveOn = true;
+
+	cv::VideoCapture cap(0);
+	if (!cap.isOpened()) {
+		std::cout << "WARNING: cap.isOpened() returned false. Stopping AutoMove" << std::endl;
+		//return -1;
 	}
-	std::cout << "Turned off auto pilot mode" << std::endl;
+	else {
+		cv::Mat frame;
+		cap.grab();
+		cap.retrieve(frame);
+
+		std::cout << "Watch me go" << std::endl;
+		cv::namedWindow("frame", cv::WINDOW_AUTOSIZE);
+		while (autoMoveOn) {
+			while (autoModeIsObstacleCourse)
+			{
+				cap >> frame;
+				cv::imshow("frame", frame);
+
+				if (vision.find_marker_cup(frame)) {
+					std::cout << "Found the cup, going in!" << std::endl;
+					tankTracks.setSpeed(1023, 1023);
+				}
+				else {
+					std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
+				}
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+		std::cout << "Turned off auto pilot mode" << std::endl;
+	}
 }
 
 void Controller::startArmMove() {
