@@ -24,7 +24,8 @@ void nightcoreListener::run() {
 	while (!stop) {
 		if (get_in_pin() == HIGH) {
 			//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
-			oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 440 }, 512, 512 }, 300, oldValues);
+			oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 420 }, 512, 512 }, 250, oldValues);
+			oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 520 }, 512, 512 }, 500, oldValues);
 		}
 	}
 }
