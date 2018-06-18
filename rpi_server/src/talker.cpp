@@ -6,8 +6,9 @@ Talker::Talker(const char* serverPort, const char* IPAddress)
 	struct addrinfo hints;
 	int rv;
 	
+    //Ensure the struct is empty
 	memset(&hints, 0, sizeof hints);
-	hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_UNSPEC; 
 	hints.ai_socktype = SOCK_DGRAM;
 	
 	if((rv = getaddrinfo(IPAddress, serverPort, &hints, &servinfo)) != 0){
@@ -24,7 +25,7 @@ Talker::Talker(const char* serverPort, const char* IPAddress)
 	}
 	
 	if(p == NULL){
-		fprintf(stderr, "talker: faild to create socket \n");
+		fprintf(stderr, "talker: failed to create socket \n");
 	}
 }
 
@@ -44,6 +45,7 @@ void Talker::sendMessage(const char *message)
 	//printf("talker: sent %d bytes to %s\n", numbytes, IPAddress);
 }
 
+//Destructor for the talker
 Talker::~Talker()
 {
 	//close connection

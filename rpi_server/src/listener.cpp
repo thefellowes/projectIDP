@@ -37,34 +37,6 @@ Listener::Listener(const char* myPort)
 	freeaddrinfo(servinfo);
 }
 
-//Start in its own thread
-//void Listener::listen_t() {
-//	int numbytes;
-//	char buf[MAXBUFLEN];
-//
-//	printf("listener: waiting to recvfrom...\n");
-//	while (1) 
-//	{
-//		if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0, p->ai_addr, p->ai_addrlen) == -1) {
-//			perror("recvfrom");
-//			exit(1);
-//		}
-//		//printf("listener: got packet from %s\n",
-//		//inet_ntop(their_addr.ss_family,
-//		//get_in_addr((struct sockaddr *)&their_addr), s, sizeof s));
-//		//printf("listener: packet is %d bytes long\n", numbytes);
-//		buf[numbytes] = '\0';
-//
-//		tokenSwitch = str_split(buf, '\n');
-//
-//		free(tokenSwitch);
-//
-//	}
-//	std::cout << "Listener Stopped" << std::endl;
-//    close(sockfd);
-//    return;
-//}
-
 const char* Listener::getIP() {
 	const char* noIP = "-1";
 	if (IPStr == noIP) {

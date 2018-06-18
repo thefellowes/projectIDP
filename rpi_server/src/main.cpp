@@ -70,6 +70,8 @@ int main(void) {
 
 	Arm arm(ax12a, { IDturn,{ ID0, ID1, ID2, ID3 }, IDgripperRotation, IDgripper });
 
+	nightcoreListener nc_l(25, arm);
+
 	Motor leftMotor(PwmPinL, DirectionPinAL, DirectionPinBL);
 	Motor rightMotor(PwmPinR, DirectionPinAR, DirectionPinBR);
 	TankTracks tankTracks(leftMotor, rightMotor);
@@ -82,7 +84,7 @@ int main(void) {
 	markerValues.push_back({ 160, 20, 70, 190, 255, 255 }); //red
 	Vision vision(markerValues);
 
-	Controller controller(listener, talker, arm, tankTracks, vision);
+	Controller controller(listener, talker, arm, tankTracks, vision, nc_l);
 	controller.begin();
 
 	

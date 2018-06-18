@@ -3,6 +3,7 @@
 #include "parser.h"
 #include <string>
 #include "dbg.h"
+#include <iostream>
 
 #define JOY_MIDDLE 512
 #define MAX_ROTATION 1023
@@ -12,9 +13,11 @@
  * */
 struct user_input parse_input(char** input_data) {
 	struct user_input *parsed_input = (struct user_input*) malloc(sizeof(struct user_input));
-	float x, y, a, b = 0;
+	float x, y, a, b;
+	x = y = a = b = 0;
 	float rotation = -1;
-	int gripper, dance, lineDance, autoMove = -1;
+	int gripper, dance, lineDance, autoMoveO, autoMoveL;
+	gripper = dance = lineDance = autoMoveO = autoMoveL = -1;
 	bool doStop = false;
 	bool checkBattery = false;
 	if(input_data){
@@ -56,22 +59,31 @@ struct user_input parse_input(char** input_data) {
 					//Arm gripper (On/Off)
 				case 'G':
 					gripper = (int)atof(*(input_data + i) + 1);
+					std::cout << "G found. Value=" << gripper << std::endl;
 					break;
 					//Dance (On/Off)
 				case 'D':
 					dance = (int)atof(*(input_data + i) + 1);
+					std::cout << "D found. Value=" << dance << std::endl;
 					break;
 					//Line-Dance (On/Off)
 				case 'L':
 					lineDance = (int)atof(*(input_data + i) + 1);
 					break;
-					//Auto move
+					//Auto move Obstacle Course
 				case 'F':
-					autoMove = (int)atof(*(input_data + i) + 1);
+					autoMoveO = (int)atof(*(input_data + i) + 1);
+					std::cout << "F found. Value=" << autoMoveO << std::endl;
+					break;
+					//Auto move Follow Line & Catch Balls
+				case 'V':
+					autoMoveL = (int)atof(*(input_data + i) + 1);
+					std::cout << "V found. Value=" << autoMoveL << std::endl;
 					break;
 					//Check battery
 				case 'B':
 					checkBattery = true;
+					std::cout << "B found." << std::endl;
 					break;
 				case 'A':
 					break;
@@ -90,7 +102,8 @@ struct user_input parse_input(char** input_data) {
 	parsed_input->gripper = gripper;
 	parsed_input->dance = dance;
 	parsed_input->lineDance = lineDance;
-	parsed_input->autoMove = autoMove;
+	parsed_input->autoMoveO = autoMoveO;
+	parsed_input->autoMoveL = autoMoveL;
 	parsed_input->checkBattery = checkBattery;
 
 	return *parsed_input;

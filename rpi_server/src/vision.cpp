@@ -46,7 +46,6 @@
 			return -1;
 		cv::Mat frame;
 		cap.grab();
-		int count = 0;
 		cap.retrieve(frame);
 
 		while(isActive)
@@ -55,7 +54,7 @@
 			image = frame;
 			switch (programNumber) {
 				case 1:
-					find_marker_cup();
+					find_marker_cup(image);
 					break;
 				case 2:
 					find_waitPoint();
@@ -164,10 +163,10 @@
 	void Vision::find_markers()
 	{
 		std::vector<std::thread> color_pool;
-		int i = 0;
+		size_t i = 0;
 		while (i < lowerArrays.size())
 		{
-			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i)));
+			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i), std::ref(image)));
 			i++;
 		}
 
@@ -180,20 +179,21 @@
 
 	}
 
-	void Vision::find_marker_by_color(int i)
-	{
+	//void Vision::find_marker_by_color(int i)
+	bool Vision::find_marker_by_color(int i, cv::Mat img)
+    {
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
 		std::vector<cv::Vec4i> hierarchy;
 		int minArea = 3000;
 		int maxArea = 30000;
 		cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
-		cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+		cv::cvtColor(img, gray, cv::COLOR_BGR2GRAY);
 		cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
 		//cv::Canny(gray, edged, 35, 125);
-		cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
+		cv::cvtColor(img, hsv_img, cv::COLOR_BGR2HSV);
 		cv::inRange(hsv_img, lowerArrays[i], upperArrays[i], frame_threshed);
-		double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
+		//double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
 		cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
 		for (auto c : contours)
@@ -214,21 +214,26 @@
 			int y = points.y;
 			int middleX = x + w / 2;
 			int middleY = y + h / 2;
-			cv::putText(image, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
-			cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
-		}
-
-		minArea = 3000;
+			cv::putText(img, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
+			cv::circle(img, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+            return true;
+        }
+		//minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
+		//cv::imshow("img", img);
+		//cv::imshow("hsv_img", hsv_img);
+        return false;
 	}
 
-	void Vision::find_marker_cup()
+	//void Vision::find_marker_cup()
+    bool Vision::find_marker_cup(cv::Mat img)
 	{
-		find_marker_by_color(1);
+		bool result = find_marker_by_color(1, img);
 		//find_marker_circles();
 		// Show your results
 		//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
 		//cv::imshow("Hough Circle Transform Demo", image);
+        return result;
 	}
 	
 	void Vision::find_line()
@@ -300,7 +305,7 @@
 		//Only exucute if haven't wait before
 		//if (!passedWaitPoint) {
 			if (contours.size() != 0) {
-				for (int i = 0; i < contours.size(); i++) {
+				for (size_t i = 0; i < contours.size(); i++) {
 					if (cv::contourArea(contours[i]) > 10000) {
 						//If red(cirle) found, move forward and wait 30 seconds
 						std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;

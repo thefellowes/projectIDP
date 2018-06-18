@@ -1,6 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+#include "opencv2/opencv.hpp"
+
 #include "listener.h"
 #include "talker.h"
 #include "arm.h"
@@ -10,7 +12,7 @@
 
 #include <atomic>
 #include <iostream>
-#include <future>
+#include <mutex>
 
 #define moveDelay (10)
 
@@ -22,17 +24,22 @@ private:
 	Arm arm;
 	TankTracks tankTracks;
 	Vision vision;
-
-	//char** tokenSwitch;
-	struct user_input parsed_input;
+	nightcoreListener nc_l;
+	std::mutex mutex;
+	user_input parsed_input;
 
 	std::atomic<bool> receivedNewData;
-	bool isReceiving;
-	bool armIsMoving;
-	bool armMoveInterrupted;
-	bool isDancing;
+	std::atomic<bool> isReceiving;
+	std::atomic<bool> armIsMoving;
+	std::atomic<bool> armMoveInterrupted;
+	std::atomic<bool> autoMoveOn;
+	std::atomic<bool> autoModeIsLine;
+	std::atomic<bool> autoModeIsObstacleCourse;
+	std::atomic<bool> tankTrackMoveInterrupted;
+	std::atomic<bool> checkDancing;
+	std::atomic<bool> isDancing;
 
-	std::future<void> danceFuture;
+	std::vector<std::vector<int>> dancePositions;
 
 
 	//private functions
@@ -43,12 +50,11 @@ private:
 	void stopArmMove();
 	void startAutoMove();
 
-	void letsGetGroovy(std::string path);
-	void stopGroovin();
+	void letsGetGroovy();
 
 	//public functions
 public:
-	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision);
+	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l);
 	void begin();
 	void stopAll(std::string reason="*no reason found*");
 	
