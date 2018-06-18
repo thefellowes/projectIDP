@@ -11,6 +11,7 @@ private:
 	bool isActive;
 
 	//int middleX, middleY, x, y, w, h = 0;
+
 	std::vector<cv::RotatedRect> markers;
 	std::vector<std::vector<int>> lowerArrays;
 	std::vector<std::vector<int>> upperArrays;
@@ -38,9 +39,9 @@ public:
 
 	void find_markers();
 
-	void find_marker_by_color(int i);
+	bool find_marker_by_color(int i, cv::Mat img);
 
-	void find_marker_cup();
+	bool find_marker_cup(cv::Mat img);
 
 	void find_line();
 

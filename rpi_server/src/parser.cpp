@@ -17,7 +17,7 @@ struct user_input parse_input(char** input_data) {
 	x = y = a = b = 0;
 	float rotation = -1;
 	int gripper, dance, lineDance, autoMoveO, autoMoveL;
-	gripper = dance = lineDance = autoMoveO, autoMoveL = -1;
+	gripper = dance = lineDance = autoMoveO = autoMoveL = -1;
 	bool doStop = false;
 	bool checkBattery = false;
 	if(input_data){
@@ -103,7 +103,8 @@ struct user_input parse_input(char** input_data) {
 	parsed_input->gripper = gripper;
 	parsed_input->dance = dance;
 	parsed_input->lineDance = lineDance;
-	parsed_input->autoMove = autoMove;
+	parsed_input->autoMoveO = autoMoveO;
+	parsed_input->autoMoveL = autoMoveL;
 	parsed_input->checkBattery = checkBattery;
 
 	return *parsed_input;
