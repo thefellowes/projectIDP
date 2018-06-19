@@ -18,7 +18,6 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 	receivedNewData = false;
 	armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
-	autoModeIsObstacleCourse = false;
 	isDancing = false;
 
 	dancePositions = arm.CSVtoi(DANCE_PATH, -1);
@@ -35,7 +34,7 @@ void Controller::begin()
     threads.push_back(std::thread(&Controller::startAutoMove, this));
 	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
 
-	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
+	//threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	int batteryPerc = 0;
@@ -75,16 +74,14 @@ void Controller::begin()
 				arm.setRotation(parsedInput.rotation);
 			arm.setSpeed(parsedInput.x, parsedInput.y);
 
-			//Update tankTracks (start == 1 / stop == 0)
+			//Update tankTracks
 			if (parsedInput.autoMoveO == 1) {
-				autoModeIsObstacleCourse = true;
+				autoModeIsObstacleCourse = false;
 				tankTrackMoveInterrupted = true;
-				vision.doUpdateFrame = true;
 			}
 			else if (parsedInput.autoMoveO == 0){
-				autoModeIsObstacleCourse = false;
+				autoModeIsObstacleCourse = true;
 				tankTrackMoveInterrupted = false;
-				vision.doUpdateFrame = false;
 			}
 			if (!tankTrackMoveInterrupted) {
 				tankTracks.move(parsedInput.a, parsedInput.b, 1023);
@@ -116,10 +113,12 @@ void Controller::begin()
 			}
 
 			if (parsed_input.lineDance == 0) {
+				armMoveInterrupted = true;
 				nc_l.run();
 			}
 			else if (parsed_input.lineDance == 1) {
 				nc_l.stop_run();
+				armMoveInterrupted = false;
 			}
 
 			//if (parsedInput.autoMoveO == 0) {
@@ -182,36 +181,36 @@ void Controller::stopReceiving() {
 void Controller::startAutoMove() {
 	autoMoveOn = true;
 
-	//cv::VideoCapture cap(0);
-	//if (!cap.isOpened()) {
-	//	std::cout << "WARNING: cap.isOpened() returned false. Stopping AutoMove" << std::endl;
-	//	//return -1;
-	//}
-	//else {
-	//	cv::Mat frame;
-	//	cap.grab();
-	//	cap.retrieve(frame);
-	//}
-
-	std::cout << "Watch me go" << std::endl;
-	//cv::namedWindow("frame", cv::WINDOW_AUTOSIZE);
-	while (autoMoveOn) {
-		while (autoModeIsObstacleCourse)
-		{
-			//cap >> frame;
-			//cv::imshow("frame", frame);
-
-			if (vision.find_marker_cup()) {
-				std::cout << "Found the cup, going in!" << std::endl;
-				tankTracks.setSpeed(1023, 1023);
-			}
-			else {
-				std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
-			}
-		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	cv::VideoCapture cap(0);
+	if (!cap.isOpened()) {
+		std::cout << "WARNING: cap.isOpened() returned false. Stopping AutoMove" << std::endl;
+		//return -1;
 	}
-	std::cout << "Turned off auto pilot mode" << std::endl;
+	else {
+		cv::Mat frame;
+		cap.grab();
+		cap.retrieve(frame);
+
+		std::cout << "Watch me go" << std::endl;
+		cv::namedWindow("frame", cv::WINDOW_AUTOSIZE);
+		while (autoMoveOn) {
+			while (autoModeIsObstacleCourse)
+			{
+				cap >> frame;
+				cv::imshow("frame", frame);
+
+				if (vision.find_marker_cup(frame)) {
+					std::cout << "Found the cup, going in!" << std::endl;
+					tankTracks.setSpeed(1023, 1023);
+				}
+				else {
+					std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
+				}
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
+		std::cout << "Turned off auto pilot mode" << std::endl;
+	}
 }
 
 void Controller::startArmMove() {
