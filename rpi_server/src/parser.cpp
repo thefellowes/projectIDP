@@ -69,7 +69,6 @@ struct user_input parse_input(char** input_data) {
 					//Line-Dance (On/Off)
 				case 'L':
 					lineDance = (int)atof(*(input_data + i) + 1);
-					std::cout << "L found. Value=" << lineDance << std::endl;
 					break;
 					//Auto move Obstacle Course
 				case 'F':

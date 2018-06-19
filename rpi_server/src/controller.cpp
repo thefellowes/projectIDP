@@ -8,11 +8,12 @@
 #include "vision.h"
 #include "parser.h"
 #include "dbg.h"
+#include "nightcore_listener.h"
 
 #define DANCE_PATH "/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt"
 
 
-Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision)
+Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
 {
 	receivedNewData = false;
 	armMoveInterrupted = false;
@@ -25,7 +26,7 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 
 void Controller::begin()
 {
-	std::cout << "Starting threads..." << std::endl;
+	log_info("Starting threads...");
 	//Start processes in seperate threads
 	std::vector<std::thread> threads;
 	threads.push_back(std::thread(&Controller::startReceiving, this));
@@ -114,11 +115,11 @@ void Controller::begin()
 				isDancing = false; 
 			}
 
-			if (parsedInput.lineDance == 0) {
-				log_warn("Start LineDance has not been implemented yet");
+			if (parsed_input.lineDance == 0) {
+				nc_l.run();
 			}
-			else if (parsedInput.lineDance == 1) {
-				log_warn("Stop LineDance has not been implemented yet");
+			else if (parsed_input.lineDance == 1) {
+				nc_l.stop_run();
 			}
 
 			//if (parsedInput.autoMoveO == 0) {
