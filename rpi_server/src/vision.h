@@ -20,7 +20,6 @@ private:
 	int programNumber;
 
 public:
-	bool doUpdateFrame;
 
 	Vision(std::vector<std::vector<int>> initValues);
 
@@ -40,9 +39,9 @@ public:
 
 	void find_markers();
 
-	bool find_marker_by_color(int i);
+	bool find_marker_by_color(int i, cv::Mat img);
 
-	bool find_marker_cup();
+	bool find_marker_cup(cv::Mat img);
 
 	char find_line();
 
