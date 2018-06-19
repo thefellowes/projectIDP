@@ -3,14 +3,15 @@
 #include <chrono>
 #include <thread>
 
+#include "arm.h"
 #include "nightcore_listener.h"
 
-nightcoreListener::nightcoreListener(int _in_pin, Arm &_arm) {
+nightcoreListener::nightcoreListener(int _in_pin, Arm &arm) : arm(arm)
+{
 	in_pin = _in_pin;
 	wiringPiSetupGpio();
 	pinMode(in_pin, INPUT);
 	stop = 0;
-	arm = _arm;
 }
 
 int nightcoreListener::get_in_pin() {

@@ -1,6 +1,8 @@
 #ifndef __NIGHTCORE_LISTENER_H__
 #define __NIGHTCORE_LISTENER_H__
 
+#include "arm.h"
+
 class nightcoreListener {
 	private:
 		int in_pin;

@@ -10,7 +10,7 @@
 #include "dbg.h"
 #include "nightcore_listener.h"
 
-#define DANCE_PATH "/home/bert/dev/projectIDP/rpi_server/src/dancePositions.txt"
+#define DANCE_PATH "/etc/dancePositions.txt"
 
 
 Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
