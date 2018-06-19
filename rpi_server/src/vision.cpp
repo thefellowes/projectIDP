@@ -35,6 +35,7 @@
 		colorNames.push_back("red");
 
 		programNumber = -1;
+		doUpdateFrame = false;
 	}
 
 	int Vision::startVision()
@@ -48,25 +49,34 @@
 		cap.grab();
 		cap.retrieve(frame);
 
+		cap >> frame;
+		image = frame;
+		
+		update(frame);
+
 		while(isActive)
 		{
-			cap >> frame;
-			image = frame;
-			switch (programNumber) {
-				case 1:
-					find_marker_cup(image);
-					break;
-				case 2:
-					find_waitPoint();
-					find_line();
-					break;
-				default:
-					update(frame);
-					break;
-			}
+			while (doUpdateFrame) {
+				cap >> frame;
+				image = frame;
+				//switch (programNumber) {
+				//case 1:
+				//	find_marker_cup();
+				//	break;
+				//case 2:
+				//	find_waitPoint();
+				//	find_line();
+				//	break;
+				//default:
+					//update(frame);
+				//	break;
+				//}
 
-			cv::imshow("image", frame);
-			cv::waitKey(1);
+				//cv::imshow("image", frame);
+				//cv::waitKey(1);
+				std::this_thread::sleep_for(std::chrono::milliseconds(20));
+			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 
 	}
@@ -166,7 +176,7 @@
 		size_t i = 0;
 		while (i < lowerArrays.size())
 		{
-			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i), std::ref(image)));
+			color_pool.push_back(std::thread(&Vision::find_marker_by_color, this, std::ref(i)));
 			i++;
 		}
 
@@ -180,8 +190,10 @@
 	}
 
 	//void Vision::find_marker_by_color(int i)
-	bool Vision::find_marker_by_color(int i, cv::Mat img)
+	bool Vision::find_marker_by_color(int i)
     {
+		cv::Mat img = image.clone();
+
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> contours1 = { { 0,0 } };
 		std::vector<cv::Vec4i> hierarchy;
@@ -205,6 +217,9 @@
 			}
 		}
 
+		//cv::imshow("img", img);
+		//cv::imshow("hsv_img", hsv_img);
+
 		if (minArea > 3000)
 		{
 			cv::Rect points = boundingRect(contours1);
@@ -220,15 +235,13 @@
         }
 		//minArea = 3000;
 		markers[i] = cv::minAreaRect(contours1);
-		//cv::imshow("img", img);
-		//cv::imshow("hsv_img", hsv_img);
         return false;
 	}
 
 	//void Vision::find_marker_cup()
-    bool Vision::find_marker_cup(cv::Mat img)
+    bool Vision::find_marker_cup()
 	{
-		bool result = find_marker_by_color(1, img);
+		bool result = find_marker_by_color(1);
 		//find_marker_circles();
 		// Show your results
 		//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
