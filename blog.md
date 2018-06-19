@@ -16,14 +16,6 @@ overflow: hidden;
   }
 </style>
 <div class="blogPost">
-  <h3 style="text-align:center;">Maandag, 18 juni</h3>
-  <p style="float:left; width:40%;">Na een schoon weekend slaat stergroep 8 weer hun slag, De assessments voor I zijn vrijdag goed verlopen, en de vooruitgang van Bert mindstends even goed! Bert is nu een berg (en trap) beklimmer!!<p>
-  <div class="imageWrapper">
-	<object style="float:right;" data="https://www.youtube.com/embed/QO3j3BI3QAI"></object>
-  </div>
-  <div style="clear:both;"></div>
-<hr> 
-<div class="blogPost">
   <h3 style="text-align:center;">Maandag, 11 juni</h3>
   <p style="float:left; width:40%;">Op deze schone maandag zijn we allemaal blij, Bert heeft vorige week zijn eerste "stapjes" gezet. We hebben ook een prachtige controller, en goeie vooruitgang op onze vision. Deze week moeten we nog een paar dingen afkrijgen, zoals de arm op het lichaam zetten, en volgende week zijn de van doel puntjes op alle i's te zetten.<p>
   <div class="imageWrapper">
