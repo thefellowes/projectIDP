@@ -9,6 +9,7 @@
 #include "tankTracks.h"
 #include "vision.h"
 #include "parser.h"
+#include "nightcore_listener.h" 
 
 #include <atomic>
 #include <iostream>
