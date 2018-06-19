@@ -57,8 +57,11 @@
 		while(isActive)
 		{
 			while (doUpdateFrame) {
-				cap >> frame;
-				image = frame;
+				if (cap.read(frame)) {
+					image = frame;
+				}
+				//cap >> frame;
+				//image = frame;
 				//switch (programNumber) {
 				//case 1:
 				//	find_marker_cup();
