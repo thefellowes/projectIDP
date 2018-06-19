@@ -44,9 +44,9 @@ public:
 
 	bool find_marker_cup();
 
-	void find_line();
+	char find_line();
 
-	void find_waitPoint();
+	bool find_waitPoint();
 
 };
 

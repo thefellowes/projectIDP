@@ -252,7 +252,7 @@
         return result;
 	}
 	
-	void Vision::find_line()
+	char Vision::find_line()
 	{
 		cv::Mat mask = image.clone();
 		std::vector<std::vector<cv::Point>> contours;
@@ -290,20 +290,27 @@
 			//Give instruction to follow line
 			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
 				std::cout << "Go straight ahead" << std::endl;
+				return 'F';
 			}
 			else if (extTop.x < image.rows / 3 * 1) {
 				std::cout << "Go Left" << std::endl;
+				return 'L';
 			}
 			else if (extTop.x > image.rows / 3 * 2) {
 				std::cout << "Go Right" << std::endl;
+				return 'R';
 			}
 			else {
-				std::cout << "No instruction" << std::endl;
+				std::cout << "No instruction - follow last instruction" << std::endl;
+				return 'I';
 			}
 		}
+
+		//line not found
+		return 'N';
 	}
 
-	void Vision::find_waitPoint()
+	bool Vision::find_waitPoint()
 	{
 		cv::Mat mask = image.clone();
 		cv::Mat lowerRed;
@@ -318,18 +325,18 @@
 
 		cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
-		//Only exucute if haven't wait before
-		//if (!passedWaitPoint) {
-			if (contours.size() != 0) {
-				for (size_t i = 0; i < contours.size(); i++) {
-					if (cv::contourArea(contours[i]) > 10000) {
-						//If red(cirle) found, move forward and wait 30 seconds
-						std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;
-						//std::this_thread::sleep_for(std::chrono::seconds(30));
-						//passedWaitPoint = true;
-						std::cout << "Move forward until line found and start following line again" << std::endl;
-					}
+		if (contours.size() != 0) {
+			for (size_t i = 0; i < contours.size(); i++) {
+				if (cv::contourArea(contours[i]) > 10000) {
+					std::cout << "Found red circle" << std::endl;
+					//If red(cirle) found, move forward and wait 30 seconds
+					//std::cout << "Move forward a little bit more\nWait 30 seconds" << std::endl;
+					//std::this_thread::sleep_for(std::chrono::seconds(30));
+					//std::cout << "Move forward until line found and start following line again" << std::endl;
+					return true;
 				}
 			}
-		//}
+		}
+
+		return false;
 	}
