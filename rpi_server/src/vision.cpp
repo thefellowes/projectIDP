@@ -255,6 +255,12 @@
 	char Vision::find_line()
 	{
 		cv::Mat mask = image.clone();
+		
+		//image is empty
+		if(mask.empty()){
+			return 'E';
+		}
+		
 		std::vector<std::vector<cv::Point>> contours;
 		std::vector<cv::Point> maxContour;
 		
@@ -277,32 +283,34 @@
 			//Biggest contour
 			maxContour = contours[indices[0]];
 
-			//Get extreme top and bottom point of line
-			cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
-				[](const cv::Point& lhs, const cv::Point& rhs) {
-				return lhs.y > rhs.y;
-			});
-			cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
-				[](const cv::Point& lhs, const cv::Point& rhs) {
-				return lhs.y > rhs.y;
-			});
+			if (cv::contourArea(maxContour) > 1000){
+				//Get extreme top and bottom point of line
+				cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
+					[](const cv::Point& lhs, const cv::Point& rhs) {
+					return lhs.y > rhs.y;
+				});
+				cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
+					[](const cv::Point& lhs, const cv::Point& rhs) {
+					return lhs.y > rhs.y;
+				});
 
-			//Give instruction to follow line
-			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
-				std::cout << "Go straight ahead" << std::endl;
-				return 'F';
-			}
-			else if (extTop.x < image.rows / 3 * 1) {
-				std::cout << "Go Left" << std::endl;
-				return 'L';
-			}
-			else if (extTop.x > image.rows / 3 * 2) {
-				std::cout << "Go Right" << std::endl;
-				return 'R';
-			}
-			else {
-				std::cout << "No instruction - follow last instruction" << std::endl;
-				return 'I';
+				//Give instruction to follow line
+				if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+					std::cout << "Go straight ahead" << std::endl;
+					return 'F';
+				}
+				else if (extTop.x < image.rows / 3 * 1) {
+					std::cout << "Go Left" << std::endl;
+					return 'L';
+				}
+				else if (extTop.x > image.rows / 3 * 2) {
+					std::cout << "Go Right" << std::endl;
+					return 'R';
+				}
+				else {
+					std::cout << "No instruction - follow last instruction" << std::endl;
+					return 'I';
+				}		
 			}
 		}
 
@@ -313,6 +321,12 @@
 	bool Vision::find_waitPoint()
 	{
 		cv::Mat mask = image.clone();
+		
+		//image is empty
+		if(mask.empty()){
+			return false;
+		}
+		
 		cv::Mat lowerRed;
 		cv::Mat upperRed;
 		std::vector<std::vector<cv::Point>> contours;
