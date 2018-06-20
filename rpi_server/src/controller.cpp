@@ -207,6 +207,25 @@ void Controller::startAutoMove() {
 					std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
 				}
 			}
+			
+			//Auto line following:
+			/* std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			char direction = vision.find_line();
+			if(direction == 'I'){
+				continue;
+			}else if(direction == 'F'){
+				std::cout << "Found the line, attempting to follow it!" << std::endl;
+				tankTracks.setSpeed(1023,1023);
+			}else if(direction == 'L'){
+				tankTracks.setSpeed(1023,-1023);
+			}else if(direction == 'R'){
+				tankTracks.setSpeed(-1023,1023);
+			}else{
+				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
+				tankTracks.setSpeed(0, 0);
+			} */
+			//end auto line following
+			
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		std::cout << "Turned off auto pilot mode" << std::endl;

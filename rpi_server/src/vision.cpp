@@ -227,6 +227,7 @@ bool Vision::find_marker_by_color(int i, cv::Mat img)
 		cv::circle(img, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
 		return true;
 	}
+	
 	//minArea = 3000;
 	markers[i] = cv::minAreaRect(contours1);
 	//cv::imshow("img", img);
@@ -248,9 +249,15 @@ bool Vision::find_marker_cup(cv::Mat img)
 char Vision::find_line()
 {
 	cv::Mat mask = image.clone();
+	
+	//image is empty
+	if(mask.empty()){
+		return 'E';
+	}
+	
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Point> maxContour;
-
+	
 	//Detect black line:
 	cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
 	cv::inRange(mask, cv::Scalar(0, 0, 0, 0), cv::Scalar(180, 255, 30, 0), mask);
@@ -264,41 +271,43 @@ char Vision::find_line()
 
 		//Sort indices of contours by size contours
 		sort(indices.begin(), indices.end(), [&contours](int lhs, int rhs) {
-				return cv::contourArea(contours[lhs]) > cv::contourArea(contours[rhs]);
-				});
+			return cv::contourArea(contours[lhs]) > cv::contourArea(contours[rhs]);
+		});
 
 		//Biggest contour
 		maxContour = contours[indices[0]];
-
-		//Get extreme top and bottom point of line
-		cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
+		
+		if (cv::contourArea(maxContour) > 1000){
+			//Get extreme top and bottom point of line
+			cv::Point extTop = *std::max_element(maxContour.begin(), maxContour.end(),
 				[](const cv::Point& lhs, const cv::Point& rhs) {
 				return lhs.y > rhs.y;
-				});
-		cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
+			});
+			cv::Point extBot = *std::min_element(maxContour.begin(), maxContour.end(),
 				[](const cv::Point& lhs, const cv::Point& rhs) {
 				return lhs.y > rhs.y;
-				});
+			});
 
-		//Give instruction to follow line
-		if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
-			std::cout << "Go straight ahead" << std::endl;
-			return 'F';
-		}
-		else if (extTop.x < image.rows / 3 * 1) {
-			std::cout << "Go Left" << std::endl;
-			return 'L';
-		}
-		else if (extTop.x > image.rows / 3 * 2) {
-			std::cout << "Go Right" << std::endl;
-			return 'R';
-		}
-		else {
-			std::cout << "No instruction - follow last instruction" << std::endl;
-			return 'I';
+			//Give instruction to follow line
+			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+				std::cout << "Go straight ahead" << std::endl;
+				return 'F';
+			}
+			else if (extTop.x < image.rows / 3 * 1) {
+				std::cout << "Go Left" << std::endl;
+				return 'L';
+			}
+			else if (extTop.x > image.rows / 3 * 2) {
+				std::cout << "Go Right" << std::endl;
+				return 'R';
+			}
+			else {
+				std::cout << "No instruction - follow last instruction" << std::endl;
+				return 'I';
+			}		
 		}
 	}
-
+	
 	//line not found
 	return 'N';
 }
