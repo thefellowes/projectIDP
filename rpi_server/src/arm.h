@@ -9,6 +9,9 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <atomic>
+#include <thread>
+#include <mutex>
 
 class Arm {
 private:
@@ -28,6 +31,7 @@ private:
 	bool posPossible(float x, float y);
 	int turn(const int servo, int position, int speed=200);
 	int calcRotationSpeed(float diff, int ms);
+	std::mutex * mutex;
 public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);
 	void startMovement();
