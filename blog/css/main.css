@@ -61,48 +61,6 @@
 }
 
 
-/* YT-Colours */
-/* scrubber button */
-.html5-scrubber-button:hover, .ytp-scrubber-button:hover, .ytp-swatch-background-color, .ytp-swatch-background-color-secondary {
-  background: #2793E6 !important;
-}
-/* progress bar */
-.html5-play-progress, .ytp-play-progress {
-  background: #2793E6 !important; 
-}
-.ytp-volume-slider-track, .ytp-volume-slider-handle:before {
-  background: #2793E6 !important;
-  z-index: -117;
-}
-.ytp-settings-button.ytp-hd-quality-badge::after, .ytp-settings-button.ytp-4k-quality-badge::after, .ytp-settings-button.ytp-5k-quality-badge::after, .ytp-settings-button.ytp-8k-quality-badge::after, .ytp-settings-button.ytp-3d-badge::after {
-  background-color: #2793E6 !important;
-}
-.ytp-swatch-color {
-  color: #2793E6 !important;
-}
-.ytp-menuitem[aria-checked="true"] .ytp-menuitem-toggle-checkbox {
-  background: #2793E6 !important;
-}
-.ytp-chrome-controls .ytp-button.ytp-youtube-button:hover:not([aria-disabled="true"]):not([disabled]) .ytp-svg-fill-logo-tube-lozenge {
-  fill: #2793E6 !important;
-}
-.ytp-cued-thumbnail-overlay:hover .ytp-large-play-button-bg, .ytp-large-play-button.ytp-touch-device .ytp-large-play-button-bg {
-  fill: #2793E6 !important;
-}
-.resume-playback-progress-bar {
-  background: #2793E6 !important;
-}
-.ytp-chrome-controls .ytp-button[aria-pressed]::after {
-  background-color: #2793E6 !important;
-}
-.yt-uix-checkbox-on-off input-extras2-disabled[type="checkbox"]:checked + label {
-  background-color: #2793E6 !important;
-}
-.video-extras-sparkbar-likes-extras2-disabled {
-  background-color: #2793E6 !important;
-}
-
-
 /* ===================================================================
  * # base style overrides
  *
