@@ -12,6 +12,8 @@
 
 //debug:
 #include <iostream>
+#include <thread>
+#include <mutex>
 
 bool Arm::posPossible(float x, float y)
 {
@@ -50,6 +52,8 @@ int Arm::calcRotationSpeed(float diff, int ms)
 
 Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 {
+	mutex = new std::mutex();
+
 	ax12a = servoControl;
 	servos = servoIDs;
 	moveIsActive = false;
@@ -109,16 +113,20 @@ void Arm::setSpeed(float xSpeed, float ySpeed, float rotationSpeed)
 // rotation variable between 0.0 and 1.0
 void Arm::setRotation(float rotation) {
 	posRotation = (int)(((rotation * 1023) - 1023) * -1); //round(rotation * 1023);
+	mutex->lock();
 	posRotation = turn(servos.armRotation, posRotation, 200);
+	mutex->unlock();
 }
 
 std::vector<int> Arm::getArmServoPositions()
 {
 	std::vector<int> result;
 
+	mutex->lock();
 	for (int servoID : servos.joints) {
 		result.push_back(ax12a.readPosition(servoID));
 	}
+	mutex->unlock();
 
 	return result;
 }
@@ -133,7 +141,9 @@ int Arm::move(int delay)
 	//turn arm
 	if (speedRotation != 0) {
 		posRotation += maxSpeedRotation * speedRotation;
+		mutex->lock();
 		posRotation = turn(servos.armRotation, posRotation);
+		mutex->unlock();
 	}
 
 	if (!posPossible(posX, posY)) {
@@ -153,7 +163,9 @@ int Arm::move(int delay)
 			int size = newPos.size();
 			for (int i = 0; i < size; i++) {
 				int diff = (newPos[i] - currentPosServos[i]);
+				mutex->lock();
 				turn(servos.joints[i], newPos[i], calcRotationSpeed(diff, delay));
+				mutex->unlock();
 			}
 			currentPosServos = newPos;
 
@@ -172,7 +184,9 @@ int Arm::move(int delay)
 
 void Arm::setGripperRotation(int position)
 {
+	mutex->lock();
 	turn(servos.gripperRotation, position);
+	mutex->unlock();
 }
 
 
@@ -195,7 +209,9 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 
 	std::vector<std::vector<int>> path = getPath(posX, posY, x, y, headAngle, ha, (getCurvedPath ? 5.0f : 45.0f));
 
+	mutex->lock();
 	turn(servos.armRotation, rotation);
+	mutex->unlock();
 
 	int pathLength = path.size();
 
@@ -204,7 +220,9 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 		for (int i = 0; i < size; i++) {
 			int diff = (path[p][i] - currentPosServos[i]);
 
+			mutex->lock();
 			turn(servos.joints[i], path[p][i], calcRotationSpeed(diff, moveToDelay));
+			mutex->unlock();
 		}
 		currentPosServos = path[p];
 		std::this_thread::sleep_for(std::chrono::milliseconds(moveToDelay));
@@ -220,8 +238,10 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 
 void Arm::grab(bool close)
 {
+	mutex->lock();
 	if (close) turn(servos.gripper, 710, gripperSpeed);	//close
 	else turn(servos.gripper, 900, gripperSpeed);		//open
+	mutex->unlock();
 }
 
 
@@ -251,7 +271,9 @@ int Arm::getPosRotation()
 
 int Arm::getPosGripper()
 {
+	mutex->lock();
 	return ax12a.readPosition(servos.gripper);
+	mutex->unlock();
 }
 
 
@@ -262,11 +284,14 @@ int Arm::getVoltage() {
 	int total = 0;
 	int count = 0;
 	int temp;
-
+	mutex->lock();
 	int size = servos.joints.size();
+	mutex->unlock();
 	for (int i = 0; i < size; i++) {
 		//std::this_thread::sleep_for(std::chrono::milliseconds(5));
+		mutex->lock();
 		temp = ax12a.readVoltage(servos.joints[i]);
+		mutex->unlock();
 		if (temp > 90 && temp < 126) { total += temp; count++; }
 	}
 
@@ -286,16 +311,24 @@ ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues)
 	constraintServoValues(values, constr_min, constr_max);
 
 	if (values.armRotation == INTMIN) values.armRotation = oldValues.armRotation;
+	mutex->lock();
 	ax12a.moveSpeed(servos.armRotation, values.armRotation, calcRotationSpeed((oldValues.armRotation - values.armRotation), delay));
 	int size = servos.joints.size();
+	mutex->unlock();
 	for (int i = 0; i < size; i++) {
 		if (values.joints[i] == INTMIN) values.joints[i] = oldValues.joints[i];
+		mutex->lock();
 		ax12a.moveSpeed(servos.joints[i], values.joints[i], calcRotationSpeed((oldValues.joints[i] - values.joints[i]), delay));
+		mutex->unlock();
 	}
 	if (values.gripperRotation == INTMIN) values.gripperRotation = oldValues.gripperRotation;
+	mutex->lock();
 	ax12a.moveSpeed(servos.gripperRotation, values.gripperRotation, calcRotationSpeed((oldValues.gripperRotation - values.gripperRotation), delay));
+	mutex->unlock();
 	if (values.gripper == INTMIN) values.gripper = oldValues.gripper;
+	mutex->lock();
 	ax12a.moveSpeed(servos.gripper, values.gripper, calcRotationSpeed((oldValues.gripper - values.gripper), delay));
+	mutex->unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(delay));
 
 	return values;
@@ -379,19 +412,28 @@ bool Arm::constraintServoValues(ArmServos &values, ArmServos constr_min, ArmServ
 
 ArmServos Arm::readServoValues(bool showWarnings) {
 	ArmServos values;
-
+	mutex->lock();
 	if ((values.armRotation = ax12a.readPosition(servos.armRotation)) < 0 && showWarnings) std::cout << "WARNING: armRotation value = " << values.armRotation << std::endl;
+	mutex->unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	mutex->lock();
 	int size = servos.joints.size();
+	mutex->unlock();
 	int temp;
 	for (int i = 0; i < size; i++) {
+		mutex->lock();
 		values.joints.push_back(temp = ax12a.readPosition(servos.joints[i]));
+		mutex->unlock();
 		if (temp < 0 && showWarnings) std::cout << "WARNING: joint["<< i <<"] value = " << values.joints[i] << std::endl;;
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
+	mutex->lock();
 	if ((values.gripperRotation = ax12a.readPosition(servos.gripperRotation)) < 0 && showWarnings) std::cout << "WARNING: gripperRotation value = " << values.gripperRotation << std::endl;;
+	mutex->unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	mutex->lock();
 	if ((values.gripper = ax12a.readPosition(servos.gripper)) < 0 && showWarnings) std::cout << "WARNING: gripper value = " << values.gripper << std::endl;;
+	mutex->unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	//std::cout << "oldValues = setServoValues({ " << values.armRotation << ", { " << values.joints[0] << ", " << values.joints[1] << ", " << values.joints[2] << " }, " << values.gripperRotation << ", " << values.gripper << "}, 500, oldValues);" << std::endl;

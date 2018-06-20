@@ -149,17 +149,17 @@ void TankTracks::move(float throttle, float direction, int maxSpeed)
 
 		//calcuate speed for each motor to move in correct direction
 		if(throttle > 0 && direction >= 0){
-			speedL = speedY + speedX;
-			speedR = speedY;
+			speedL = speedY;
+			speedR = speedY + speedX;
 		}else if(throttle < 0 && direction < 0){
-			speedL = speedY;
-			speedR = (speedY + speedX);
-		}else if(throttle < 0 && direction > 0){
-			speedL = speedY - speedX;
+			speedL = (speedY + speedX);
 			speedR = speedY;
-		}else {
+		}else if(throttle < 0 && direction > 0){
 			speedL = speedY;
-			speedR = (speedY - speedX);
+			speedR = speedY - speedX;
+		}else {
+			speedL = (speedY - speedX);
+			speedR = speedY;
 		}
 	}
 
