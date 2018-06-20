@@ -60,7 +60,13 @@
   padding: 5px;
 }
 
-
+.yt_vid {
+  margin: 0 auto;
+  width: 90%;
+  margin: 0 5%;
+  height: 250px;
+  border-radius: 20px;
+}
 /* ===================================================================
  * # base style overrides
  *
