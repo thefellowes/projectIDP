@@ -35,6 +35,8 @@ private:
 	std::atomic<bool> armMoveInterrupted;
 	std::atomic<bool> autoMoveOn;
 	std::atomic<bool> autoModeIsLine;
+	std::atomic<bool> autoModeBlockTower;
+	std::atomic<bool> autoModeFindLine;
 	std::atomic<bool> autoModeIsObstacleCourse;
 	std::atomic<bool> tankTrackMoveInterrupted;
 	std::atomic<bool> checkDancing;

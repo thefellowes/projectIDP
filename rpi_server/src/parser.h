@@ -13,8 +13,9 @@ struct user_input {
 	int gripper;
 	int dance;
 	int lineDance;
-	int autoMoveO;
+	int autoMoveB;
 	int autoMoveL;
+	int autoMoveO;
 	bool checkBattery;
 };
 

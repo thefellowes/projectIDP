@@ -18,8 +18,11 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 	receivedNewData = false;
 	armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
+	autoModeBlockTower = false;
+	autoModeFindLine = false;
+	autoModeIsObstacleCourse = false;
 	isDancing = false;
-
+	
 	dancePositions = arm.CSVtoi(DANCE_PATH, -1);
 }
 
@@ -34,9 +37,11 @@ void Controller::begin()
     threads.push_back(std::thread(&Controller::startAutoMove, this));
 	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
 
-	//threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
+	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
+	
+	
 	int batteryPerc = 0;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
@@ -50,6 +55,7 @@ void Controller::begin()
 
 	while (true) 
 	{
+		vision.doUpdateFrame = true;
 		//Update batteryPercentage
 		if ((tempInt = getBatteryPercentage()) != 0) batteryPercBuffer += tempInt - batteryPerc;
 		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
@@ -74,20 +80,55 @@ void Controller::begin()
 				arm.setRotation(parsedInput.rotation);
 			arm.setSpeed(parsedInput.x, parsedInput.y);
 
-			//Update tankTracks
-			if (parsedInput.autoMoveO == 1) {
-				autoModeIsObstacleCourse = false;
-				tankTrackMoveInterrupted = true;
+			//Update tankTracks (start == 1 / stop == 0)
+			
+			//autoMoveBlockTower
+			if(parsedInput.autoMoveB == 0){
+				std::cout << "Giving up on building the tower" << std::endl;
+				autoModeBlockTower = false;
+				tankTrackMoveInterrupted = false
 			}
-			else if (parsedInput.autoMoveO == 0){
-				autoModeIsObstacleCourse = true;
+			else if(parsedInput.autoMoveB == 1){
+				std::cout << "Trying to build the tower" << std::endl;
+				autoModeBlockTower = true;
+				autoModeFindLine = autoModeIsObstacleCourse = !autoModeBlockTower;
+				tankTrackMoveInterrupted = true;
+				vision.doUpdateFrame = true;
+			}
+
+			//autoMoveFindLine
+			if (parsedInput.autoMoveL == 0) {
+				std::cout << "Stopped following the line" << std::endl;
+				autoModeFindLine = false;
+				tankTrackMoveInterrupted = false
+			}
+			else if (parsedInput.autoMoveL == 1) {
+				std::cout << "Trying to find the line" << std::endl;
+				autoModeFindLine = true;
+				autoModeBlockTower = autoModeIsObstacleCourse = !autoModeFindLine;
+				tankTrackMoveInterrupted = true;
+				vision.doUpdateFrame = true;
+			}
+			
+			//autoMoveObstacleCourse
+			if (parsedInput.autoMoveO == 0){
+				std::cout << "Stopped running the obstacle course" << std::endl;
+				autoModeIsObstacleCourse = false;
 				tankTrackMoveInterrupted = false;
 			}
+			else if (parsedInput.autoMoveO == 1) {
+				std::cout << "Running the obstacle course" << std::endl;
+				autoModeIsObstacleCourse = true;
+				autoModeBlockTower = autoModeFindLine = !autoModeIsObstacleCourse;
+				tankTrackMoveInterrupted = true;
+				vision.doUpdateFrame = true;
+			} 
+			
 			if (!tankTrackMoveInterrupted) {
 				tankTracks.move(parsedInput.a, parsedInput.b, 1023);
 			}
 
-
+							
 			//If stop-button is pressed, stop application.
 			//TODO: check on which batteryPercentage to shutdown the Pi
 			if (parsedInput.doStop) {
@@ -113,26 +154,10 @@ void Controller::begin()
 			}
 
 			if (parsed_input.lineDance == 0) {
-				armMoveInterrupted = true;
 				nc_l.run();
 			}
 			else if (parsed_input.lineDance == 1) {
 				nc_l.stop_run();
-				armMoveInterrupted = false;
-			}
-
-			//if (parsedInput.autoMoveO == 0) {
-			//	log_warn("Start autoMoveObstacleCourse has not been implemented yet");
-			//}
-			//else if (parsedInput.autoMoveO == 1) {
-			//	log_warn("Stop autoMoveObstacleCourse has not been implemented yet");
-			//}
-
-			if (parsedInput.autoMoveL == 0) {
-				log_warn("Start autoMoveLine has not been implemented yet");
-			}
-			else if (parsedInput.autoMoveL == 1) {
-				log_warn("Stop autoMoveLine has not been implemented yet");
 			}
 		}
 
@@ -180,36 +205,13 @@ void Controller::stopReceiving() {
 
 void Controller::startAutoMove() {
 	autoMoveOn = true;
-
-	cv::VideoCapture cap(0);
-	if (!cap.isOpened()) {
-		std::cout << "WARNING: cap.isOpened() returned false. Stopping AutoMove" << std::endl;
-		//return -1;
-	}
-	else {
-		cv::Mat frame;
-		cap.grab();
-		cap.retrieve(frame);
-
-		std::cout << "Watch me go" << std::endl;
-		cv::namedWindow("frame", cv::WINDOW_AUTOSIZE);
-		while (autoMoveOn) {
-			while (autoModeIsObstacleCourse)
-			{
-				cap >> frame;
-				cv::imshow("frame", frame);
-
-				if (vision.find_marker_cup(frame)) {
-					std::cout << "Found the cup, going in!" << std::endl;
-					tankTracks.setSpeed(1023, 1023);
-				}
-				else {
-					std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
-				}
-			}
-			
-			//Auto line following:
-			/* std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	std::cout << "Watch me go" << std::endl;
+	
+	while (autoMoveOn){
+		while (autoModeBlockTower){
+			std::cout << "Not implemented yet" << std::endl;
+		}
+		while (autoModeFindLine){
 			char direction = vision.find_line();
 			if(direction == 'I'){
 				continue;
@@ -217,19 +219,45 @@ void Controller::startAutoMove() {
 				std::cout << "Found the line, attempting to follow it!" << std::endl;
 				tankTracks.setSpeed(1023,1023);
 			}else if(direction == 'L'){
-				tankTracks.setSpeed(1023,-1023);
-			}else if(direction == 'R'){
 				tankTracks.setSpeed(-1023,1023);
+			}else if(direction == 'R'){
+				tankTracks.setSpeed(1023,-1023);
 			}else{
 				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
-			} */
-			//end auto line following
-			
-			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
 		}
-		std::cout << "Turned off auto pilot mode" << std::endl;
+		while (autoModeIsObstacleCourse){
+			//cap >> frame;
+			//cv::imshow("frame", frame);
+
+			/*if (vision.find_marker_cup()) {
+				std::cout << "Found the cup, going in!" << std::endl;
+				tankTracks.setSpeed(1023, 1023);
+			}
+			else {
+				std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
+			*/
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			if(seeMarkedStairs){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeGap){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeSlope){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeCup){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else{
+				std::cout << "Not implemented yet" << std::endl;
+			}
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+	std::cout << "Turned off auto pilot mode" << std::endl;
 }
 
 void Controller::startArmMove() {
