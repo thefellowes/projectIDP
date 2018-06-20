@@ -206,22 +206,41 @@ void Controller::stopReceiving() {
 void Controller::startAutoMove() {
 	autoMoveOn = true;
 	std::cout << "Watch me go" << std::endl;
+
+	//red circle where robot has to wait when following a line
+	bool foundWaitPoint = false;
 	
 	while (autoMoveOn){
+		foundWaitPoint = false;
 		while (autoModeBlockTower){
 			std::cout << "Not implemented yet" << std::endl;
 		}
 		while (autoModeFindLine){
+			//if waitpoint not found yet, check if its there
+			if (!foundWaitPoint) {
+				if (vision.find_waitPoint) {
+					//found waitpoint
+					foundWaitPoint = true;
+					std::cout << "Found waitpoint." << std::endl;
+					//move forward for some seconds to get in the middle of the circle
+					std::this_thread::sleep_for(std::chrono::seconds(2))
+					//stop and wait for 30 seconds
+					tankTracks.setSpeed(0, 0);
+					std::this_thread::sleep_for(std::chrono::seconds(30));
+					//start moving and follow the line again
+					tankTracks.setSpeed(1023, 1023);
+				}
+			}
+			//search for line
 			char direction = vision.find_line();
 			if(direction == 'I'){
 				continue;
 			}else if(direction == 'F'){
-				std::cout << "Found the line, attempting to follow it!" << std::endl;
 				tankTracks.setSpeed(1023,1023);
 			}else if(direction == 'L'){
-				tankTracks.setSpeed(-1023,1023);
-			}else if(direction == 'R'){
 				tankTracks.setSpeed(1023,-1023);
+			}else if(direction == 'R'){
+				tankTracks.setSpeed(-1023,1023);
 			}else{
 				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
