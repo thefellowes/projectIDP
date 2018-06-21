@@ -52,7 +52,7 @@ void Controller::begin()
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	batteryPerc = batteryPercBuffer / batteryPercBufferSize;
-	log_info("battery percentage is " + batteryPerc + " with buffersize of " + batteryPercBufferSize);
+	std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
 
 	log_info("Startup completed");
 	while (true) 
@@ -88,7 +88,7 @@ void Controller::begin()
 			if(parsedInput.autoMoveB == 0){
 				std::cout << "Giving up on building the tower" << std::endl;
 				autoModeBlockTower = false;
-				tankTrackMoveInterrupted = false
+				tankTrackMoveInterrupted = false;
 			}
 			else if(parsedInput.autoMoveB == 1){
 				std::cout << "Trying to build the tower" << std::endl;
@@ -102,7 +102,7 @@ void Controller::begin()
 			if (parsedInput.autoMoveL == 0) {
 				std::cout << "Stopped following the line" << std::endl;
 				autoModeFindLine = false;
-				tankTrackMoveInterrupted = false
+				tankTrackMoveInterrupted = false;
 			}
 			else if (parsedInput.autoMoveL == 1) {
 				std::cout << "Trying to find the line" << std::endl;
@@ -220,12 +220,12 @@ void Controller::startAutoMove() {
 		while (autoModeFindLine){
 			//if waitpoint not found yet, check if its there
 			if (!foundWaitPoint) {
-				if (vision.find_waitPoint) {
+				if (vision.find_waitPoint()) {
 					//found waitpoint
 					foundWaitPoint = true;
 					std::cout << "Found waitpoint." << std::endl;
 					//move forward for some seconds to get in the middle of the circle
-					std::this_thread::sleep_for(std::chrono::seconds(2))
+					std::this_thread::sleep_for(std::chrono::seconds(2));
 					//stop and wait for 30 seconds
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::seconds(30));
@@ -260,21 +260,21 @@ void Controller::startAutoMove() {
 				std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
 			*/
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			if(seeMarkedStairs){
-				std::cout << "Not implemented yet" << std::endl;
-			}
-			else if(seeGap){
-				std::cout << "Not implemented yet" << std::endl;
-			}
-			else if(seeSlope){
-				std::cout << "Not implemented yet" << std::endl;
-			}
-			else if(seeCup){
-				std::cout << "Not implemented yet" << std::endl;
-			}
-			else{
-				std::cout << "Not implemented yet" << std::endl;
-			}
+			//if(seeMarkedStairs){
+			//	std::cout << "Not implemented yet" << std::endl;
+			//}
+			//else if(seeGap){
+			//	std::cout << "Not implemented yet" << std::endl;
+			//}
+			//else if(seeSlope){
+			//	std::cout << "Not implemented yet" << std::endl;
+			//}
+			//else if(seeCup){
+			//	std::cout << "Not implemented yet" << std::endl;
+			//}
+			//else{
+			//	std::cout << "Not implemented yet" << std::endl;
+			//}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -286,8 +286,12 @@ void Controller::startArmMove() {
 
 	while (armIsMoving)
 	{
-		if (!armMoveInterrupted)
+		if (!armMoveInterrupted) {
 			arm.move(moveDelay);
+			std::cout << "moving arm" << std::endl;
+		}
+		else
+			std::cout << "armMoveInterrupted" << std::endl;
 		std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
 	}
 	std::cout << "Arm Stopped" << std::endl;

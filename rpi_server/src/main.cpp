@@ -62,20 +62,29 @@ int main(void) {
 	//Setup for wiringPi to use Broadcom GPIO pin numbers. For explanation and other options check: http://wiringpi.com/reference/setup/.
 	wiringPiSetupGpio(); //This function needs to be called with root privileges.
 
+	log_info("Startup - init listener");
 	Listener listener(MYPORT);
-	Talker talker(SERVERPORT, listener.getIP());
+	log_info("Startup - waiting for IP");
+	const char* controllerIP = listener.getIP();
+	log_info("Startup - init talker");
+	Talker talker(SERVERPORT, controllerIP);
 
+	log_info("Startup - init ax12a");
 	AX12A ax12a;
 	ax12a.begin(BaudRate, DirectionPin, Serial);
 
+	log_info("Startup - init arm");
 	Arm arm(ax12a, { IDturn,{ ID0, ID1, ID2, ID3 }, IDgripperRotation, IDgripper });
 
+	log_info("Startup - init nightcore listener");
 	nightcoreListener nc_l(25, arm);
 
+	log_info("Startup - init tank tracks");
 	Motor leftMotor(PwmPinL, DirectionPinAL, DirectionPinBL);
 	Motor rightMotor(PwmPinR, DirectionPinAR, DirectionPinBR);
 	TankTracks tankTracks(leftMotor, rightMotor);
 
+	log_info("Startup - init vision");
 	std::vector<std::vector<int>> markerValues;
 	markerValues.push_back({ 100, 73, 44, 141, 255, 255 }); //blue
 	markerValues.push_back({ 40, 50, 50, 85, 220, 200 }); //green
@@ -84,6 +93,7 @@ int main(void) {
 	markerValues.push_back({ 160, 20, 70, 190, 255, 255 }); //red
 	Vision vision(markerValues);
 
+	log_info("Startup - init controller");
 	Controller controller(listener, talker, arm, tankTracks, vision, nc_l);
 	controller.begin();
 
