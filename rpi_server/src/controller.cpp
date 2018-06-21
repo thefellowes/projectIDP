@@ -86,7 +86,7 @@ void Controller::begin()
 			if(parsedInput.autoMoveB == 0){
 				std::cout << "Giving up on building the tower" << std::endl;
 				autoModeBlockTower = false;
-				tankTrackMoveInterrupted = false
+				tankTrackMoveInterrupted = false;
 			}
 			else if(parsedInput.autoMoveB == 1){
 				std::cout << "Trying to build the tower" << std::endl;
@@ -100,7 +100,7 @@ void Controller::begin()
 			if (parsedInput.autoMoveL == 0) {
 				std::cout << "Stopped following the line" << std::endl;
 				autoModeFindLine = false;
-				tankTrackMoveInterrupted = false
+				tankTrackMoveInterrupted = false;
 			}
 			else if (parsedInput.autoMoveL == 1) {
 				std::cout << "Trying to find the line" << std::endl;
@@ -209,26 +209,28 @@ void Controller::startAutoMove() {
 
 	//red circle where robot has to wait when following a line
 	bool foundWaitPoint = false;
+	char lastDirection = ' ';
 	
 	while (autoMoveOn){
 		foundWaitPoint = false;
 		while (autoModeBlockTower){
 			std::cout << "Not implemented yet" << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		while (autoModeFindLine){
 			//if waitpoint not found yet, check if its there
 			if (!foundWaitPoint) {
-				if (vision.find_waitPoint) {
+				if (vision.find_waitPoint()) {
 					//found waitpoint
 					foundWaitPoint = true;
-					std::cout << "Found waitpoint." << std::endl;
+					std::cout << "Found my pitstop, waiting.." << std::endl;
 					//move forward for some seconds to get in the middle of the circle
-					std::this_thread::sleep_for(std::chrono::seconds(2))
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 					//stop and wait for 30 seconds
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::seconds(30));
 					//start moving and follow the line again
-					tankTracks.setSpeed(1023, 1023);
+					tankTracks.setSpeed(600, 600);
 				}
 			}
 			//search for line
@@ -236,15 +238,28 @@ void Controller::startAutoMove() {
 			if(direction == 'I'){
 				continue;
 			}else if(direction == 'F'){
-				tankTracks.setSpeed(1023,1023);
+				tankTracks.setSpeed(600,600);
 			}else if(direction == 'L'){
-				tankTracks.setSpeed(1023,-1023);
+				if(lastDirection != 'L'){
+					tankTracks.setSpeed(0, 0);
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					lastDirection = 'L';
+				}
+				tankTracks.setSpeed(500,-500);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 			}else if(direction == 'R'){
-				tankTracks.setSpeed(-1023,1023);
+				if (lastDirection != 'R'){
+					tankTracks.setSpeed(0, 0);
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					lastDirection = 'R';
+				}
+				tankTracks.setSpeed(-500,500);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 			}else{
 				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
 			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		while (autoModeIsObstacleCourse){
 			//cap >> frame;
@@ -258,7 +273,7 @@ void Controller::startAutoMove() {
 				std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
 			*/
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
-			if(seeMarkedStairs){
+			/*if(seeMarkedStairs){
 				std::cout << "Not implemented yet" << std::endl;
 			}
 			else if(seeGap){
@@ -272,7 +287,7 @@ void Controller::startAutoMove() {
 			}
 			else{
 				std::cout << "Not implemented yet" << std::endl;
-			}
+			}*/
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}

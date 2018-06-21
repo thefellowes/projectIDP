@@ -52,7 +52,9 @@ int Vision::startVision()
 	{
 		while (doUpdateFrame) {
 			if (cap.read(frame)) {
+				mutex->lock();
 				image = frame;
+				mutex->unlock();
 			}
 			//cap >> frame;
 			//image = frame;
@@ -248,7 +250,9 @@ bool Vision::find_marker_cup(cv::Mat img)
 
 char Vision::find_line()
 {
+	mutex->lock();
 	cv::Mat mask = image.clone();
+	mutex->unlock();
 	
 	//image is empty
 	if(mask.empty()){
@@ -260,7 +264,7 @@ char Vision::find_line()
 	
 	//Detect black line:
 	cv::cvtColor(mask, mask, cv::COLOR_BGR2HSV);
-	cv::inRange(mask, cv::Scalar(0, 0, 0, 0), cv::Scalar(180, 255, 30, 0), mask);
+	cv::inRange(mask, cv::Scalar(0, 0, 0, 0), cv::Scalar(180, 255, 70, 0), mask);
 
 	cv::findContours(mask, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
@@ -314,7 +318,14 @@ char Vision::find_line()
 
 bool Vision::find_waitPoint()
 {
+	mutex->lock();
 	cv::Mat mask = image.clone();
+	mutex->unlock();
+	
+	if(mask.empty()){
+		return false;
+	}
+	
 	cv::Mat lowerRed;
 	cv::Mat upperRed;
 	std::vector<std::vector<cv::Point>> contours;

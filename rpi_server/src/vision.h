@@ -4,6 +4,7 @@
 #include "opencv2/opencv.hpp"
 #include <vector>
 #include <string>
+#include <mutex>
 
 class Vision {
 
@@ -18,6 +19,8 @@ private:
 	std::vector<std::string> colorNames;
 	cv::Mat image;
 	int programNumber;
+	
+	std::mutex* mutex;
 
 public:
 
