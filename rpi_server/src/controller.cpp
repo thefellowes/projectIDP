@@ -16,7 +16,7 @@
 Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
 {
 	receivedNewData = false;
-	armMoveInterrupted = false;
+	//armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
 	autoModeBlockTower = false;
 	autoModeFindLine = false;
@@ -35,13 +35,13 @@ void Controller::begin()
 	threads.push_back(std::thread(&Controller::startArmMove, this));
 	threads.push_back(std::thread(&TankTracks::startMotors, std::ref(tankTracks)));
     threads.push_back(std::thread(&Controller::startAutoMove, this));
-	threads.push_back(std::thread(&Controller::letsGetGroovy, this));
+	//threads.push_back(std::thread(&Controller::letsGetGroovy, this));
 
 	threads.push_back(std::thread(&Vision::startVision, std::ref(vision)));
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	
-	
+	log_info("Filling battery percentage buffer");
 	int batteryPerc = 0;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
@@ -49,11 +49,14 @@ void Controller::begin()
 	for (int i = 0; i < batteryPercBufferSize; i++) {
 		tempInt = getBatteryPercentage();
 		if (tempInt != 0) batteryPercBuffer += tempInt;
-		std::this_thread::sleep_for(std::chrono::milliseconds(500 / batteryPercBufferSize));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+	std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
 
-	while (true) 
+	log_info("Startup completed");
+	isParcing = true;
+	while (isParcing)
 	{
 		vision.doUpdateFrame = true;
 		//Update batteryPercentage
@@ -76,9 +79,11 @@ void Controller::begin()
 			//struct user_input parsed_input = parse_input(tokenSwitch);
 			
 			//Update arm
+			mutex.lock();
 			if (parsedInput.rotation >= 0)
 				arm.setRotation(parsedInput.rotation);
 			arm.setSpeed(parsedInput.x, parsedInput.y);
+			mutex.unlock();
 
 			//Update tankTracks (start == 1 / stop == 0)
 			
@@ -128,13 +133,6 @@ void Controller::begin()
 				tankTracks.move(parsedInput.a, parsedInput.b, 1023);
 			}
 
-							
-			//If stop-button is pressed, stop application.
-			//TODO: check on which batteryPercentage to shutdown the Pi
-			if (parsedInput.doStop) {
-				stopAll("Stop Button Pressed");
-				break;
-			}
 
 			if (parsedInput.checkBattery) {
 				const char* battery = std::to_string(batteryPerc).c_str();
@@ -160,6 +158,9 @@ void Controller::begin()
 				nc_l.stop_run();
 			}
 		}
+		else {
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		}
 
 	}
 
@@ -171,8 +172,9 @@ void Controller::stopAll(std::string reason) {
 	std::cout << "Stopping Application - Reason: " << reason << std::endl;
 
 	isDancing = false;
-	checkDancing = false;
+	//checkDancing = false;
 	autoMoveOn = false;
+	isParcing = false;
 
 	stopArmMove();
 	stopReceiving();
@@ -188,14 +190,18 @@ void Controller::startReceiving()
 	isReceiving = true;
 	
 	while (isReceiving) {
-		//tokenSwitch = listener.getToken();
-		//if (receivedNewData == false) parsed_input = listener.getParsedInput();
 		user_input parsedInput = listener.getParsedInput();
 		mutex.lock();
 		parsed_input = parsedInput;
 		mutex.unlock();
-		//else std::chrono::milliseconds(1);
+
 		receivedNewData = true;
+
+		//If stop-button is pressed, stop application. - Doing it in here to make sure all stop-signals are being registered by the application.
+		//TODO: check on which batteryPercentage to shutdown the Pi
+		if (parsedInput.doStop) {
+			stopAll("Stop Button Pressed");
+		}
 	}
 	std::cout << "Receiving Stopped" << std::endl;
 }
@@ -299,26 +305,8 @@ void Controller::startArmMove() {
 
 	while (armIsMoving)
 	{
-		if (!armMoveInterrupted)
-			arm.move(moveDelay);
-		std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
-	}
-	std::cout << "Arm Stopped" << std::endl;
-}
-void Controller::stopArmMove()
-{
-	armIsMoving = false;
-}
-
-void Controller::letsGetGroovy()
-{
-	checkDancing = true;
-
-	while (checkDancing)
-	{
 		if (isDancing)
 		{
-			armMoveInterrupted = true;
 			ArmServos oldValues = arm.readServoValues(true);
 			ArmServos originalPosition = oldValues;
 
@@ -331,6 +319,7 @@ void Controller::letsGetGroovy()
 						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
 						break;
 					}
+					tankTracks.move(dancePositions[i][8], dancePositions[i][9], 1023);
 					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
 				}
@@ -339,11 +328,54 @@ void Controller::letsGetGroovy()
 			}
 
 			isDancing = false;
-			armMoveInterrupted = false;
 		}
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		else {
+			arm.move(moveDelay);
+			std::this_thread::sleep_for(std::chrono::milliseconds(moveDelay));
+		}
 	}
+	std::cout << "Arm Stopped" << std::endl;
 }
+void Controller::stopArmMove()
+{
+	armIsMoving = false;
+}
+
+//void Controller::letsGetGroovy()
+//{
+//	checkDancing = true;
+//
+//	while (checkDancing)
+//	{
+//		if (isDancing)
+//		{
+//			armMoveInterrupted = true;
+//			ArmServos oldValues = arm.readServoValues(true);
+//			ArmServos originalPosition = oldValues;
+//
+//			int size = dancePositions.size();
+//			if (size > 0)
+//			{
+//				std::cout << "Dancing has started" << std::endl;
+//				for (int i = 0; i < size; i++) {
+//					if (!isDancing) {
+//						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
+//						break;
+//					}
+//					tankTracks.move(dancePositions[i][8], dancePositions[i][9], 1023);
+//					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
+//					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
+//				}
+//
+//				arm.setServoValues(originalPosition, 500, oldValues);
+//			}
+//
+//			isDancing = false;
+//			armMoveInterrupted = false;
+//		}
+//		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//	}
+//}
 
 
 int Controller::getBatteryPercentage() {

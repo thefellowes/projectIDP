@@ -15,7 +15,7 @@
 #include <iostream>
 #include <mutex>
 
-#define moveDelay (10)
+#define moveDelay (50)
 
 class Controller {
 	//private variables
@@ -32,15 +32,16 @@ private:
 	std::atomic<bool> receivedNewData;
 	std::atomic<bool> isReceiving;
 	std::atomic<bool> armIsMoving;
-	std::atomic<bool> armMoveInterrupted;
+	//std::atomic<bool> armMoveInterrupted;
 	std::atomic<bool> autoMoveOn;
 	std::atomic<bool> autoModeIsLine;
 	std::atomic<bool> autoModeBlockTower;
 	std::atomic<bool> autoModeFindLine;
 	std::atomic<bool> autoModeIsObstacleCourse;
 	std::atomic<bool> tankTrackMoveInterrupted;
-	std::atomic<bool> checkDancing;
+	//std::atomic<bool> checkDancing;
 	std::atomic<bool> isDancing;
+	std::atomic<bool> isParcing;
 
 	std::vector<std::vector<int>> dancePositions;
 
@@ -53,7 +54,7 @@ private:
 	void stopArmMove();
 	void startAutoMove();
 
-	void letsGetGroovy();
+	//void letsGetGroovy();
 
 	//public functions
 public:

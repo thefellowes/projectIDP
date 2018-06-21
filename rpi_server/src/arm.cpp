@@ -135,8 +135,8 @@ std::vector<int> Arm::getArmServoPositions()
 int Arm::move(int delay)
 {
 	//change position
-	posX += maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	posY += maxSpeed * speedY;
+	float newPosX = posX + (maxSpeed * speedX * -1);	//multiplied by -1, because forward motion is in -x direction
+	float newPosY = posY + (maxSpeed * speedY);
 
 	//turn arm
 	if (speedRotation != 0) {
@@ -146,16 +146,16 @@ int Arm::move(int delay)
 		mutex->unlock();
 	}
 
-	if (!posPossible(posX, posY)) {
-		float vectorSize = sqrt(posX * posX + posY * posY);
-		posX = (posX / vectorSize) * ((l1 + l2)*0.9999999);
-		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
+	if (!posPossible(newPosX, newPosY)) {
+		float vectorSize = sqrt(newPosX * newPosX + newPosY * newPosY);
+		newPosX = (newPosX / vectorSize) * ((l1 + l2)*0.9999999);
+		newPosY = (newPosY / vectorSize) * ((l1 + l2)*0.9999999);
 	}
 
 	//std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
 
 	//check if position is posible
-	if (posPossible(posX, posY)) {
+	if (posPossible(newPosX, newPosY)) {
 		std::vector<int> newPos = posToAngles(posX, posY, headAngle);
 		bool newPosPossible = constraint(newPos, constr_min.joints, constr_max.joints);
 		//extra check if position is possible
@@ -169,13 +169,16 @@ int Arm::move(int delay)
 			}
 			currentPosServos = newPos;
 
+			posX = newPosX;
+			posY = newPosY;
+
 			return 0;
 		}
 	}
 
 	//undo position change if position NOT possible
-	posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	posY -= maxSpeed * speedY;
+	//posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
+	//posY -= maxSpeed * speedY;
 
 	
 
@@ -299,6 +302,11 @@ int Arm::getVoltage() {
 
 	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
+int Arm::getVoltageByID(const int ID) {
+	int temp = ax12a.readVoltage(ID);
+	if (temp < 90 || temp > 130) { temp = -1; }
+	return temp;
+}
 
 
 ArmServos Arm::setServoValues(ArmServos values, int delay) {
@@ -414,27 +422,18 @@ ArmServos Arm::readServoValues(bool showWarnings) {
 	ArmServos values;
 	mutex->lock();
 	if ((values.armRotation = ax12a.readPosition(servos.armRotation)) < 0 && showWarnings) std::cout << "WARNING: armRotation value = " << values.armRotation << std::endl;
-	mutex->unlock();
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	mutex->lock();
+
 	int size = servos.joints.size();
-	mutex->unlock();
 	int temp;
 	for (int i = 0; i < size; i++) {
-		mutex->lock();
 		values.joints.push_back(temp = ax12a.readPosition(servos.joints[i]));
-		mutex->unlock();
 		if (temp < 0 && showWarnings) std::cout << "WARNING: joint["<< i <<"] value = " << values.joints[i] << std::endl;;
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
-	mutex->lock();
+
 	if ((values.gripperRotation = ax12a.readPosition(servos.gripperRotation)) < 0 && showWarnings) std::cout << "WARNING: gripperRotation value = " << values.gripperRotation << std::endl;;
+
+	if ((values.gripper = ax12a.readPosition(servos.gripper)) < 0 && showWarnings) std::cout << "WARNING: gripper value = " << values.gripper << std::endl;
 	mutex->unlock();
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	mutex->lock();
-	if ((values.gripper = ax12a.readPosition(servos.gripper)) < 0 && showWarnings) std::cout << "WARNING: gripper value = " << values.gripper << std::endl;;
-	mutex->unlock();
-	std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 	//std::cout << "oldValues = setServoValues({ " << values.armRotation << ", { " << values.joints[0] << ", " << values.joints[1] << ", " << values.joints[2] << " }, " << values.gripperRotation << ", " << values.gripper << "}, 500, oldValues);" << std::endl;
 	//std::cout << "values: " << values.armRotation << ", " << (int)((values.joints[0]+values.joints[1])/2) << ", " << (int)((values.joints[0]+values.joints[1])/2) << ", " << values.joints[2] << ", " << values.joints[3] << ", " << values.gripperRotation << ", " << values.gripper << std::endl;
