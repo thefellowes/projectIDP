@@ -50,6 +50,7 @@ public:
 	int getPosRotation();
 	int getPosGripper();
 	int getVoltage();
+	int getVoltageByID(const int ID);
 
 	//int letsGetGroovy(std::string path);
 	//void stopGroovin();

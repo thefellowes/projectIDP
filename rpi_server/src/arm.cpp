@@ -299,6 +299,10 @@ int Arm::getVoltage() {
 
 	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
+int Arm::getVoltageByID(const int ID) {
+	int temp = ax12a.readVoltage(ID);
+	if (temp < 90 || temp > 130) { temp = -1; }
+}
 
 
 ArmServos Arm::setServoValues(ArmServos values, int delay) {

@@ -41,7 +41,7 @@ void Controller::begin()
 	//threads.push_back(std::thread(&Talker::startTalking, std::ref(talker)));
 
 	
-	
+	log_info("Filling battery percentage buffer");
 	int batteryPerc = 0;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
@@ -49,10 +49,12 @@ void Controller::begin()
 	for (int i = 0; i < batteryPercBufferSize; i++) {
 		tempInt = getBatteryPercentage();
 		if (tempInt != 0) batteryPercBuffer += tempInt;
-		std::this_thread::sleep_for(std::chrono::milliseconds(500 / batteryPercBufferSize));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+	log_info("battery percentage is " + batteryPerc + " with buffersize of " + batteryPercBufferSize);
 
+	log_info("Startup completed");
 	while (true) 
 	{
 		vision.doUpdateFrame = true;
@@ -297,6 +299,7 @@ void Controller::letsGetGroovy()
 						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
 						break;
 					}
+					tankTracks.move(dancePositions[i][8], dancePositions[i][9], 1023);
 					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
 				}
