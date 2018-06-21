@@ -36,7 +36,7 @@ const ArmServos constr_max = { 1023,{ 749,749,991,830 }, 1023, 900 };
 const float maxSpeed = 0.175f;	//size to change position
 const float maxSpeedRotation = 10;	//size to change rotation
 
-const int moveDelay = 10;
+const int moveDelay = 50;
 const float moveToStepSize = 0.1f;
 const int moveToDelay = (moveToStepSize / maxSpeed * maxSpeedRotation);
 
