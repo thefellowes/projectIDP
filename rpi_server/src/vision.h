@@ -50,6 +50,8 @@ public:
 
 	bool find_waitPoint();
 
+	~Vision();
+
 };
 
 #endif

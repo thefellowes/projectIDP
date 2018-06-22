@@ -35,6 +35,8 @@ Vision::Vision(std::vector<std::vector<int>> initValues = {})
 	colorNames.push_back("red");
 
 	programNumber = -1;
+
+	mutex = new std::mutex();
 }
 
 int Vision::startVision()
@@ -352,4 +354,8 @@ bool Vision::find_waitPoint()
 	}
 
 	return false;
+}
+
+Vision::~Vision() {
+	delete mutex;
 }
