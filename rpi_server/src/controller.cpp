@@ -222,13 +222,13 @@ void Controller::startAutoMove() {
 	bool foundWaitPoint = false;
 	char lastDirection = ' ';
 	
-	while (autoMoveOn) {
+	while (autoMoveOn){
 		foundWaitPoint = false;
-		while (autoModeBlockTower) {
+		while (autoModeBlockTower){
 			std::cout << "Not implemented yet" << std::endl;
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
-		while (autoModeFindLine) {
+		while (autoModeFindLine){
 			//if waitpoint not found yet, check if its there
 			if (!foundWaitPoint) {
 				if (vision.find_waitPoint()) {
@@ -246,63 +246,59 @@ void Controller::startAutoMove() {
 			}
 			//search for line
 			char direction = vision.find_line();
-			if (direction == 'I') {
+			if(direction == 'I'){
 				continue;
-			}
-			else if (direction == 'F') {
-				tankTracks.setSpeed(600, 600);
-			}
-			else if (direction == 'L') {
-				if (lastDirection != 'L') {
+			}else if(direction == 'F'){
+				tankTracks.setSpeed(600,600);
+			}else if(direction == 'L'){
+				if(lastDirection != 'L'){
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'L';
 				}
-				tankTracks.setSpeed(500, -500);
+				tankTracks.setSpeed(500,-500);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			}
-			else if (direction == 'R') {
-				if (lastDirection != 'R') {
+			}else if(direction == 'R'){
+				if (lastDirection != 'R'){
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'R';
 				}
-				tankTracks.setSpeed(-500, 500);
+				tankTracks.setSpeed(-500,500);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			}
-			else {
-				std::cout << "Tried finding the line, couldnt find it though.." << std::endl;
+			}else{
+				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
-		while (autoModeIsObstacleCourse) {
+		while (autoModeIsObstacleCourse){
 			//cap >> frame;
 			//cv::imshow("frame", frame);
-			count++;
-			if (count % 100 == 0)
-			{
-				switch (vision.find_marker_cup())
-				{
-				case 'l':
-					tankTracks.move(1, -1, 1023);
-					break;
-				case 'r':
-					tankTracks.move(1, 1, 1023);
-					break;
-				case 'f':
-					tankTracks.move(1, 0, 1023);
-					break;
-				case 's':
-					char cup = vision.find_marker_cup();
-					while (cup != 's')
-					{
-						cup = vision.find_marker_cup();
-						tankTracks.move(1, -1, 100);
-					}
-					break;
-				}
+
+			/*if (vision.find_marker_cup()) {
+				std::cout << "Found the cup, going in!" << std::endl;
+				tankTracks.setSpeed(1023, 1023);
 			}
+			else {
+				std::cout << "Tried searching for the cup, didnt find it though.." << std::endl;
+			*/
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			/*if(seeMarkedStairs){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeGap){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeSlope){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else if(seeCup){
+				std::cout << "Not implemented yet" << std::endl;
+			}
+			else{
+				std::cout << "Not implemented yet" << std::endl;
+			}*/
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
