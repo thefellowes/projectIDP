@@ -319,7 +319,7 @@ void Controller::startArmMove() {
 						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
 						break;
 					}
-					tankTracks.move(dancePositions[i][8], dancePositions[i][9], 1023);
+					tankTracks.setSpeed(dancePositions[i][8], dancePositions[i][9]);
 					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
 				}
