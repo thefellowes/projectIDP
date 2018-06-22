@@ -135,8 +135,8 @@ std::vector<int> Arm::getArmServoPositions()
 int Arm::move(int delay)
 {
 	//change position
-	float newPosX = posX + (maxSpeed * speedX * -1);	//multiplied by -1, because forward motion is in -x direction
-	float newPosY = posY + (maxSpeed * speedY);
+	posX = posX + (maxSpeed * speedX * -1);	//multiplied by -1, because forward motion is in -x direction
+	posY = posY + (maxSpeed * speedY);
 
 	//turn arm
 	if (speedRotation != 0) {
@@ -146,10 +146,10 @@ int Arm::move(int delay)
 		mutex->unlock();
 	}
 
-	if (!posPossible(newPosX, newPosY)) {
-		float vectorSize = sqrt(newPosX * newPosX + newPosY * newPosY);
-		newPosX = (newPosX / vectorSize) * ((l1 + l2)*0.9999999);
-		newPosY = (newPosY / vectorSize) * ((l1 + l2)*0.9999999);
+	if (!posPossible(posX, posY)) {
+		float vectorSize = sqrt(posX * posX + posY * posY);
+		posX = (posX / vectorSize) * ((l1 + l2)*0.9999999);
+		posY = (posY / vectorSize) * ((l1 + l2)*0.9999999);
 	}
 
 	//std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
@@ -463,8 +463,10 @@ std::vector<std::vector<int>> Arm::CSVtoi(std::string fileName, int nullValue)
 	std::vector<std::vector<int>> data;
 	std::ifstream infile(fileName);
 	
-	while (infile)
-	{
+	if (!infile.eof()) {
+		std::cerr << "Error Reading File From Location " << fileName << std::endl;
+	}
+	while (infile) {
 		std::string s;
 		if (!getline(infile, s)) break;
 
@@ -485,9 +487,6 @@ std::vector<std::vector<int>> Arm::CSVtoi(std::string fileName, int nullValue)
 
 			data.push_back(record);
 		}
-	}
-	if (!infile.eof()) {
-		std::cerr << "Error Reading File\n";
 	}
 
 	return data;
