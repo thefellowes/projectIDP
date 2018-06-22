@@ -19,7 +19,7 @@ class Talker{
 	//private variables
 	private:
 		int sockfd;
-		struct addrinfo *servinfo, *p;
+		struct addrinfo *p;
 	//private functions
 	private:
 

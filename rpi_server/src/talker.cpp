@@ -3,7 +3,7 @@
 Talker::Talker(const char* serverPort, const char* IPAddress)
 {
 	//create connection
-	struct addrinfo hints;
+	struct addrinfo hints, *servinfo;
 	int rv;
 	
     //Ensure the struct is empty
@@ -49,7 +49,7 @@ void Talker::sendMessage(const char *message)
 Talker::~Talker()
 {
 	//close connection
-	freeaddrinfo(servinfo);
+	freeaddrinfo(p);
 
 	close(sockfd);
 }
