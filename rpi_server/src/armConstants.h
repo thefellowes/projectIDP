@@ -33,7 +33,7 @@ const std::vector<int> defaultValues = { 210,512,512 };
 const ArmServos constr_min = { 0,   { 274,274,30,187  }, 0,    600 };
 const ArmServos constr_max = { 1023,{ 749,749,991,830 }, 1023, 900 };
 
-const float maxSpeed = 0.175f;	//size to change position
+const float maxSpeed = 0.3f;	//size to change position
 const float maxSpeedRotation = 10;	//size to change rotation
 
 const int moveDelay = 50;

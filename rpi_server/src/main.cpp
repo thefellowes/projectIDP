@@ -50,6 +50,9 @@
 #define DirectionPinAR (6u)
 #define DirectionPinBR (19u)
 
+//Voltage Servo ID
+#define VoltageServoID (6u)
+
 //Define Talker constants
 const char* SERVERPORT = "1312";
 //const char* IPAddress = "192.168.1.11";
@@ -94,7 +97,7 @@ int main(void) {
 	Vision vision(markerValues);
 
 	log_info("Startup - init controller");
-	Controller controller(listener, talker, arm, tankTracks, vision, nc_l);
+	Controller controller(listener, talker, arm, tankTracks, vision, nc_l, VoltageServoID);
 	controller.begin();
 
 	

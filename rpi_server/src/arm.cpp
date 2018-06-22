@@ -155,7 +155,7 @@ int Arm::move(int delay)
 	//std::cout << "load=" << ax12a.readLoad(servos.joints[0]) << std::endl;
 
 	//check if position is posible
-	if (posPossible(newPosX, newPosY)) {
+	if (posPossible(posX, posY)) {
 		std::vector<int> newPos = posToAngles(posX, posY, headAngle);
 		bool newPosPossible = constraint(newPos, constr_min.joints, constr_max.joints);
 		//extra check if position is possible
@@ -169,16 +169,13 @@ int Arm::move(int delay)
 			}
 			currentPosServos = newPos;
 
-			posX = newPosX;
-			posY = newPosY;
-
 			return 0;
 		}
 	}
 
 	//undo position change if position NOT possible
-	//posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
-	//posY -= maxSpeed * speedY;
+	posX -= maxSpeed * speedX * -1;	//multiplied by -1, because forward motion is in -x direction
+	posY -= maxSpeed * speedY;
 
 	
 

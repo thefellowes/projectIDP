@@ -14,6 +14,7 @@
 #include <atomic>
 #include <iostream>
 #include <mutex>
+#include <wiringPi.h>
 
 #define moveDelay (50)
 
@@ -41,10 +42,12 @@ private:
 	std::atomic<bool> tankTrackMoveInterrupted;
 	//std::atomic<bool> checkDancing;
 	std::atomic<bool> isDancing;
+	std::atomic<bool> isLineDancing;
 	std::atomic<bool> isParcing;
 
 	std::vector<std::vector<int>> dancePositions;
 
+	int vsID;
 
 	//private functions
 private:
@@ -58,7 +61,7 @@ private:
 
 	//public functions
 public:
-	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l);
+	Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l, const int &VoltageServoID);
 	void begin();
 	void stopAll(std::string reason="*no reason found*");
 	

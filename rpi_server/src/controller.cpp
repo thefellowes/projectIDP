@@ -13,7 +13,7 @@
 #define DANCE_PATH "/etc/dancePositions.txt"
 
 
-Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
+Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l, const int &VoltageServoID) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
 {
 	receivedNewData = false;
 	//armMoveInterrupted = false;
@@ -22,7 +22,10 @@ Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks 
 	autoModeFindLine = false;
 	autoModeIsObstacleCourse = false;
 	isDancing = false;
+	isLineDancing = false;
 	
+	vsID = VoltageServoID;
+
 	dancePositions = arm.CSVtoi(DANCE_PATH, -1);
 }
 
@@ -82,7 +85,7 @@ void Controller::begin()
 			mutex.lock();
 			if (parsedInput.rotation >= 0)
 				arm.setRotation(parsedInput.rotation);
-			arm.setSpeed(parsedInput.x, parsedInput.y);
+			arm.setSpeed(parsedInput.b, parsedInput.a);
 			mutex.unlock();
 
 			//Update tankTracks (start == 1 / stop == 0)
@@ -130,7 +133,7 @@ void Controller::begin()
 			} 
 			
 			if (!tankTrackMoveInterrupted) {
-				tankTracks.move(parsedInput.a, parsedInput.b, 1023);
+				tankTracks.move(parsedInput.y, parsedInput.x, 1023);
 			}
 
 
@@ -144,18 +147,20 @@ void Controller::begin()
 
 			if (parsedInput.dance == 0) {
 				std::cout << "Starting Dance" << std::endl; 
-				isDancing = true; 
+				isDancing = false; 
 			}
 			else if (parsedInput.dance == 1) {
 				std::cout << "Stopping Dance" << std::endl; 
-				isDancing = false; 
+				isDancing = true; 
 			}
 
 			if (parsed_input.lineDance == 0) {
-				nc_l.run();
+				std::cout << "Starting Line Dance" << std::endl;
+				isLineDancing = false;
 			}
 			else if (parsed_input.lineDance == 1) {
-				nc_l.stop_run();
+				std::cout << "Stopping Line Dance" << std::endl;
+				isLineDancing = true;
 			}
 		}
 		else {
@@ -305,7 +310,19 @@ void Controller::startArmMove() {
 
 	while (armIsMoving)
 	{
-		if (isDancing)
+		if (isLineDancing) {
+			ArmServos oldValues = arm.readServoValues(true);
+			oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 512 }, 512, 512 }, 500, oldValues);
+
+			while (isLineDancing) {
+				if (nc_l.get_in_pin() == HIGH) {
+					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
+					oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 650 }, 512, 512 }, 250, oldValues);
+					oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 780 }, 512, 512 }, 250, oldValues);
+				}
+			}
+		}
+		else if (isDancing)
 		{
 			ArmServos oldValues = arm.readServoValues(true);
 			ArmServos originalPosition = oldValues;
@@ -319,7 +336,7 @@ void Controller::startArmMove() {
 						std::cout << "Stop Dance! i=" << i << ", size=" << size - 1 << std::endl;
 						break;
 					}
-					tankTracks.move(dancePositions[i][8], dancePositions[i][9], 1023);
+					tankTracks.setSpeed(dancePositions[i][8], dancePositions[i][9]);
 					//setServoValues({ rotation, { base joint (1), base joint (2), mid joint, head joint }, head rotation, gripper }, delay, oldValues);
 					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
 				}
@@ -379,7 +396,7 @@ void Controller::stopArmMove()
 
 
 int Controller::getBatteryPercentage() {
-	int result = (int)(((float)arm.getVoltage() - 99) / (126 - 99) * 100);
+	int result = (int)(((float)arm.getVoltageByID(vsID) - 99) / (126 - 99) * 100);
 	result = result > 100 ? 100 : result < 0 ? 0 : result;
 	return result;
 }

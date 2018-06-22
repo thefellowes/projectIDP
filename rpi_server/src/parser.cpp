@@ -30,7 +30,7 @@ struct user_input parse_input(char** input_data) {
 				//Forward and backward arm
 				case 'x':
 					x = atof(*(input_data + i)+1);
-					x = ((x - JOY_MIDDLE) / JOY_MIDDLE) * -1;
+					x = ((x - JOY_MIDDLE) / JOY_MIDDLE);
 					if(x < 0.05 && x > -0.05){x=0;}
 					break;
 				//Up and down arm
@@ -42,7 +42,7 @@ struct user_input parse_input(char** input_data) {
 				//Forward and backward movement
 				case 'a':
 					a = atof(*(input_data + i)+1);
-					a = ((a - JOY_MIDDLE) / JOY_MIDDLE) * -1;
+					a = ((a - JOY_MIDDLE) / JOY_MIDDLE);
 					if(a < 0.05 && a > -0.05){a=0;}
 					break;
 				//Left and right movement

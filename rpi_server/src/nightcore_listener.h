@@ -12,8 +12,8 @@ class nightcoreListener {
 	public:
 		nightcoreListener(int _in_pin, Arm &arm);
 		int get_in_pin();
-		void run();
-		void stop_run();
+		//void run();
+		//void stop_run();
 };
 
 #endif //__NIGHTCORE_LISTENER_H__

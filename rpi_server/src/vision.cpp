@@ -10,6 +10,8 @@
 
 Vision::Vision(std::vector<std::vector<int>> initValues = {})
 {
+	doUpdateFrame = false;
+
 	std::vector<std::string> names = { "low r", "low g", "low b", "upp R", "upp G", "upp B" };
 	for (int i = 0; i < 5; i++)
 	{
