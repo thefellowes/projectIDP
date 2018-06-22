@@ -1,7 +1,6 @@
 # Project IDP
 A university project.
 
-[Our blog](blog.md)
 
 ### Prerequisites
 to build this project you will need the following programs installed:

@@ -19,7 +19,7 @@
 #include "cmdmas.h"
 #include "dbg.h"
  
-#define PI_IP "192.168.1.17"
+// #define PI_IP "192.168.1.17"
 #define SERVER_PORT "1313"
 #define MAXBUFLEN 100
 #define SEND_MESSAGE "D0"
@@ -32,9 +32,18 @@ void *get_in_addr(struct sockaddr *sa){
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	// print logo	
 	print_bootlogo();
+
+	// get IP from arguments
+	if (argc < 2) {
+		printf("You need to supply an IP address, bertbertgo $IP_ADDRESS\n");
+		exit(EXIT_FAILURE);
+	}
+
+	char* PI_IP = argv[1];
+	debug("ip address: %s", PI_IP);
 
 	struct addrinfo *servinfo, *p;
 	struct addrinfo hints;
