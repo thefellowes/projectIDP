@@ -242,14 +242,72 @@ bool Vision::find_marker_by_color(int i, cv::Mat img)
 }
 
 //void Vision::find_marker_cup()
-bool Vision::find_marker_cup(cv::Mat img)
+char Vision::find_marker_cup()
 {
-	bool result = find_marker_by_color(1, img);
-	//find_marker_circles();
-	// Show your results
-	//cv::namedWindow("Hough Circle Transform Demo", cv::WINDOW_AUTOSIZE);
-	//cv::imshow("Hough Circle Transform Demo", image);
-	return result;
+	std::vector<std::vector<cv::Point>> contours;
+	std::vector<cv::Point> contours1 = { { 0,0 } };
+	std::vector<cv::Vec4i> hierarchy;
+	int minY = 0;
+	int minArea = 750;
+	int maxArea = 30000;
+	cv::Mat gray, edged, hsv_img, frame_threshed, thresh;
+	cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+	cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
+	cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
+	cv::inRange(hsv_img, lowerArrays[1], upperArrays[1], frame_threshed);
+	double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
+	cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+
+	for (auto c : contours)
+	{
+		if (c.at(0).y > minY && cv::contourArea(c) > minArea && cv::contourArea(c) < maxArea)
+		{
+			contours1 = c;
+			minY = c.at(0).y;
+		}
+	}
+
+	if (minY > 0)
+	{
+		cv::Rect points = boundingRect(contours1);
+		int w = points.width;
+		int h = points.height;
+		int x = points.x;
+		int y = points.y;
+		int middleX = x + w / 2;
+		int middleY = y + h / 2;
+		cv::putText(image, colorNames[1], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
+		cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+
+		if (cv::contourArea(contours1) > 8000)
+		{
+			return 'm';
+		}
+
+		if (cv::contourArea(contours1) <= 8000) {
+			if (x < 80)
+			{
+				std::cout << "Move right" << std::endl;
+				return 'r';
+			}
+
+			else if (x > 450)
+			{
+				std::cout << "Move left" << std::endl;
+				return 'l';
+			}
+
+			else {
+				std::cout << "Move forward" << std::endl;
+				return 'f';
+
+			}
+		}
+	}
+	else {
+		std::cout << "Rotating to find cup" << std::endl;
+		return 's';
+	}
 }
 
 char Vision::find_line()

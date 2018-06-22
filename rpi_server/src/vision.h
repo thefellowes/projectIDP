@@ -37,7 +37,7 @@ public:
 	std::string getStance(int h, int w);
 	void find_markers();
 	bool find_marker_by_color(int i, cv::Mat img);
-	bool find_marker_cup(cv::Mat img);
+	char find_marker_cup();
 	char find_line();
 	bool find_waitPoint();
 
