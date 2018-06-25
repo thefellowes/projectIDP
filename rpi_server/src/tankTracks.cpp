@@ -163,6 +163,9 @@ void TankTracks::move(float throttle, float direction, int maxSpeed)
 		}
 	}
 
+	//std::cout << "throttle = " << throttle << ", direction = " << direction << "\n";
+	//std::cout << "speedL = " << speedL << ", speedR = " << speedR << "\n";
+
 	setSpeed(speedL, speedR);
 }
 

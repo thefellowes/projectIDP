@@ -25,8 +25,6 @@ private:
 public:
 	~Vision();
 
-	bool doUpdateFrame;
-
 	Vision(std::vector<std::vector<int>> initValues);
 	cv::Mat getImage();
 	void update(cv::Mat image_);
