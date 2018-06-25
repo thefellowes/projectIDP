@@ -53,9 +53,9 @@ void Controller::begin()
 	int countInvalidBatteryPerc = 0;
 	int tempInt = 0;
 	isParcing = true;
+	vision.doUpdateFrame = true;
 	while (isParcing)
 	{
-		vision.doUpdateFrame = true;
 		//Update batteryPercentage
 		tempInt = getBatteryPercentage();
 		if (batteryPerc > 0) {
@@ -89,17 +89,14 @@ void Controller::begin()
 			receivedNewData = false;
 
 			mutex.lock();
-			user_input parsedInput = parsed_input;
-			mutex.unlock();
 
-			//Parse the token to retrieve the user's input
-			//struct user_input parsed_input = parse_input(tokenSwitch);
+			user_input parsedInput = parsed_input;
 
 			//Update arm
-			mutex.lock();
 			if (parsedInput.rotation >= 0)
 				arm.setRotation(parsedInput.rotation);
 			arm.setSpeed(parsedInput.b, parsedInput.a);
+
 			mutex.unlock();
 
 			//Update tankTracks (start == 1 / stop == 0)
@@ -123,6 +120,7 @@ void Controller::begin()
 				std::cout << "Stopped following the line" << std::endl;
 				autoModeFindLine = false;
 				tankTrackMoveInterrupted = false;
+				vision.doUpdateFrame = false;
 			}
 			else if (parsedInput.autoMoveL == 1) {
 				std::cout << "Trying to find the line" << std::endl;
@@ -137,6 +135,7 @@ void Controller::begin()
 				std::cout << "Stopped running the obstacle course" << std::endl;
 				autoModeIsObstacleCourse = false;
 				tankTrackMoveInterrupted = false;
+				vision.doUpdateFrame = false;
 			}
 			else if (parsedInput.autoMoveO == 1) {
 				std::cout << "Running the obstacle course" << std::endl;
