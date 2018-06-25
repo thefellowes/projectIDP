@@ -79,8 +79,7 @@ int Vision::startVision()
 			//cv::waitKey(1);
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-
-		cv::imshow("image", frame);
+		
 		cv::waitKey(1);
 	}
 	return 0;
@@ -281,25 +280,20 @@ char Vision::find_marker_cup()
 
 		if (cv::contourArea(contours1) > 8000)
 		{
-			return 'm';
+			return 'f';
 		}
 		else {
-			if (x < 80)
-			{
-				std::cout << "Move right" << std::endl;
-				return 'r';
+			if ((contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2 && contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+				std::cout << "Go straight ahead" << std::endl;
+				return 'f';
 			}
-
-			else if (x > 450)
-			{
-				std::cout << "Move left" << std::endl;
+			else if (contours1.at(0).x < image.rows / 3 * 1) {
+				std::cout << "Go Left" << std::endl;
 				return 'l';
 			}
-
-			else {
-				std::cout << "Move forward" << std::endl;
-				return 'f';
-
+			else if (contours1.at(0).x > image.rows / 3 * 2) {
+				std::cout << "Go Right" << std::endl;
+				return 'r';
 			}
 		}
 	}

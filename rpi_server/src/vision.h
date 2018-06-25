@@ -38,7 +38,6 @@ public:
 	char find_marker_cup();
 	char find_line();
 	bool find_waitPoint();
-
 	bool doUpdateFrame;
 };
 

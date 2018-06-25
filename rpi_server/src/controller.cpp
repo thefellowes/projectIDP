@@ -251,7 +251,8 @@ void Controller::startAutoMove() {
 					foundWaitPoint = true;
 					std::cout << "Found my pitstop, waiting.." << std::endl;
 					//move forward for some seconds to get in the middle of the circle
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					tankTracks.setSpeed(600, 600);
+					std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 					//stop and wait for 30 seconds
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::seconds(30));
@@ -292,9 +293,9 @@ void Controller::startAutoMove() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		while (autoModeIsObstacleCourse) {
+
 			//cap >> frame;
 			//cv::imshow("frame", frame);
-
 			switch (vision.find_marker_cup())
 			{
 			case 'l':
