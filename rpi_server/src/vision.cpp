@@ -79,8 +79,7 @@ int Vision::startVision()
 			//cv::waitKey(1);
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 		}
-
-		cv::imshow("image", frame);
+		
 		cv::waitKey(1);
 	}
 
