@@ -73,7 +73,7 @@ struct user_input parse_input(char** input_data) {
 					break;
 				case 'T':
 					autoMoveB = (int)atof(*(input_data + i) + 1);
-					std::cout << "V found. Value=" << autoMoveB << std::endl;
+					std::cout << "T found. Value=" << autoMoveB << std::endl;
 					break;
 				//Auto move Follow Line & Catch Balls
 				case 'V':

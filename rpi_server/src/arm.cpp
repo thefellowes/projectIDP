@@ -15,6 +15,44 @@
 #include <thread>
 #include <mutex>
 
+bool Arm::setToDefaultPosition(int &resultErrorCount) {
+	bool isValid = true;
+
+	//Create struct with the default positions
+	ArmServos newValues;
+	newValues.armRotation = 510;
+	newValues.joints.push_back(274);
+	newValues.joints.push_back(274);
+	newValues.joints.push_back(924);
+	newValues.joints.push_back(689);
+	newValues.gripperRotation = 512;
+	newValues.gripper = 600;
+
+	//Get the old values (for proper rotation speed of each individual servo) and check if all servos returned a valid position
+	ArmServos oldValues = readServoValues(false);
+	if (oldValues.armRotation == -1) { resultErrorCount++; isValid = false; }
+	int size = servos.joints.size();
+	for (int i = 0; i < size; i++) {
+		if (oldValues.joints[i] == -1) { resultErrorCount++; isValid = false; }
+	}
+	if (oldValues.gripperRotation == -1) { resultErrorCount++; isValid = false; }
+	if (oldValues.gripper == -1) { resultErrorCount++; isValid = false; }
+
+	//Set the servos to their new position
+	arm.setServoValues(newValues, 2000, oldValues);
+
+	//Set the arm variables back to the values that correspond with the current servo values
+	float newPosX = 0;
+	float newPosY = 0;
+	anglesToPos(newValues.joints, newPosX, newPosY);
+	posX = newPosX;
+	posY = newPosY;
+	headAngle = 180.0f;
+	posRotation = newValues.armRotation;
+
+	return isValid;
+}
+
 bool Arm::posPossible(float x, float y)
 {
 	int armlength = l1 + l2;
@@ -60,6 +98,7 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	speedX = 0;
 	speedY = 0;
 	speedRotation = 0;
+	//SET TO PROPER VALUES IN SETTODEFAULTPOSITION
 	posX = 0;
 	posY = l1 + l2;
 	posRotation = 512;
@@ -67,19 +106,10 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
-	posRotation = turn(servos.armRotation, posRotation);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(20));
-
-	std::vector<int> newPos = posToAngles(posX, posY, headAngle);
-	bool newPosPossible = constraint(newPos, constr_min.joints, constr_max.joints);
-
-	//extra check if position is possible
-	if (newPosPossible) {
-		int size = newPos.size();
-		for (int i = 0; i < size; i++) {
-			turn(servos.joints[i], newPos[i], 300);
-			//std::this_thread::sleep_for(std::chrono::milliseconds(20));
-		}
+	int failedServoCount = 0;
+	setToDefaultPosition(failedServoCount);
+	if (failedServoCount > 0) {
+		std::cout << "WARNING - Arm initialisation error: Can't set all servos to their default position.\nNumber of Failed Servos: " << failedServoCount << std::endl;
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -300,7 +330,9 @@ int Arm::getVoltage() {
 	//std::cout << "voltage=" << total / count << ", total=" << total << ", count=" << count << std::endl;
 }
 int Arm::getVoltageByID(const int ID) {
+	mutex->lock();
 	int temp = ax12a.readVoltage(ID);
+	mutex->unlock();
 	if (temp < 90 || temp > 130) { temp = -1; }
 	return temp;
 }
@@ -319,19 +351,19 @@ ArmServos Arm::setServoValues(ArmServos values, int delay, ArmServos oldValues)
 	mutex->lock();
 	ax12a.moveSpeed(servos.armRotation, values.armRotation, calcRotationSpeed((oldValues.armRotation - values.armRotation), delay));
 	int size = servos.joints.size();
-	mutex->unlock();
+	//mutex->unlock();
 	for (int i = 0; i < size; i++) {
 		if (values.joints[i] == INTMIN) values.joints[i] = oldValues.joints[i];
-		mutex->lock();
+		//mutex->lock();
 		ax12a.moveSpeed(servos.joints[i], values.joints[i], calcRotationSpeed((oldValues.joints[i] - values.joints[i]), delay));
-		mutex->unlock();
+		//mutex->unlock();
 	}
 	if (values.gripperRotation == INTMIN) values.gripperRotation = oldValues.gripperRotation;
-	mutex->lock();
+	//mutex->lock();
 	ax12a.moveSpeed(servos.gripperRotation, values.gripperRotation, calcRotationSpeed((oldValues.gripperRotation - values.gripperRotation), delay));
-	mutex->unlock();
+	//mutex->unlock();
 	if (values.gripper == INTMIN) values.gripper = oldValues.gripper;
-	mutex->lock();
+	//mutex->lock();
 	ax12a.moveSpeed(servos.gripper, values.gripper, calcRotationSpeed((oldValues.gripper - values.gripper), delay));
 	mutex->unlock();
 	std::this_thread::sleep_for(std::chrono::milliseconds(delay));

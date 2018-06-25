@@ -48,6 +48,23 @@ int angleToServoValue(float angle, int defaultValue) {
 	return roundf(convertToRange(angle, 300.0f, 1023.0f)) + defaultValue;
 }
 
+void anglesToPos(std::vector<int> angles, float &x, float &y) {
+	int servoValue1 = (angles[0] + angles[1]) / 2;
+	int servoValue2 = angles[2];
+
+	int angle1 = convertToRange((float)(servoValue1 - defaultValues[0]), 1023.0f, 300.0f);
+	int angle2 = convertToRange((float)(servoValue2 - defaultValues[1]), 1023.0f, 300.0f);
+
+	float xPt1 = cos(angle1 * M_PI / 180)*l1;
+	float yPt1 = sin(angle1 * M_PI / 180)*l1;
+
+	float xPt2 = cos((angle2 + angle1)*M_PI / 180)*l2 + xPt1;
+	float yPt2 = sin((angle2 + angle1)*M_PI / 180)*l2 + yPt1;
+
+	x = xPt2;
+	y = yPt2;
+}
+
 std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, float ha1, float ha2, float angleOffset) {
 	// Initiate 3rd point for bezier, along with the pathlength
 	float bx = 0;

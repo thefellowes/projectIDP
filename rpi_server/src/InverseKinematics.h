@@ -20,6 +20,7 @@
 std::vector<int> posToAnglesNoOOR(float x, float y, float headAngle=270.0f);
 std::vector<int> posToAngles(float x, float y, float headAngle=270.0f);
 int angleToServoValue(float angle, int defaultValue);
+void anglesToPos(std::vector<int> angles, float &x, float &y);
 
 std::vector<std::vector<int>> getPath(float x1, float y1, float x2, float y2, float ha1, float ha2, float angleOffset = 5.0f);
 bool constraint(std::vector<int> &values, std::vector<int> constraints_min, std::vector<int> constraints_max);

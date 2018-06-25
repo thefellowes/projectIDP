@@ -160,12 +160,14 @@ void Controller::begin()
 			else if (parsedInput.gripper == 1) { arm.grab(false); }
 
 			if (parsedInput.dance == 0) {
-				std::cout << "Stopping Dance" << std::endl; 
+				std::cout << "Stopping Dance" << std::endl;
+				tankTrackMoveInterrupted = false;
 				isDancing = false; 
 			}
 			else if (parsedInput.dance == 1) {
-				std::cout << "Starting Dance" << std::endl; 
-				isDancing = true; 
+				std::cout << "Starting Dance" << std::endl;
+				tankTrackMoveInterrupted = true;
+				isDancing = true;
 			}
 
 			if (parsedInput.lineDance == 0) {
@@ -197,7 +199,7 @@ void Controller::stopAll(std::string reason) {
 
 	stopArmMove();
 	stopReceiving();
-	arm.setServoValues({ 510,{ 200, 200, 924, 689 }, 512, 600 }, 500);
+	arm.setToDefaultPosition();
 	tankTracks.stopMotors();
 	vision.stopVision();
 }
@@ -339,11 +341,11 @@ void Controller::startArmMove() {
 					oldValues = arm.setServoValues({ 512,{ 512, 512, 512, 780 }, 512, 512 }, 250, oldValues);
 				}
 			}
+			arm.setToDefaultPosition();
 		}
 		else if (isDancing)
 		{
 			ArmServos oldValues = arm.readServoValues(true);
-			ArmServos originalPosition = oldValues;
 
 			int size = dancePositions.size();
 			if (size > 0)
@@ -359,10 +361,11 @@ void Controller::startArmMove() {
 					oldValues = arm.setServoValues({ dancePositions[i][0],{ dancePositions[i][1], dancePositions[i][2], dancePositions[i][3], dancePositions[i][4] }, dancePositions[i][5], dancePositions[i][6] }, dancePositions[i][7], oldValues);
 				}
 
-				arm.setServoValues(originalPosition, 500, oldValues);
+				arm.setToDefaultPosition();
 			}
 
 			isDancing = false;
+			tankTrackMoveInterrupted = false;
 		}
 		else {
 			arm.move(moveDelay);
