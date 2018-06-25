@@ -278,29 +278,25 @@ char Vision::find_marker_cup()
 		int middleY = y + h / 2;
 		cv::putText(image, colorNames[1], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
 		cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+		
 
 		if (cv::contourArea(contours1) > 8000)
 		{
-			return 'm';
+			return 'f';
 		}
 
-		if (cv::contourArea(contours1) <= 8000) {
-			if (x < 80)
-			{
-				std::cout << "Move right" << std::endl;
-				return 'r';
+		else {
+			if ((contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2 && contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+				std::cout << "Go straight ahead" << std::endl;
+				return 'f';
 			}
-
-			else if (x > 450)
-			{
-				std::cout << "Move left" << std::endl;
+			else if (contours1.at(0).x < image.rows / 3 * 1) {
+				std::cout << "Go Left" << std::endl;
 				return 'l';
 			}
-
-			else {
-				std::cout << "Move forward" << std::endl;
-				return 'f';
-
+			else if (contours1.at(0).x > image.rows / 3 * 2) {
+				std::cout << "Go Right" << std::endl;
+				return 'r';
 			}
 		}
 	}

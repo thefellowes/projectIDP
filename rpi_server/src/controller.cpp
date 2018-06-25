@@ -279,9 +279,6 @@ void Controller::startAutoMove() {
 		while (autoModeIsObstacleCourse) {
 			//cap >> frame;
 			//cv::imshow("frame", frame);
-			count++;
-			if (count % 100 == 0)
-			{
 				switch (vision.find_marker_cup())
 				{
 				case 'l':
@@ -302,6 +299,8 @@ void Controller::startAutoMove() {
 					}
 					break;
 				}
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
