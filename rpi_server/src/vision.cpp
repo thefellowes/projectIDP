@@ -83,7 +83,7 @@ int Vision::startVision()
 		cv::imshow("image", frame);
 		cv::waitKey(1);
 	}
-
+	return 0;
 }
 
 void Vision::stopVision() {
@@ -230,7 +230,7 @@ bool Vision::find_marker_by_color(int i, cv::Mat img)
 		int middleX = x + w / 2;
 		int middleY = y + h / 2;
 		cv::putText(img, colorNames[i], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
-		cv::circle(img, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+		cv::circle(img, { middleX, middleY }, (w + h) * 0.05, cv::Scalar(0, 0, 255), -1);
 		return true;
 	}
 	

@@ -53,7 +53,8 @@ public:
 	std::vector<std::string> appendWhereNoneString(std::vector<std::string> origin, std::vector<std::string> toAdd)
 	{
 		std::vector<std::string> returnOrigin = origin;
-		for (int i = 0; i < toAdd.size(); i++)
+		int size = toAdd.size();
+		for (int i = 0; i < size; i++)
 		{
 			if (returnOrigin.size() < toAdd.size())
 			{
@@ -66,7 +67,8 @@ public:
 	std::vector<int> appendWhereNoneInt(std::vector<int> &origin, std::vector<int> &toAdd)
 	{
 		std::vector<int> returnOrigin = origin;
-		for (int i = 0; i < toAdd.size(); i++)
+		int size = toAdd.size();
+		for (int i = 0; i < size; i++)
 		{
 			if (returnOrigin.size() < toAdd.size())
 			{
