@@ -460,9 +460,6 @@ std::vector<std::vector<int>> Arm::CSVtoi(std::string fileName, int nullValue)
 	std::vector<std::vector<int>> data;
 	std::ifstream infile(fileName);
 	
-	if (!infile.eof()) {
-		std::cerr << "Error Reading File From Location " << fileName << std::endl;
-	}
 	while (infile) {
 		std::string s;
 		if (!getline(infile, s)) break;
@@ -484,6 +481,9 @@ std::vector<std::vector<int>> Arm::CSVtoi(std::string fileName, int nullValue)
 
 			data.push_back(record);
 		}
+	}
+	if (!infile.eof()) {
+		std::cerr << "Error Reading File From Location " << fileName << std::endl;
 	}
 
 	return data;

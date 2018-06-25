@@ -30,6 +30,11 @@ private:
 	std::mutex mutex;
 	user_input parsed_input;
 
+	int batteryPerc;
+	int batteryPercBuffer;
+	int batteryPercBufferSize;
+	int defaultBatteryPercBufferSize;
+
 	std::atomic<bool> receivedNewData;
 	std::atomic<bool> isReceiving;
 	std::atomic<bool> armIsMoving;
@@ -56,6 +61,8 @@ private:
 	void startArmMove();
 	void stopArmMove();
 	void startAutoMove();
+
+	void fillBatteryBuffer();
 
 	//void letsGetGroovy();
 

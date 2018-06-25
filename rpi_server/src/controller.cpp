@@ -15,6 +15,8 @@
 
 Controller::Controller(Listener &listener, Talker &talker, Arm &arm, TankTracks &tankTracks, Vision &vision, nightcoreListener &nc_l, const int &VoltageServoID) : listener(listener), talker(talker), arm(arm), tankTracks(tankTracks), vision(vision), nc_l(nc_l)
 {
+	defaultBatteryPercBufferSize = 25;
+
 	receivedNewData = false;
 	//armMoveInterrupted = false;
 	tankTrackMoveInterrupted = false;
@@ -45,37 +47,38 @@ void Controller::begin()
 
 
 	log_info("Filling battery percentage buffer");
-	int batteryPerc = 0;
-	int batteryPercBuffer = 0;
-	int batteryPercBufferSize = 25;
-	int size = batteryPercBufferSize;
-	int tempInt = 0;
-	for (int i = 0; i < size; i++) {
-		tempInt = getBatteryPercentage();
-		std::cout << "Got a Battery Percentage of " << tempInt << std::endl;
-		if (tempInt > 0) batteryPercBuffer += tempInt;
-		if (tempInt == -1) batteryPercBufferSize--;
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-	if (batteryPercBufferSize == 0) {
-		batteryPerc = -1;
-		std::cout << "WARNING: Can't read Battery Percentage! - batteryPercBufferSize = " << batteryPercBufferSize << std::endl;
-	}
-	else {
-		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
-		std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
-	}
+	fillBatteryBuffer();
 
 	log_info("Startup completed");
+	int countInvalidBatteryPerc = 0;
+	int tempInt = 0;
 	isParcing = true;
 	while (isParcing)
 	{
 		vision.doUpdateFrame = true;
 		//Update batteryPercentage
-		if ((tempInt = getBatteryPercentage()) > 0) {
-			batteryPercBuffer += tempInt - batteryPerc;
-			batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		tempInt = getBatteryPercentage();
+		if (batteryPerc > 0) {
+			if (tempInt > 0) {
+				batteryPercBuffer += tempInt - batteryPerc;
+				batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+				if (countInvalidBatteryPerc > 0) countInvalidBatteryPerc = 0;
+			}
+			else {
+				countInvalidBatteryPerc++;
+				if (countInvalidBatteryPerc == defaultBatteryPercBufferSize) {
+					std::cout << "WARNING: Battery Percentage can't be read - Signal Lost" << std::endl;
+					batteryPerc = 0;
+				}
+			}
 		}
+		else {
+			if (tempInt > 0) {
+				fillBatteryBuffer();
+			}
+		}
+		//std::cout << "batteryPerc=" << batteryPerc << ", tempInt=" << tempInt << std::endl;
+		
 		if (batteryPerc < 10 && batteryPerc > 0) {
 			stopAll("Battery Percentage = " + batteryPerc);
 			break;
@@ -291,30 +294,29 @@ void Controller::startAutoMove() {
 		while (autoModeIsObstacleCourse) {
 			//cap >> frame;
 			//cv::imshow("frame", frame);
-			count++;
-			if (count % 100 == 0)
+
+			switch (vision.find_marker_cup())
 			{
-				switch (vision.find_marker_cup())
+			case 'l':
+				tankTracks.move(1, -1, 1023);
+				break;
+			case 'r':
+				tankTracks.move(1, 1, 1023);
+				break;
+			case 'f':
+				tankTracks.move(1, 0, 1023);
+				break;
+			case 's':
+				char cup = vision.find_marker_cup();
+				while (cup != 's')
 				{
-				case 'l':
-					tankTracks.move(1, -1, 1023);
-					break;
-				case 'r':
-					tankTracks.move(1, 1, 1023);
-					break;
-				case 'f':
-					tankTracks.move(1, 0, 1023);
-					break;
-				case 's':
-					char cup = vision.find_marker_cup();
-					while (cup != 's')
-					{
-						cup = vision.find_marker_cup();
-						tankTracks.move(1, -1, 100);
-					}
-					break;
+					cup = vision.find_marker_cup();
+					tankTracks.move(1, -1, 100);
 				}
+				break;
 			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -411,10 +413,35 @@ void Controller::stopArmMove()
 //}
 
 
-int Controller::getBatteryPercentage() {
+int Controller::getBatteryPercentage() 
+{
 	int voltage = arm.getVoltageByID(vsID);
 	if (voltage == -1) return -1;
 	int result = (int)(((float)voltage - 99) / (126 - 99) * 100);
 	result = result > 100 ? 100 : result < 0 ? 0 : result;
 	return result;
+}
+
+void Controller::fillBatteryBuffer() 
+{
+	batteryPerc = 0;
+	batteryPercBuffer = 0;
+	batteryPercBufferSize = defaultBatteryPercBufferSize;
+
+	int tempInt = 0;
+	for (int i = 0; i < defaultBatteryPercBufferSize; i++) {
+		tempInt = getBatteryPercentage();
+		std::cout << "Got a Battery Percentage of " << tempInt << std::endl;
+		if (tempInt > 0) batteryPercBuffer += tempInt;
+		if (tempInt == -1) batteryPercBufferSize--;
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	if (batteryPercBufferSize == 0) {
+		batteryPerc = -1;
+		std::cout << "WARNING: Can't read Battery Percentage! - batteryPercBufferSize = " << batteryPercBufferSize << std::endl;
+	}
+	else {
+		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
+	}
 }

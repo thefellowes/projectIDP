@@ -255,7 +255,7 @@ char Vision::find_marker_cup()
 	cv::GaussianBlur(gray, gray, { 5, 5 }, 0);
 	cv::cvtColor(image, hsv_img, cv::COLOR_BGR2HSV);
 	cv::inRange(hsv_img, lowerArrays[1], upperArrays[1], frame_threshed);
-	double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
+	//double ret = cv::threshold(frame_threshed, thresh, 127, 255, 0);
 	cv::findContours(thresh, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
 	for (auto c : contours)
@@ -277,14 +277,13 @@ char Vision::find_marker_cup()
 		int middleX = x + w / 2;
 		int middleY = y + h / 2;
 		cv::putText(image, colorNames[1], { middleX, middleY }, cv::FONT_HERSHEY_PLAIN, 2, cv::Scalar(0, 0, 255, 255));
-		cv::circle(image, { middleX, middleY }, (w + h) * 0.05, (0, 0, 255), -1);
+		cv::circle(image, { middleX, middleY }, (w + h) * 0.05, cv::Scalar(0, 0, 255), -1);
 
 		if (cv::contourArea(contours1) > 8000)
 		{
 			return 'm';
 		}
-
-		if (cv::contourArea(contours1) <= 8000) {
+		else {
 			if (x < 80)
 			{
 				std::cout << "Move right" << std::endl;
