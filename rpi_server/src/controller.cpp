@@ -53,7 +53,6 @@ void Controller::begin()
 	int countInvalidBatteryPerc = 0;
 	int tempInt = 0;
 	isParcing = true;
-	vision.doUpdateFrame = true;
 	while (isParcing)
 	{
 		//Update batteryPercentage
@@ -106,13 +105,14 @@ void Controller::begin()
 				std::cout << "Giving up on building the tower" << std::endl;
 				autoModeBlockTower = false;
 				tankTrackMoveInterrupted = false;
+				vision.doUpdateFrame = false;
 			}
 			else if (parsedInput.autoMoveB == 1) {
 				std::cout << "Trying to build the tower" << std::endl;
+				vision.doUpdateFrame = true;
 				autoModeBlockTower = true;
 				autoModeFindLine = autoModeIsObstacleCourse = !autoModeBlockTower;
 				tankTrackMoveInterrupted = true;
-				vision.doUpdateFrame = true;
 			}
 
 			//autoMoveFindLine
@@ -124,10 +124,10 @@ void Controller::begin()
 			}
 			else if (parsedInput.autoMoveL == 1) {
 				std::cout << "Trying to find the line" << std::endl;
+				vision.doUpdateFrame = true;
 				autoModeFindLine = true;
 				autoModeBlockTower = autoModeIsObstacleCourse = !autoModeFindLine;
 				tankTrackMoveInterrupted = true;
-				vision.doUpdateFrame = true;
 			}
 
 			//autoMoveObstacleCourse
@@ -139,10 +139,10 @@ void Controller::begin()
 			}
 			else if (parsedInput.autoMoveO == 1) {
 				std::cout << "Running the obstacle course" << std::endl;
+				vision.doUpdateFrame = true;
 				autoModeIsObstacleCourse = true;
 				autoModeBlockTower = autoModeFindLine = !autoModeIsObstacleCourse;
 				tankTrackMoveInterrupted = true;
-				vision.doUpdateFrame = true;
 			}
 
 			if (!tankTrackMoveInterrupted) {

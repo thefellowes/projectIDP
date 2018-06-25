@@ -283,7 +283,7 @@ char Vision::find_marker_cup()
 			return 'f';
 		}
 		else {
-			if ((contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2 && contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+			if ((contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2 && contours1.at(0).x > image.rows / 3 * 1 && contours1.at(0).x < image.rows / 3 * 2) || contours1.at(0).y < image.rows / 4 * 3) {
 				std::cout << "Go straight ahead" << std::endl;
 				return 'f';
 			}
