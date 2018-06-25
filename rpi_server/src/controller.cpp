@@ -48,14 +48,23 @@ void Controller::begin()
 	int batteryPerc = 0;
 	int batteryPercBuffer = 0;
 	int batteryPercBufferSize = 25;
+	int size = batteryPercBufferSize;
 	int tempInt = 0;
-	for (int i = 0; i < batteryPercBufferSize; i++) {
+	for (int i = 0; i < size; i++) {
 		tempInt = getBatteryPercentage();
-		if (tempInt != 0) batteryPercBuffer += tempInt;
+		std::cout << "Got a Battery Percentage of " << tempInt << std::endl;
+		if (tempInt > 0) batteryPercBuffer += tempInt;
+		if (tempInt == -1) batteryPercBufferSize--;
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
-	batteryPerc = batteryPercBuffer / batteryPercBufferSize;
-	std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
+	if (batteryPercBufferSize == 0) {
+		batteryPerc = -1;
+		std::cout << "WARNING: Can't read Battery Percentage! - batteryPercBufferSize = " << batteryPercBufferSize << std::endl;
+	}
+	else {
+		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		std::cout << "battery percentage is " << batteryPerc << " with buffersize of " << batteryPercBufferSize << std::endl;
+	}
 
 	log_info("Startup completed");
 	isParcing = true;
@@ -63,8 +72,10 @@ void Controller::begin()
 	{
 		vision.doUpdateFrame = true;
 		//Update batteryPercentage
-		if ((tempInt = getBatteryPercentage()) != 0) batteryPercBuffer += tempInt - batteryPerc;
-		batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		if ((tempInt = getBatteryPercentage()) > 0) {
+			batteryPercBuffer += tempInt - batteryPerc;
+			batteryPerc = batteryPercBuffer / batteryPercBufferSize;
+		}
 		if (batteryPerc < 10 && batteryPerc > 0) {
 			stopAll("Battery Percentage = " + batteryPerc);
 			break;
@@ -139,6 +150,7 @@ void Controller::begin()
 
 			if (parsedInput.checkBattery) {
 				const char* battery = std::to_string(batteryPerc).c_str();
+				std::cout << "Battery Percentage Requested by Controller. Percentage = " << batteryPerc << std::endl;
 				talker.sendMessage(battery);
 			}
 
@@ -146,20 +158,20 @@ void Controller::begin()
 			else if (parsedInput.gripper == 1) { arm.grab(false); }
 
 			if (parsedInput.dance == 0) {
-				std::cout << "Starting Dance" << std::endl;
-				isDancing = false;
+				std::cout << "Stopping Dance" << std::endl; 
+				isDancing = false; 
 			}
 			else if (parsedInput.dance == 1) {
-				std::cout << "Stopping Dance" << std::endl;
-				isDancing = true;
+				std::cout << "Starting Dance" << std::endl; 
+				isDancing = true; 
 			}
 
-			if (parsed_input.lineDance == 0) {
-				std::cout << "Starting Line Dance" << std::endl;
+			if (parsedInput.lineDance == 0) {
+				std::cout << "Stopping Line Dance" << std::endl;
 				isLineDancing = false;
 			}
-			else if (parsed_input.lineDance == 1) {
-				std::cout << "Stopping Line Dance" << std::endl;
+			else if (parsedInput.lineDance == 1) {
+				std::cout << "Starting Line Dance" << std::endl;
 				isLineDancing = true;
 			}
 		}
@@ -280,9 +292,6 @@ void Controller::startAutoMove() {
 		while (autoModeIsObstacleCourse) {
 			//cap >> frame;
 			//cv::imshow("frame", frame);
-			count++;
-			if (count % 100 == 0)
-			{
 				switch (vision.find_marker_cup())
 				{
 				case 'l':
@@ -303,6 +312,8 @@ void Controller::startAutoMove() {
 					}
 					break;
 				}
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -401,7 +412,9 @@ void Controller::stopArmMove()
 
 
 int Controller::getBatteryPercentage() {
-	int result = (int)(((float)arm.getVoltageByID(vsID) - 99) / (126 - 99) * 100);
+	int voltage = arm.getVoltageByID(vsID);
+	if (voltage == -1) return -1;
+	int result = (int)(((float)voltage - 99) / (126 - 99) * 100);
 	result = result > 100 ? 100 : result < 0 ? 0 : result;
 	return result;
 }

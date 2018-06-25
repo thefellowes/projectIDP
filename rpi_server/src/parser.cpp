@@ -68,11 +68,12 @@ struct user_input parse_input(char** input_data) {
 					break;
 				//Line-Dance (On/Off)
 				case 'L':
+					std::cout << "L found. Value=" << lineDance << std::endl;
 					lineDance = (int)atof(*(input_data + i) + 1);
 					break;
 				case 'T':
 					autoMoveB = (int)atof(*(input_data + i) + 1);
-					std::cout << "V found. Value=" << autoMoveL << std::endl;
+					std::cout << "V found. Value=" << autoMoveB << std::endl;
 					break;
 				//Auto move Follow Line & Catch Balls
 				case 'V':

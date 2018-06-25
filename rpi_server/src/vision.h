@@ -25,8 +25,6 @@ private:
 public:
 	~Vision();
 
-	bool doUpdateFrame;
-
 	Vision(std::vector<std::vector<int>> initValues);
 	cv::Mat getImage();
 	void update(cv::Mat image_);
@@ -40,7 +38,6 @@ public:
 	char find_marker_cup();
 	char find_line();
 	bool find_waitPoint();
-
 	bool doUpdateFrame;
 };
 
