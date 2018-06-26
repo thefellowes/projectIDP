@@ -295,6 +295,9 @@ char Vision::find_marker_cup()
 				std::cout << "Go Right" << std::endl;
 				return 'r';
 			}
+			else {
+				return 'i';
+			}
 		}
 	}
 	else {
