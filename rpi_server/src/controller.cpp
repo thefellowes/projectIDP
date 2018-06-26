@@ -272,7 +272,7 @@ void Controller::startAutoMove() {
 					lastDirection = 'L';
 				}
 				tankTracks.setSpeed(650,-650);
-				std::this_thread::sleep_for(std::chrono::milliseconds(150));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(150));
 			}else if(direction == 'R'){
 				if (lastDirection != 'R'){
 					tankTracks.setSpeed(0, 0);
@@ -280,7 +280,7 @@ void Controller::startAutoMove() {
 					lastDirection = 'R';
 				}
 				tankTracks.setSpeed(-650,650);
-				std::this_thread::sleep_for(std::chrono::milliseconds(150));
+				//std::this_thread::sleep_for(std::chrono::milliseconds(150));
 			}else{
 				if(foundWaitPoint){
 					std::cout << "Searching for the line after taking a break" << std::endl;
@@ -309,8 +309,9 @@ void Controller::startAutoMove() {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 		while (autoModeIsObstacleCourse) {
-
-			char direction = vision.find_marker_cup();
+			tankTracks.setSpeed(1023, 1023);
+		
+			/*char direction = vision.find_marker_cup();
 			if (direction == 'i')
 			{
 				direction = lastDirection;
@@ -347,7 +348,7 @@ void Controller::startAutoMove() {
 			{
 				tankTracks.setSpeed(100, 100);
 				lastDirection = 's';
-			}
+			}*/
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
