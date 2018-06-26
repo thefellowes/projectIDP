@@ -15,6 +15,7 @@
 #include <thread>
 #include <mutex>
 
+bool Arm::setToDefaultPosition() { int i = 0; return setToDefaultPosition(i); }
 bool Arm::setToDefaultPosition(int &resultErrorCount) {
 	bool isValid = true;
 
@@ -39,7 +40,7 @@ bool Arm::setToDefaultPosition(int &resultErrorCount) {
 	if (oldValues.gripper == -1) { resultErrorCount++; isValid = false; }
 
 	//Set the servos to their new position
-	arm.setServoValues(newValues, 2000, oldValues);
+	setServoValues(newValues, 2000, oldValues);
 
 	//Set the arm variables back to the values that correspond with the current servo values
 	float newPosX = 0;
@@ -269,7 +270,7 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 void Arm::grab(bool close)
 {
 	mutex->lock();
-	if (close) turn(servos.gripper, 710, gripperSpeed);	//close
+	if (close) turn(servos.gripper, 630, gripperSpeed);	//close
 	else turn(servos.gripper, 900, gripperSpeed);		//open
 	mutex->unlock();
 }

@@ -34,7 +34,8 @@ private:
 	std::mutex * mutex;
 public:
 	Arm(AX12A &servoControl, ArmServos servoIDs);
-	bool setToDefaultPosition(int &resultErrorCount = 0);
+	bool setToDefaultPosition();
+	bool setToDefaultPosition(int &resultErrorCount);
 	void startMovement();
 	void stopMovement();
 	void setSpeed(float xSpeed, float ySpeed, float rotationSpeed = 0);
