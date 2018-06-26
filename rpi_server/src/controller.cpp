@@ -251,42 +251,57 @@ void Controller::startAutoMove() {
 					std::cout << "Found my pitstop, waiting.." << std::endl;
 					//move forward for some seconds to get in the middle of the circle
 					tankTracks.setSpeed(600, 600);
-					std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+					std::this_thread::sleep_for(std::chrono::milliseconds(3500));
 					//stop and wait for 30 seconds
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::seconds(30));
-					//start moving and follow the line again
-					tankTracks.setSpeed(600, 600);
 				}
 			}
 			//search for line
 			char direction = vision.find_line();
-			if (direction == 'I') {
+			if(direction == 'I'){
 				continue;
-			}
-			else if (direction == 'F') {
-				tankTracks.setSpeed(600, 600);
-			}
-			else if (direction == 'L') {
-				if (lastDirection != 'L') {
+			}else if(direction == 'F'){
+				tankTracks.setSpeed(600,600);
+			}else if(direction == 'L'){
+				if(lastDirection != 'L'){
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'L';
 				}
-				tankTracks.setSpeed(500, -500);
-				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			}
-			else if (direction == 'R') {
-				if (lastDirection != 'R') {
+				tankTracks.setSpeed(650,-650);
+				std::this_thread::sleep_for(std::chrono::milliseconds(150));
+			}else if(direction == 'R'){
+				if (lastDirection != 'R'){
 					tankTracks.setSpeed(0, 0);
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'R';
 				}
-				tankTracks.setSpeed(-500, 500);
-				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			}
-			else {
-				std::cout << "Tried finding the line, couldnt find it though.." << std::endl;
+				tankTracks.setSpeed(-650,650);
+				std::this_thread::sleep_for(std::chrono::milliseconds(150));
+			}else{
+				if(foundWaitPoint){
+					std::cout << "Searching for the line after taking a break" << std::endl;
+					tankTracks.setSpeed(600, 600);
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					tankTracks.setSpeed(0, 0);
+					if(!(vision.find_line() == 'N')){
+						break;
+					}
+					tankTracks.setSpeed(650, -650);
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					if(!(vision.find_line() == 'N')){
+						break;
+					}
+					tankTracks.setSpeed(-650, 650);
+					std::this_thread::sleep_for(std::chrono::milliseconds(2200));
+					if(!(vision.find_line() == 'N')){
+						break;
+					}
+					tankTracks.setSpeed(650, -650);
+					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+				}
+				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));

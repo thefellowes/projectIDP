@@ -348,7 +348,7 @@ char Vision::find_line()
 			});
 
 			//Give instruction to follow line
-			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || extBot.y < image.rows / 4 * 3) {
+			if ((extTop.x > image.rows / 3 * 1 && extTop.x < image.rows / 3 * 2 && extBot.x > image.rows / 3 * 1 && extBot.x < image.rows / 3 * 2) || (extBot.x < image.rows / 3 * 1 && extTop.x > image.rows / 3 * 1) || (extBot.x > image.rows / 3 * 2 && extTop.x < image.rows / 3 * 2) ) {
 				std::cout << "Go straight ahead" << std::endl;
 				return 'F';
 			}
