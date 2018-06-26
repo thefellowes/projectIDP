@@ -19,16 +19,6 @@ bool Arm::setToDefaultPosition() { int i = 0; return setToDefaultPosition(i); }
 bool Arm::setToDefaultPosition(int &resultErrorCount) {
 	bool isValid = true;
 
-	//Create struct with the default positions
-	ArmServos newValues;
-	newValues.armRotation = 510;
-	newValues.joints.push_back(274);
-	newValues.joints.push_back(274);
-	newValues.joints.push_back(924);
-	newValues.joints.push_back(689);
-	newValues.gripperRotation = 512;
-	newValues.gripper = 600;
-
 	//Get the old values (for proper rotation speed of each individual servo) and check if all servos returned a valid position
 	ArmServos oldValues = readServoValues(false);
 	if (oldValues.armRotation == -1) { resultErrorCount++; isValid = false; }
@@ -40,16 +30,16 @@ bool Arm::setToDefaultPosition(int &resultErrorCount) {
 	if (oldValues.gripper == -1) { resultErrorCount++; isValid = false; }
 
 	//Set the servos to their new position
-	setServoValues(newValues, 2000, oldValues);
+	setServoValues(defaultPosition, 2000, oldValues);
 
 	//Set the arm variables back to the values that correspond with the current servo values
 	float newPosX = 0;
 	float newPosY = 0;
-	anglesToPos(newValues.joints, newPosX, newPosY);
+	anglesToPos(defaultPosition.joints, newPosX, newPosY);
 	posX = newPosX;
 	posY = newPosY;
 	headAngle = 180.0f;
-	posRotation = newValues.armRotation;
+	posRotation = defaultPosition.armRotation;
 
 	return isValid;
 }
@@ -107,6 +97,7 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	currentPosServos = getArmServoPositions();
 
 	//set servo's in default position
+	initDefaultPosition();
 	int failedServoCount = 0;
 	setToDefaultPosition(failedServoCount);
 	if (failedServoCount > 0) {
@@ -114,6 +105,21 @@ Arm::Arm(AX12A &servoControl, ArmServos servoIDs)
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+//Create struct with the default positions and replace the defaultPosition stored in the class (which should be empty when this function is called)
+void Arm::initDefaultPosition() {
+	ArmServos _defaultPosition;
+
+	_defaultPosition.armRotation = 512;
+	_defaultPosition.joints.push_back(320);
+	_defaultPosition.joints.push_back(320);
+	_defaultPosition.joints.push_back(998);
+	_defaultPosition.joints.push_back(513);
+	_defaultPosition.gripperRotation = 512;
+	_defaultPosition.gripper = 750;
+
+	defaultPosition = _defaultPosition;
 }
 
 void Arm::startMovement() 
@@ -269,11 +275,48 @@ void Arm::moveTo(float x, float y, float ha, int rotation, bool getCurvedPath)
 
 void Arm::grab(bool close)
 {
-	mutex->lock();
-	if (close) turn(servos.gripper, 630, gripperSpeed);	//close
-	else turn(servos.gripper, 900, gripperSpeed);		//open
-	mutex->unlock();
+	if (close) { 
+		mutex->lock();
+		turn(servos.gripper, 600, gripperSpeed);
+		mutex->unlock();
+		int load;
+		int pos;
+		int count=0;
+		doGrab = true;
+		while (doGrab) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			mutex->lock();
+			load = ax12a.readLoad(servos.gripper);
+			pos = ax12a.readPosition(servos.gripper);
+			mutex->unlock();
+			std::cout << "load=" << load << std::endl;
+			if (load >= 1000) count++;
+			else { count = 0; }
+			if (count == 10 || (pos <= 605 && pos > 590)) doGrab = false;
+		} 
+		mutex->lock();
+		turn(servos.gripper, ax12a.readPosition(servos.gripper), 0);
+		mutex->unlock();
+	}	//close
+	else {
+		mutex->lock();
+		turn(servos.gripper, 900, gripperSpeed);
+		mutex->unlock();
+	}	//open
 }
+//void Arm::grab(bool close)
+//{
+//	if (close) {
+//		mutex->lock();
+//		turn(servos.gripper, 600, gripperSpeed);
+//		mutex->unlock();
+//	}	//close
+//	else {
+//		mutex->lock();
+//		turn(servos.gripper, 900, gripperSpeed);
+//		mutex->unlock();
+//	}	//open
+//}
 
 
 float Arm::getPosX()

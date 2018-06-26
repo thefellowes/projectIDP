@@ -17,6 +17,8 @@ class Arm {
 private:
 	AX12A ax12a;
 	ArmServos servos;
+	ArmServos defaultPosition;
+	std::mutex * mutex;
 	bool continueDance;
 	bool moveIsActive;
 	bool moveInterrupted;
@@ -28,11 +30,15 @@ private:
 	float headAngle;
 	int posRotation;
 	std::vector<int> currentPosServos;
+
 	bool posPossible(float x, float y);
 	int turn(const int servo, int position, int speed=200);
 	int calcRotationSpeed(float diff, int ms);
-	std::mutex * mutex;
+	void initDefaultPosition();
+
 public:
+	bool doGrab;
+
 	Arm(AX12A &servoControl, ArmServos servoIDs);
 	bool setToDefaultPosition();
 	bool setToDefaultPosition(int &resultErrorCount);

@@ -192,10 +192,13 @@ void Controller::begin()
 void Controller::stopAll(std::string reason) {
 	std::cout << "Stopping Application - Reason: " << reason << std::endl;
 
+	arm.doGrab = false;
 	isDancing = false;
 	//checkDancing = false;
 	autoMoveOn = false;
+	autoModeFindLine = false;
 	isParcing = false;
+	
 
 	stopArmMove();
 	stopReceiving();
@@ -271,7 +274,7 @@ void Controller::startAutoMove() {
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'L';
 				}
-				tankTracks.setSpeed(650,-650);
+				tankTracks.setSpeed(700,-700);
 				//std::this_thread::sleep_for(std::chrono::milliseconds(150));
 			}else if(direction == 'R'){
 				if (lastDirection != 'R'){
@@ -279,7 +282,7 @@ void Controller::startAutoMove() {
 					std::this_thread::sleep_for(std::chrono::milliseconds(500));
 					lastDirection = 'R';
 				}
-				tankTracks.setSpeed(-650,650);
+				tankTracks.setSpeed(-700,700);
 				//std::this_thread::sleep_for(std::chrono::milliseconds(150));
 			}else{
 				if(foundWaitPoint){
@@ -290,20 +293,20 @@ void Controller::startAutoMove() {
 					if(!(vision.find_line() == 'N')){
 						break;
 					}
-					tankTracks.setSpeed(650, -650);
+					tankTracks.setSpeed(700, -700);
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 					if(!(vision.find_line() == 'N')){
 						break;
 					}
-					tankTracks.setSpeed(-650, 650);
+					tankTracks.setSpeed(-700, 700);
 					std::this_thread::sleep_for(std::chrono::milliseconds(2200));
 					if(!(vision.find_line() == 'N')){
 						break;
 					}
-					tankTracks.setSpeed(650, -650);
+					tankTracks.setSpeed(700, -700);
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				}
-				std::cout << "Tried finding the line, couldnt find it though.." <<std::endl;
+				std::cout << "Tried finding the line, couldn't find it though.." <<std::endl;
 				tankTracks.setSpeed(0, 0);
 			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
