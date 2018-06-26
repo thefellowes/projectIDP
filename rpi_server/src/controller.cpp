@@ -295,31 +295,48 @@ void Controller::startAutoMove() {
 		}
 		while (autoModeIsObstacleCourse) {
 
-			//cap >> frame;
-			//cv::imshow("frame", frame);
-			switch (vision.find_marker_cup())
+			char direction = vision.find_marker_cup();
+			if (direction == 'i')
 			{
-			case 'l':
-				tankTracks.move(1, -1, 1023);
-				break;
-			case 'r':
-				tankTracks.move(1, 1, 1023);
-				break;
-			case 'f':
-				tankTracks.move(1, 0, 1023);
-				break;
-			case 's':
-				char cup = vision.find_marker_cup();
-				while (cup != 's')
-				{
-					cup = vision.find_marker_cup();
-					tankTracks.move(1, -1, 100);
-				}
-				break;
+				direction = lastDirection;
 			}
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			if (direction == 'f')
+			{
+				tankTracks.setSpeed(600, 600);
+				lastDirection = 'f';
+			}
+
+			if (direction == 'l')
+			{
+				if (lastDirection != 'l') {
+					tankTracks.setSpeed(0, 0);
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					lastDirection = 'l';
+				}
+				tankTracks.setSpeed(500, -500);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			}
+
+			if (direction == 'r') {
+				if (lastDirection != 'r') {
+					tankTracks.setSpeed(0, 0);
+					std::this_thread::sleep_for(std::chrono::milliseconds(500));
+					lastDirection = 'r';
+				}
+				tankTracks.setSpeed(-500, 500);
+				std::this_thread::sleep_for(std::chrono::milliseconds(200));
+			}
+
+			if (direction == 's')
+			{
+				tankTracks.setSpeed(100, 100);
+				lastDirection = 's';
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
+
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 	std::cout << "Turned off auto pilot mode" << std::endl;
